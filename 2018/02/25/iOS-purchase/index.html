@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS In-App Purchase 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS In-App Purchase</div>
+  <div class="post-meta">
+    <div class="date">2018 February 25th</div>
+    <div class="tags">
+      
+      <div class="tag-item">内购</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>如果你的 app 涉及到付款的业务，用来获取订阅、游戏内货币、游戏关卡、优质内容的访问权限等，则需要使用苹果的App 内购买项目，苹果会从中抽取三成，如果试图绕过苹果的支付渠道，使用其他的方式支付，会导致 app 被拒绝，没办法，这就是游戏规则。</p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://developer.apple.com/app-store/review/guidelines/#payments">App Store 审核指南 3</a><br>在 App Store 中，您可以通过多种方式让自己的 app 实现盈利。如果您的业务模式并不显而易见，请务必在其元数据和 App Review 备注中加以说明。如果我们无法理解 app 的工作方式，或者 App 内购买项目不是那么一目了然，则审核会有所延误，并可能会导致 app 被拒绝。</p>
+<ul>
+<li>如果您想要在 app 内解锁特性或功能 (解锁方式有：订阅、游戏内货币、游戏关卡、优质内容的访问权限或解锁完整版等)，则必须使用 App 内购买项目。 App 可使用 App 内购买项目式货币，以便用户在 app 中“打赏”数字内容提供商。App 及其元数据不得包含指引客户使用非 App 内购买项目机制进行购买的按钮、外部链接或其他行动号召用语。</li>
+</ul>
+</blockquote>
+<p>如果支付是为了丰富你的app的内容，则要使用 App 内购。实物类(比如京东一类的)、服务类(比如支付宝、滴滴一类的)的 app 付费与否并不会对 app 本身产生影响，你付费只是因为物权、债权转移或者享受相关服务，这种苹果是不会抽成的。而内购类的，付费与否会对 app 的功能或者人物等级这些产生影响，苹果就会抽成了。</p>
+<p>好了言归正传，下面就来介绍一下，怎样在 iOS 中接入 In-App Purchase。</p>
+<h3 id="App-内购买项目配置流程"><a href="#App-内购买项目配置流程" class="headerlink" title="App 内购买项目配置流程"></a>App 内购买项目配置流程</h3><p>App 内购买项目通过访问 App Store 并安全处理来自用户的付款，将商店直接嵌入您的 App。若要使用 App 内购买项目和 Storekit framework（Storekit 框架)，您必须拥有最新的 Apple Developer Program License Agreement（《Apple 开发人员许可协议》）和 Paid Applications agreement（《付费应用程序协议》）</p>
+<p>每个开发人员帐户可在该帐户的所有 App 中创建最多 10,000 个 App 内购买项目产品。App 内购买项目共有四种类型：消耗型、非消耗型、自动续期订阅和非续期订阅。</p>
+<p>每个产品都必须在 iTunes Connect 中添加到与其关联的 App 中。<br>。</p>
+<ol>
+<li><p><strong>签署 Paid Applications agreement（《付费应用程序协议》）</strong></p>
+<p>若要提供 App 内购买项目，您必须在 iTunes Connect 中签署 Paid Applications agreement（《付费应用程序协议》）。</p>
+</li>
+</ol>
+<p>签署协议：<br>a.  在 itunesconnect 首页上，点按“协议、税务和银行业务”。<br>b.  在“Request Contracts（请求合约）”部分找到您想要签署的合约，在右侧点按“Request（请求）”。<br>c.  在对话框中，阅读并接受条款（点按复选框），然后点按“Submit（提交）”。<br>d.  点按“完成”。<br>已签署的合约将显示在“Master Agreements（主协议）”部分。<br><img src="/images/2018/purchase-1.png"></p>
+<p><img src="/images/2018/purchase-2.png" alt="协议的状态"></p>
+<ol start="2">
+<li><p><strong>在 iTunes Connect 中配置 App 内购买项目</strong></p>
+<p>接下来，在 iTunes Connect 中为您的 App 配置 App 内购买项目产品。如果您尚未创建 App，请先创建 App。每一个 App 内购买项目产品都与一个特定的 App 相关联，因此为某一 App 使用而创建的产品无法在其他 App 中使用。<br>a.  在 itunesconnect 首页上，点按“我的 App”，然后选择与该 App 内购买项目相关联的 App。<br>b.  在工具栏中，点按“功能”，然后在左列中点按“App 内购买项目”。<br>c.  若要添加 App 内购买项目，请前往“App 内购买项目”，并点按“添加”按钮（+）。</p>
+<p><img src="/images/2018/purchase-3.png"><br>d.  选择“消耗型项目”、“非消耗型项目”或“非续订订阅”，并点按“创建”。有关自动续订订阅的信息，请参见<a target="_blank" rel="noopener" href="https://help.apple.com/itunes-connect/developer/#/dev06f89ce98">创建自动续期订阅</a>。<br>e.  添加参考名称、产品 ID 和本地化显示名称。<br>f.  点按“存储”或“提交以供审核”。</p>
+</li>
+<li><p><strong>在 Xcode 中启用 App 内购买项目</strong></p>
+<p>在 Xcode 中 Add a Capability 为您的 App 启用 App 内购买项目功能。确保您的 App 在 Xcode 中的套装标识符和产品标识符与您开发人员帐户中针对该 App 的标识符以及您在 iTunes Connect 中配置的 App 内购买项目相匹配。</p>
+</li>
+</ol>
+<p><img src="/images/2018/purchase-4.png"></p>
+<ol start="4">
+<li><strong>设计并创建您的 App 内购买项目</strong><br>创建您的 App 内购买项目需要使用到 StoreKit 框架，此框架代表您的应用程序连接到App Store，以安全处理来自用户的付款，提示他们授权付款。 该框架然后通知您的应用程序，该应用程序向用户提供购买的项目。</li>
+</ol>
+<p><img src="/images/2018/purchase-5.png"></p>
+<p>内购的大致过程：<br>a、客户端获取内购的产品ID列表。如果你的应用具有固定的产品ID列表（例如通过应用内购买来移除广告或启用功能），可将该列表保存在应用包中。 如果产品ID列表可能会变动（例如支持其他级别或人物的游戏），则需要从你的服务器获取产品ID列表。</p>
+<p>b、客户端获产品ID列表后，根据你选择的产品ID去苹果服务器发起支付请求，支付成功后，苹果返回给你一个收据，收据包含你这次交易的全部信息，产品id，交易号，时间等。</p>
+<p>c、拿到收据之后，需要做校验。拿到收据之后发送到你的后台，做base64加密（苹果要求加密），后台发送给苹果服务器做收据的校验，苹果验证成功后会返回收据的json形式，然后取出里面的产品id等做对比，对比成功后，后台返回 app 客户端所购买的产品。</p>
+<p><img src="/images/2018/purchase-6.png"></p>
+<p>相关的代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">//导入库文件</span><br><span class="line">#import &lt;StoreKit/StoreKit.h&gt;</span><br><span class="line">@interface ...()&lt;SKProductsRequestDelegate, SKPaymentTransactionObserver&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">//根据产品的ID，从Apple获取的产品的详细信息</span><br><span class="line">// Custom method</span><br><span class="line">- (void)validateProductIdentifiers:(NSArray *)productIdentifiers</span><br><span class="line">&#123;</span><br><span class="line">    SKProductsRequest *productsRequest = [[SKProductsRequest alloc]</span><br><span class="line">                    initWithProductIdentifiers:[NSSet setWithArray:productIdentifiers]];</span><br><span class="line"> </span><br><span class="line">    // Keep a strong reference to the request.</span><br><span class="line">    self.request = productsRequest;</span><br><span class="line">    productsRequest.delegate = self;</span><br><span class="line">    [productsRequest start];</span><br><span class="line">&#125;</span><br><span class="line"> </span><br><span class="line">// SKProductsRequestDelegate protocol method</span><br><span class="line">- (void)productsRequest:(SKProductsRequest *)request</span><br><span class="line">     didReceiveResponse:(SKProductsResponse *)response</span><br><span class="line">&#123;</span><br><span class="line">    self.products = response.products;</span><br><span class="line"> </span><br><span class="line">    for (NSString *invalidIdentifier in response.invalidProductIdentifiers) &#123;</span><br><span class="line">        // Handle any invalid product identifiers.</span><br><span class="line">    &#125;</span><br><span class="line"> </span><br><span class="line">    [self displayStoreUI]; // Custom method</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//获取到了商品的详细信息，然后根据该详细信息发起对商品的购买请求了</span><br><span class="line">SKProduct *product = &lt;# Product returned by a products request #&gt;;</span><br><span class="line">SKMutablePayment *payment = [SKMutablePayment paymentWithProduct:product];</span><br><span class="line">[[SKPaymentQueue defaultQueue] addTransactionObserver:self];</span><br><span class="line">[[SKPaymentQueue defaultQueue] addPayment:payment];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">//购买结果回调</span><br><span class="line">- (void)paymentQueue:(SKPaymentQueue *)queue</span><br><span class="line"> updatedTransactions:(NSArray *)transactions</span><br><span class="line">&#123;</span><br><span class="line">    for (SKPaymentTransaction *transaction in transactions) &#123;</span><br><span class="line">        switch (transaction.transactionState) &#123;</span><br><span class="line">            // Call the appropriate custom method for the transaction state.</span><br><span class="line">            case SKPaymentTransactionStatePurchasing:</span><br><span class="line">               //该交易正在由App Store处理。</span><br><span class="line">                break;</span><br><span class="line">            case SKPaymentTransactionStateDeferred:</span><br><span class="line">                //该交易处于队列中，但其最终状态正在等待“要求购买”等外部操作。 </span><br><span class="line">                //更新您的用户界面以显示延迟状态，并等待另一个指示最终状态的回调。</span><br><span class="line">                break;</span><br><span class="line">            case SKPaymentTransactionStateFailed:</span><br><span class="line">                //交易失败</span><br><span class="line">                break;</span><br><span class="line">            case SKPaymentTransactionStatePurchased:</span><br><span class="line">               //App Store已成功处理付款。 </span><br><span class="line">                break;</span><br><span class="line">            case SKPaymentTransactionStateRestored:</span><br><span class="line">                //恢复用户先前购买的内容。 可查看originalTransaction属性以获取有关原始购买的信息。</span><br><span class="line">                break;</span><br><span class="line">            default:</span><br><span class="line">                // For debugging</span><br><span class="line">                NSLog(@&quot;Unexpected transaction state %@&quot;, @(transaction.transactionState));</span><br><span class="line">                break;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//交易成功，与服务器比对</span><br><span class="line">- (void)completeTransaction:(SKPaymentTransaction *)transaction</span><br><span class="line">&#123;</span><br><span class="line">    //目前苹果公司提倡的获取购买凭证的方法</span><br><span class="line">    NSURL *receiptUrl = [[NSBundle mainBundle] appStoreReceiptURL];</span><br><span class="line">    NSData *receiptData = [NSData dataWithContentsOfURL:receiptUrl];</span><br><span class="line">    //base64位的产品验证码单，base64是服务端和苹果进行校验所必须的，苹果的文档要求凭证经过Base64加密</span><br><span class="line">    NSString * transactionReceiptString = [receiptData base64EncodedStringWithOptions:0];</span><br><span class="line">    //将加密后的transactionReceiptString发送给后台服务端进行校验，在此之前，记得先保存购买凭证</span><br><span class="line">    //完整结束此次在App Store的交易，没有这句代码的调用，下次购买会提示已经购买该商品</span><br><span class="line">    [[SKPaymentQueue defaultQueue] finishTransaction: transaction];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可能会遇到问题：<br>查询产品是，得不到产品的信息<br>a、App的App ID和内购项目的App的App ID不对应<br>b、没有填完银行、税务信息，如果信息不完善，IAP的功能就无法测试，也获取不到商品的信息。</p>
+<ol start="5">
+<li><p><strong>测试 App 内购买项目</strong></p>
+<p>Apple 提供了一种名为“沙箱技术”的测试环境，以便您测试您的 App 内购买项目，且不会产生费用。在沙箱技术环境中测试 App 内购买项目时，使用的是特殊的测试用户帐户，而不是您常规的 iTunes Connect 帐户。请参见“<a target="_blank" rel="noopener" href="http://help.apple.com/itunes-connect/developer/#/dev8b997bee1">创建沙箱技术测试员帐户</a>”。</p>
+<p>然后，通过使用您的 App 购买 App 内购买项目来测试您代码的各部分，以验证您已正确将其实施。</p>
+</li>
+<li><p><strong>在 App Store 上发布您的 App 和 App 内购买项目</strong></p>
+<p>当您完成 App 内购买项目的测试后，您便可以将其提交以供审核。检查 App 的 App 内购买项目状态，以确保您没有遗漏信息，且已为 App 内购买项目选择了定价。当您提交您的 App 作为 App 审核过程的一部分时，产品将会被审核。</p>
+</li>
+</ol>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://developer.apple.com/in-app-purchase/">In-App Purchase for Developers</a><br><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/NetworkingInternet/Conceptual/StoreKitGuide/Introduction.html#//apple_ref/doc/uid/TP40008267-CH1-SW1">In-App Purchase Programming Guide</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

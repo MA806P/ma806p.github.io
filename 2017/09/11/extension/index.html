@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Application-Extension（一）：介绍 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Application-Extension（一）：介绍</div>
+  <div class="post-meta">
+    <div class="date">2017 September 11th</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>本篇文章是对 iOS Application Extension 的简介。介绍的内容包括：对<br> Application Extension 的种类、运行原理、声明周期、之间的通信等。</p>
+<h2 id="Application-Extension"><a href="#Application-Extension" class="headerlink" title="Application Extension"></a>Application Extension</h2><p>Application Extension 是从 iOS 8 开始引入的一个新特性。Application Extension扩展可以在原有的应用基础之上，延伸应用的功能，扩大应用的显示内容。可以让用户与其他应用或者系统来进行交互。</p>
+<p>我们可以创建扩展来实现某个特定的功能。例如，可以创建分享扩展(Share Extension)，来方便用户把有自己喜欢的网页内容分享到自己的社交账号中去。可以创建 Today widget，用来在通知中心展示用户所关心的新闻内容。还可以创建一个自定义键盘扩展(Custom Keyboard Extension)，提供给用户来代替系统的键盘，等等。</p>
+<p>值得注意的是我们不能直接在 AppStore 提供一个扩展的下载，扩展一定是随着一个应用一起打包提供的。用户在安装了带有扩展的应用后，可以在设置中来选择开启还是关闭你的扩展。而对于开发者来说，提供扩展的方式是在 app 的项目中加入相应的扩展的 target。扩展一般来说是展现在系统级别的 UI 或者是其他应用中的，Apple 特别指出，扩展应该保持轻巧迅速，并且专注功能单一，在不打扰或者中断用户使用当前应用的前提下完成自己的功能点。因为用户是可以自己选择禁用扩展的，所以要注重用户体验，尽量提供优美流畅的扩展方便用户使用。</p>
+<h2 id="App-Extension-的种类"><a href="#App-Extension-的种类" class="headerlink" title="App Extension 的种类"></a>App Extension 的种类</h2><p>iOS和MacOS定义了几种类型的应用程序扩展，每个应用程序扩展都只能展示在系统对应的某个特定的功能区域。例如分享、通知中心和iOS键盘。某个可以启用扩展的系统区域称为扩展点。每个扩展点都定义了使用的规范，并提供了使用该区域的API。我们可以根据应用需要提供的功能来选择对应的扩展。下图是在Xcode8 iOS10系统上的Application Extension。</p>
+<p><img src="/images/2017/extensionI-1.png" alt="Application Extension"></p>
+<p>下面介绍几种常见的扩展：</p>
+<table>
+<thead>
+<tr>
+<th>App Extension</th>
+<th>App Extension 简介</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Action (iOS and macOS)</td>
+<td>操作或查看来自主机应用程序的内容。</td>
+</tr>
+<tr>
+<td>Audio Unit (iOS and macOS)</td>
+<td>生成音频流以发送到主机应用程序，或修改来自主机应用程序的音频流，并将其发送回主机应用程序。</td>
+</tr>
+<tr>
+<td>Custom Keyboard (iOS)</td>
+<td>自定义键盘替换iOS系统键盘，并能在所有的App中使用。</td>
+</tr>
+<tr>
+<td>iMessage (iOS)</td>
+<td>与短信应用有关的交互</td>
+</tr>
+<tr>
+<td>Photo Editing (iOS and macOS)</td>
+<td>可以在系统的照片应用中对图片进行编辑</td>
+</tr>
+<tr>
+<td>Share (iOS and macOS)</td>
+<td>在别的应用中去发布你想要分享的内容</td>
+</tr>
+<tr>
+<td>Today (iOS and macOS)</td>
+<td>在“通知中心”的“今日”视图中快速查看内容或执行任务。（Today Extension 也称为 Widget）</td>
+</tr>
+</tbody></table>
+<p>扩展在iOS 10系统中显示的位置：</p>
+<p><img src="/images/2017/extensionI-2.png" alt="App Extension"></p>
+<p>app extension 与 app 有所区别，extension 必须包含在一个 app 中，每个 extension 是一个独立的二进制文件，运行在 app 中。想要创建一个 extension 必须在某个 app 中添加一个新的 target ，与其他的 target 一样，extension target 有自己的独立配置文件。在一个 app 中可以添加多个 extension target。其中包含 extension 的 app 被称为 <em><strong><em>containing app</em></strong></em>。</p>
+<p>要想发布你的 extension 供用户使用，必须把 containing app 提交到 App Store。当用户安装你的应用的时候，同时也安装了应用里的 extension。用户安装应用之后，想要使用 extension 必须手动打开，是之处于可用的状态，例如，想要使用应用中的 Today Extension，在通知中心中编辑 Widget ，添加 widget 在通知中心今日视图中才会显示。</p>
+<br>
+
+<h2 id="App-Extension-运行原理"><a href="#App-Extension-运行原理" class="headerlink" title="App Extension 运行原理"></a>App Extension 运行原理</h2><p>App Extension 不是一个独立的 app ，而是一个在特定的功能区域显示的，实现了使用范围广泛的，特定的功能。</p>
+<h5 id="App-Extension-生命周期"><a href="#App-Extension-生命周期" class="headerlink" title="App Extension 生命周期"></a>App Extension 生命周期</h5><p>App Extension不是应用，所以它的生命周期和生存环境和应用相比有很大的区别。在大多情况下是在某个应用的弹出的 activity view controller 中选中了某个extension选项，从而启动了 extension。能够提供给用户去启动 extension 的应用被称为 <em><strong><em>host app</em></strong></em>。host app 定义了扩展的上下文，在响应用户操作发送请求时启动扩展生命周期，extension 通常在完成了从 host app 中接收到的请求后终止。如下图所示：</p>
+<p><img src="/images/2017/extensionI-3.png" alt="The basic life cycle of an app extension"></p>
+<ol>
+<li>用户选择了某个 extension</li>
+<li>系统实例化定义在 host app 的请求中的 extension，并在extension 和 host app 之间建立联系。extension 在 host app 的上下文中显示其视图，然后使用其在 host app 中接收到的项目来执行任务。</li>
+<li>extension 开始运行，用户可以选择执行或者取消任务，并将其关闭。响应此操作，extension 通过立即执行用户的任务或者必要时启动后台进程来执行 host app 的请求。host app 会撤去 extension的视图，用户会返回到 host app 的之前的上下文中。</li>
+<li>extension 执行过它的任务之后，系统终止 extension。</li>
+</ol>
+<h5 id="App-Extension-的通信"><a href="#App-Extension-的通信" class="headerlink" title="App Extension 的通信"></a>App Extension 的通信</h5><ul>
+<li><p>extension 主要是与它的 host app 来进行通信：host app 发出请求，然后 extension 进行相应。</p>
+</li>
+<li><p>extension 与它的 containing app 之间没有直接的通信，它们两者之间是两个独立的进程，在 extension 运行的过程中，containing app 可能都没有运行。</p>
+</li>
+<li><p>extension 的 containing app 和 host app 之间没有通信。</p>
+</li>
+</ul>
+<p>在请求相应的通信过程中，系统从 host app 中打开 extension，在host app提供的扩展上下文中传送数据。extension 展示用户页面，执行一些工作，如果有需要，extension可能会将反馈的数据返回给 host app。<br>extension 与 containing app 之间可以通过  <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/foundation/nsextensioncontext">NSExtensionContext</a> 类的  <a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/foundation/nsextensioncontext/1416791-open">openURL:completionHandler:</a> 方法来间接地进行通信。extension 和它的containing app 可以访问私有定义的共享容器中的共享数据。<br>如下图所示：<br><img src="/images/2017/extensionI-4.png" alt="An app extension can communicate indirectly with its containing app"></p>
+<br>
+
+<h5 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h5><ol>
+<li>extension 不同于 app，有些功能不能使用：</li>
+</ol>
+<ul>
+<li>不能使用 <code>sharedApplication</code>对象，及对象包含的一写方法。</li>
+<li>不能使用头文件中标记的任何API与<code>NS_EXTENSION_UNAVAILABLE</code>宏或类似的不可用性宏或不可用框架中的任何API<br>例如，在iOS 8.0中，HealthKit框架和EventKit UI框架不可用于应用程序扩展。</li>
+<li>不能在后台执行耗时的任务。</li>
+<li>不能使用 AirDrop 来接收数据。</li>
+</ul>
+<ol start="2">
+<li><p>extension 方便、快捷、高效<br>开发者应该给用户提供方便快捷高效的extension，在设计你的extension的时候启动一定要迅速，最好启动的时间在1秒以内。如果extension启动太慢，系统可能会终止你的extension。<br>extension 可使用的内存范围远远低于 app 的，在内存紧张的情况下，系统可能会强行终止 extension，因为用户希望回到 app 中，extension只是辅助性的功能。<br>所以 extension 应响应迅速、高效运行、占用内存尽可能的少，提供良好的用户体验，这样才能体现 extension的价值。</p>
+</li>
+<li><p>流畅简洁的UI设计<br>大多数的 extension 需要提供一些用户界面，extension的UI设计应该简洁，并且专注于促进完成单个功能，避免包含不支持扩展的主要任务的无关UI。<br>用户通过图标和名称来辨别你的extension，所以你的extension的图标已改和对应的containing app的图标一致，这样用户才知道这个扩展是属于哪个应用的。<br>extension的名称应该是简短、方便识别的，一般情况下的命名规范是：<Containing app name>—<App extension name>，这样可以方便用户来管理整个系统的扩展。</p>
+</li>
+<li><p>确保你的extension适用于所有的设备<br>必须确保你提交的应用 extension 是通用的，必须适用于 iPhone、iPod Touch、iPad。 Xcode中的应用程序扩展模板需要正确配置为通用目标设备系列。</p>
+</li>
+</ol>
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/index.html#//apple_ref/doc/uid/TP40014214-CH20-SW1">App Extension Programming Guide</a>
+ </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS WKWebView与JS的交互 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS WKWebView与JS的交互</div>
+  <div class="post-meta">
+    <div class="date">2019 January 31st</div>
+    <div class="tags">
+      
+      <div class="tag-item">网络</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="WKWebView-简介"><a href="#WKWebView-简介" class="headerlink" title="WKWebView 简介"></a>WKWebView 简介</h3><p>WKWebView 是苹果在 iOS 8 中引入的新组件，目的是给出一个新的高性能的 WebView 解决方案，解决之前 UIWebView 加载速度慢、占用内存大的问题。<br>WKWebView 采用跨进程方案，Nitro JavaScript 解析器，高达 60fps 的刷新率，理论上性能和 Safari 比肩，而且对 H5 的高度支持，还提供了一个准确的加载进度值属性。</p>
+<h4 id="WKWebView-使用"><a href="#WKWebView-使用" class="headerlink" title="WKWebView 使用"></a>WKWebView 使用</h4><p>WKWebView 和 UIWebView 二者在使用上差不多</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">WKWebView *webView = [[WKWebView alloc] init];</span><br><span class="line">// UI代理</span><br><span class="line">webView.UIDelegate = self;</span><br><span class="line">// 导航代理</span><br><span class="line">webView.navigationDelegate = self;</span><br><span class="line">// 是否允许手势左滑返回上一级</span><br><span class="line">webView.allowsBackForwardNavigationGestures = YES;</span><br><span class="line">//刷新当前页面</span><br><span class="line">[webView reload];</span><br><span class="line">//页面后退</span><br><span class="line">[webView goBack];</span><br><span class="line">//页面前进</span><br><span class="line">[webView goForward];</span><br><span class="line">//可返回的页面列表, 存储已打开过的网页</span><br><span class="line">WKBackForwardList * backForwardList = [webView backForwardList];</span><br><span class="line"></span><br><span class="line">//加载网页链接</span><br><span class="line">NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL URLWithString:@&quot;https://www.jianshu.com/u/0b4dffea819d&quot;]];</span><br><span class="line">[webView loadRequest:request];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>WKWebViewConfiguration  为添加WKWebView配置信息</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];</span><br><span class="line">    </span><br><span class="line">// 创建设置对象</span><br><span class="line">WKPreferences *preference = [[WKPreferences alloc]init];</span><br><span class="line">//最小字体大小 当将javaScriptEnabled属性设置为NO时，可以看到明显的效果</span><br><span class="line">preference.minimumFontSize = 0;</span><br><span class="line">//设置是否支持javaScript 默认是支持的</span><br><span class="line">preference.javaScriptEnabled = YES;</span><br><span class="line">// 在iOS上默认为NO，表示是否允许不经过用户交互由javaScript自动打开窗口</span><br><span class="line">preference.javaScriptCanOpenWindowsAutomatically = YES;</span><br><span class="line">config.preferences = preference;</span><br><span class="line">    </span><br><span class="line">// 是使用h5的视频播放器在线播放, 还是使用原生播放器全屏播放</span><br><span class="line">config.allowsInlineMediaPlayback = YES;</span><br><span class="line">//设置视频是否需要用户手动播放  设置为NO则会允许自动播放</span><br><span class="line">config.requiresUserActionForMediaPlayback = YES;</span><br><span class="line">//设置是否允许画中画技术 在特定设备上有效</span><br><span class="line">config.allowsPictureInPictureMediaPlayback = YES;</span><br><span class="line">//设置请求的User-Agent信息中应用程序名称 iOS9后可用</span><br><span class="line">config.applicationNameForUserAgent = @&quot;ChinaDailyForiPad&quot;;</span><br><span class="line"></span><br><span class="line">WKWebView *webView = [[WKWebView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT) configuration:config];</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>WKNavigationDelegate</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"> #pragma mark - WKNavigationDelegate</span><br><span class="line">//载入 URL之前的一次调用，询问是否下载并载入当前 URL</span><br><span class="line">//在 URL 下载完毕之后还会发一次询问，根据服务器返回的 Web 内容再次做一次确定。</span><br><span class="line">- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler &#123; &#125;</span><br><span class="line">// 根据客户端受到的服务器响应头以及response相关信息来决定是否可以跳转</span><br><span class="line">- (void)webView:(WKWebView *)webView decidePolicyForNavigationResponse:(WKNavigationResponse *)navigationResponse decisionHandler:(void (^)(WKNavigationResponsePolicy))decisionHandler &#123; &#125;</span><br><span class="line">//同意载入之后，组件就开始下载指定 URL 的内容，在下载之前会调用一次 开始下载 回调，通知开发者 Web 已经开始下载。</span><br><span class="line">- (void)webView:(WKWebView *)webView didStartProvisionalNavigation:(null_unspecified WKNavigation *)navigation &#123; &#125;</span><br><span class="line">// 当内容开始返回时调用</span><br><span class="line">- (void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation &#123; &#125;</span><br><span class="line">//页面下载完毕之后 WKWebView 会发询问，确定下载的内容被允许之后再载入视图。</span><br><span class="line">- (void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation &#123; &#125;</span><br><span class="line">//整个流程有错误发生都会发出错误回调</span><br><span class="line">- (void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error &#123; &#125;</span><br><span class="line">//提交发生错误时调用</span><br><span class="line">- (void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error &#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">//重定向通知，在收到服务器重定向消息并且跳转询问允许之后，会回调重定向方法</span><br><span class="line">- (void)webView:(WKWebView *)webView didReceiveServerRedirectForProvisionalNavigation:(null_unspecified WKNavigation *)navigation &#123; &#125;</span><br><span class="line">//需要响应身份验证时调用 同样在block中需要传入用户身份凭证</span><br><span class="line">- (void)webView:(WKWebView *)webView didReceiveAuthenticationChallenge:(NSURLAuthenticationChallenge *)challenge completionHandler:(void (^)(NSURLSessionAuthChallengeDisposition disposition, NSURLCredential * _Nullable credential))completionHandler&#123;</span><br><span class="line">    //用户身份信息</span><br><span class="line">    NSURLCredential * newCred = [[NSURLCredential alloc] initWithUser:@&quot;user&quot; password:@&quot;pwd&quot; persistence:NSURLCredentialPersistenceNone];</span><br><span class="line">    //为 challenge 的发送方提供 credential</span><br><span class="line">    [challenge.sender useCredential:newCred forAuthenticationChallenge:challenge];</span><br><span class="line">    completionHandler(NSURLSessionAuthChallengeUseCredential,newCred);</span><br><span class="line">&#125;</span><br><span class="line">    //进程被终止时调用</span><br><span class="line">- (void)webViewWebContentProcessDidTerminate:(WKWebView *)webView&#123; &#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>WKUIDelegate<br>对于类似 ‘A’ 标签 ‘target&#x3D;_blank’ 这种情况，会要求创建一个新的WKWebView 视图，这个消息的通知回调也在该协议中，不过针对 iOS 设备在当前一个视图中显示，该标签点击会没反应，所以在视图载入之后会清除掉所有的 _blank 标记。<br>对于类似 ‘A’ 标签 ‘target&#x3D;_blank’ 这种情况，会要求创建一个新的WKWebView 视图，这个消息的通知回调也在该协议中，不过针对 iOS 设备在当前一个视图中显示，该标签点击会没反应，所以在视图载入之后会清除掉所有的 _blank 标记。<br><img src="/images/2019/wkwebview-1.png"></li>
+</ul>
+<p>在 iOS 10 之后，新增了链接预览的支持，相关方法也在该协议中</p>
+<p><img src="/images/2019/wkwebview-2.png"></p>
+<br>
+
+<p>在 UIWebView中，Alert、Confirm、Prompt 等视图是直接可执行的，但在WKWebView上，需要通过 WKUIDelegate协议接收通知，然后通过 iOS 原生执行。下面代码用原生实现显示 Alert ：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">#pragma mark -- WKUIDelegate</span><br><span class="line"></span><br><span class="line">// 显示一个按钮。点击后调用completionHandler回调</span><br><span class="line">- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler&#123;</span><br><span class="line">    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:message message:nil preferredStyle:UIAlertControllerStyleAlert];</span><br><span class="line">    [alertController addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) &#123;</span><br><span class="line">        completionHandler();</span><br><span class="line">    &#125;]];</span><br><span class="line">    [self presentViewController:alertController animated:YES completion:nil];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 显示两个按钮，通过completionHandler回调判断用户点击的确定还是取消按钮</span><br><span class="line">- (void)webView:(WKWebView *)webView runJavaScriptConfirmPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(BOOL))completionHandler&#123;</span><br><span class="line">    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:message message:nil preferredStyle:UIAlertControllerStyleAlert];</span><br><span class="line">    [alertController addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) &#123;</span><br><span class="line">        completionHandler(YES);</span><br><span class="line">    &#125;]];</span><br><span class="line">    [alertController addAction:[UIAlertAction actionWithTitle:@&quot;取消&quot; style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) &#123;</span><br><span class="line">        completionHandler(NO);</span><br><span class="line">    &#125;]];</span><br><span class="line">    [self presentViewController:alertController animated:YES completion:nil];</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// 显示一个带有输入框和一个确定按钮的，通过completionHandler回调用户输入的内容</span><br><span class="line">- (void)webView:(WKWebView *)webView runJavaScriptTextInputPanelWithPrompt:(NSString *)prompt defaultText:(NSString *)defaultText initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(NSString * _Nullable))completionHandler&#123;</span><br><span class="line">    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:nil preferredStyle:UIAlertControllerStyleAlert];</span><br><span class="line">    [alertController addTextFieldWithConfigurationHandler:^(UITextField * _Nonnull textField) &#123;&#125;];</span><br><span class="line">    [alertController addAction:[UIAlertAction actionWithTitle:@&quot;确定&quot; style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) &#123;</span><br><span class="line">        completionHandler(alertController.textFields.lastObject.text);</span><br><span class="line">    &#125;]];</span><br><span class="line">    [self presentViewController:alertController animated:YES completion:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>alert 显示如下：<br><img src="/images/2019/wkwebview-3.png"></p>
+<ul>
+<li>网页内容加载进度条和title的实现</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">//添加监测网页加载进度的观察者</span><br><span class="line">[self.webView addObserver:self forKeyPath:@&quot;estimatedProgress&quot; options:0 context:nil];</span><br><span class="line">//添加监测网页标题title的观察者</span><br><span class="line">[self.webView addObserver:self forKeyPath:@&quot;title&quot; options:NSKeyValueObservingOptionNew context:nil];</span><br><span class="line"></span><br><span class="line">//kvo 监听进度</span><br><span class="line">-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary&lt;NSKeyValueChangeKey,id&gt; *)change context:(void *)context&#123;</span><br><span class="line">    if ([keyPath isEqualToString:NSStringFromSelector(@selector(estimatedProgress))] &amp;&amp; object == webView) &#123;</span><br><span class="line">        //网页加载进度</span><br><span class="line">        self.progressView.progress = webView.estimatedProgress;</span><br><span class="line">        if (webView.estimatedProgress &gt;= 1.0f) &#123;</span><br><span class="line">            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123; self.progressView.progress = 0; &#125;);</span><br><span class="line">         &#125;</span><br><span class="line">    &#125;else if([keyPath isEqualToString:@&quot;title&quot;] &amp;&amp; object == webView)&#123;</span><br><span class="line">        self.navigationItem.title = webView.title;</span><br><span class="line">    &#125;else&#123;</span><br><span class="line">        [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//移除观察者</span><br><span class="line">[_webView removeObserver:self forKeyPath:NSStringFromSelector(@selector(estimatedProgress))];</span><br><span class="line">[_webView removeObserver:self forKeyPath:NSStringFromSelector(@selector(title))];</span><br></pre></td></tr></table></figure>
+
+
+
+
+<br>
+
+<h3 id="WKWebView与JS的交互"><a href="#WKWebView与JS的交互" class="headerlink" title="WKWebView与JS的交互"></a>WKWebView与JS的交互</h3><ul>
+<li>JS 调用原生方法</li>
+</ul>
+<p>在 iOS 6 之前，UIWebView 是不支持共享对象的，Web 端需要通知 Native，需要通过修改 location.url，利用跳转询问协议来间接实现，通过定义 URL 元素组成来规范协议<br>在 iOS 7 之后新增了 JavaScriptCore 库，内部有一个 JSContext 对象，可实现共享<br>而 WKWebView 上，Web 的 window 对象提供 WebKit 对象实现共享</p>
+<p>而 WKWebView 绑定共享对象，是通过特定的构造方法实现，参考代码，通过指定 UserContentController 对象的 ScriptMessageHandler 经过 Configuration 参数构造时传入</p>
+<p>而 handler 对象需要实现指定协议，实现指定的协议方法，当 JS 端通过  window.webkit.messageHandlers 发送 Native 消息时，handler 对象的协议方法被调用，通过协议方法的相关参数传值</p>
+<p>首先需要在 JS 方法中调用，可以传递一些参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">function btnClick1() &#123;</span><br><span class="line">    window.webkit.messageHandlers.showMessage1.postMessage(null);</span><br><span class="line">&#125;</span><br><span class="line">function btnClick2() &#123;</span><br><span class="line">    window.webkit.messageHandlers.showMessage2.postMessage([&#x27;两个参数One&#x27;, &#x27;两个参数Two&#x27;]);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>OC 中的代码，获取 JS 的消息：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">// 设置偏好设置</span><br><span class="line">WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];</span><br><span class="line">config.preferences.minimumFontSize = 10;</span><br><span class="line">//是否支持JavaScript</span><br><span class="line">config.preferences.javaScriptEnabled = YES;</span><br><span class="line">//不通过用户交互，是否可以打开窗口</span><br><span class="line">config.preferences.javaScriptCanOpenWindowsAutomatically = NO;</span><br><span class="line"></span><br><span class="line">WKUserContentController *userCC = config.userContentController;</span><br><span class="line">//添加消息处理的handler的name</span><br><span class="line">[userCC addScriptMessageHandler:self name:@&quot;showMessage1&quot;];</span><br><span class="line">[userCC addScriptMessageHandler:self name:@&quot;showMessage2&quot;];</span><br></pre></td></tr></table></figure>
+<p>当 JS 调用方法时，代理方法就会调用：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">#pragma mark - WKScriptMessageHandler</span><br><span class="line"></span><br><span class="line">- (void)userContentController:(WKUserContentController *)userContentController didReceiveScriptMessage:(WKScriptMessage *)message &#123;</span><br><span class="line">    if ([message.name isEqualToString:@&quot;showMessage1&quot;]) &#123;</span><br><span class="line">        //没有参数</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    if ([message.name isEqualToString:@&quot;showMessage2&quot;]) &#123;</span><br><span class="line">        NSArray *array = message.body;</span><br><span class="line">        NSString *info = [NSString stringWithFormat:@&quot;有两个参数: %@, %@ !!&quot;,array.firstObject,array.lastObject];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">-(void)removeAllScriptMsgHandle&#123;</span><br><span class="line">    WKUserContentController *controller = self.webView.configuration.userContentController;</span><br><span class="line">    [controller removeScriptMessageHandlerForName:@&quot;showMessage1&quot;];</span><br><span class="line">    [controller removeScriptMessageHandlerForName:@&quot;showMessage2&quot;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<br>
+
+<ul>
+<li>原生调用 JS 方法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[webView evaluateJavaScript:@&quot;showAlert(&#x27;一个弹框&#x27;)&quot; completionHandler:^(id item, NSError * _Nullable error) &#123; &#125;];</span><br></pre></td></tr></table></figure>
+<p>注入 JS 方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NSString *jsString = @&quot;function getMessage() &#123; alert(&#x27;abcd&#x27;);&#125; &quot;;</span><br><span class="line">WKUserScript *noneSelectScript = [[WKUserScript alloc] initWithSource:jsString injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];</span><br><span class="line">// 将自定义JS加入到配置里</span><br><span class="line">[userCC addUserScript:noneSelectScript];</span><br></pre></td></tr></table></figure>
+<br>
+
+<p>写了个小例子，有兴趣的可以参考一下：<br><a target="_blank" rel="noopener" href="https://github.com/MA806P/MYZWebHybrid">https://github.com/MA806P/MYZWebHybrid</a></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://juejin.im/entry/5975916e518825594d23d777">https://juejin.im/entry/5975916e518825594d23d777</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/403853b63537">https://www.jianshu.com/p/403853b63537</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

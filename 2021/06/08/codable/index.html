@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Swift - Codable 使用小记 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Swift - Codable 使用小记</div>
+  <div class="post-meta">
+    <div class="date">2021 June 8th</div>
+    <div class="tags">
+      
+      <div class="tag-item">Swift</div>
+      
+      <div class="tag-item">Codable</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h2 id="Codable-简介"><a href="#Codable-简介" class="headerlink" title="Codable 简介"></a>Codable 简介</h2><p>Codable 协议在 Swift4.0 开始被引入，目标是取代现有的 NSCoding 协议，它对结构体，枚举和类都支持。Codable 的引入简化了JSON 和 Swift 类型之间相互转换的难度，能够把 JSON 这种弱类型数据转换成代码中使用的强类型数据。  </p>
+<p>Codable 是 Encodable 和 Decodable 两个协议的组合：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public typealias Codable = Decodable &amp; Encodable</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Encodable 协议定义了一个方法：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public protocol Encodable &#123;</span><br><span class="line">    func encode(to encoder: Encoder) throws</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>如数据遵守这个协议，并且数据中所有成员都是 encodable，编译器会自动生成相关实现。<br>如不可编码，需自定义，自己实现。  </p>
+<ul>
+<li>Decodable 协议定义了一个初始化函数：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public protocol Decodable &#123;</span><br><span class="line">    init(from decoder: Decoder) throws</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>跟 Encodable 一样，编译器也会自动为你生成相关的实现，前提是所有成员属性都是 Decodable 的。  </p>
+<p>由于 Swift 标准库中的类型，比如 String，Int，Double 和 Foundation 框架中 Data，Date，URL 都是默认支持 Codable 协议的，所以只需声明支持协议即可。<br>我们不必同时遵循 Decodable、Encodable 协议，比如项目中只需获取网络数据解析为 Swift 类型，只需遵循 Decodable 协议就行了。我们要根据需要有选择的遵循 Decodable、Encodable 协议。</p>
+<hr>
+<h2 id="解码、编码过程"><a href="#解码、编码过程" class="headerlink" title="解码、编码过程"></a>解码、编码过程</h2><p>简单了解 Codable 后，我们先看看怎么使用的，看下面例子：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    let name: String</span><br><span class="line">    let age: Int</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//解码 JSON 数据</span><br><span class="line">let json = #&quot; &#123;&quot;name&quot;:&quot;Tom&quot;, &quot;age&quot;: 2&#125; &quot;#</span><br><span class="line">let person = try JSONDecoder().decode(Person.self, from: json.data(using: .utf8)!)</span><br><span class="line">print(person) //Person(name: &quot;Tom&quot;, age: 2)</span><br><span class="line"></span><br><span class="line">//编码导出为 JSON 数据</span><br><span class="line">let data0 = try? JSONEncoder().encode(person)</span><br><span class="line">let dataObject = try? JSONSerialization.jsonObject(with: data0!, options: [])</span><br><span class="line">print(dataObject ?? &quot;nil&quot;) //&#123; age = 2; name = Tom; &#125;</span><br><span class="line"></span><br><span class="line">let data1 = try? JSONSerialization.data(withJSONObject: [&quot;name&quot;: person.name, &quot;age&quot;: person.age], options: [])</span><br><span class="line">print(String(data: data1!, encoding: .utf8)!) //&#123;&quot;name&quot;:&quot;Tom&quot;,&quot;age&quot;:2&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子实现了从 JSON 数据解码到 Swift 中的数据，以及编码导出 JSON 数据，Person 中成员变量是遵循 Codable 协议的，所以编译器会自动生成相关的代码来实现编码、解码，我们只需调用 decode()、encode() 相关函数即可。  </p>
+<p>那么 Codable 是怎么实现呢？在编译代码时根据类型的属性，自动生成了一个 CodingKeys 的枚举类型定义，这个枚举需要包含需要编码或解码的属性字段，CodingKeys 枚举的 case 名称应该与类型中对应属性的名称相匹配。然后再给每一个声明实现 Codable 协议的类型自动生成 init(from:) 和 encode(to:) 两个函数的具体实现，最终完成了整个协议的实现。  </p>
+<p>如果 Swift 类型的结构与其编码形式的结构不同，可以自己实现 Encode、Decode 协议方法，定义自己的编码和解码逻辑。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    let name: String</span><br><span class="line">    let age: Int</span><br><span class="line">    var additionInfo: String?</span><br><span class="line">    </span><br><span class="line">    enum CodingKeys: String, CodingKey &#123;</span><br><span class="line">        case name, age</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    init(from decoder: Decoder) throws &#123;</span><br><span class="line">        let values = try decoder.container(keyedBy: CodingKeys.self)</span><br><span class="line">        name = try values.decode(String.self, forKey: .name)</span><br><span class="line">        age = try values.decode(Int.self, forKey: .age)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    func encode(to encoder: Encoder) throws &#123;</span><br><span class="line">        var container = encoder.container(keyedBy: CodingKeys.self)</span><br><span class="line">        try container.encode(name, forKey: .name)</span><br><span class="line">        try container.encode(age, forKey: .age)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<hr>
+<h2 id="JSON-数据解析"><a href="#JSON-数据解析" class="headerlink" title="JSON 数据解析"></a>JSON 数据解析</h2><p>了解了编码、解码的过程后，下面来看一下在项目中使用时需要注意的一些问题。</p>
+<h3 id="字段匹配问题"><a href="#字段匹配问题" class="headerlink" title="字段匹配问题"></a>字段匹配问题</h3><p>有时后端接口返回的数据命名规则和前端不一致，可能后端返回下划线命名法，而一般我们使用驼峰命名法，所以在字段映射的时候就需要修改一下。使用 CodingKeys 指定一个明确的映射。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    let firstName: String</span><br><span class="line">    let age: Int</span><br><span class="line">    </span><br><span class="line">    enum CodingKeys: String, CodingKey &#123;</span><br><span class="line">        case firstName = &quot;first_name&quot;</span><br><span class="line">        case age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">// &#123;&quot;first_name&quot;:&quot;Tom&quot;, &quot;age&quot;: 2 &#125;</span><br></pre></td></tr></table></figure>
+
+<p>在 Swift4.1 之后 JSONDecoder 添加了 keyDecodingStrategy 属性，如果后端使用带下划线的，蛇形命名法，通过将 keyDecodingStrategy 属性的值设置为 convertFromSnakeCase，这样就不需要写额外的代码处理了。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">var decoder = JSONDecoder()</span><br><span class="line">decoder.keyDecodingStrategy = .convertFromSnakeCase</span><br></pre></td></tr></table></figure>
+
+<p>如果数据类型中的属性只有部分需要从 JSON 中解析获取，或者 JSON 中数据字段较多只需解析一部分，这是可以重写 CodingKeys 枚举值中仅列出需要解析的字段即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    let firstName: String</span><br><span class="line">    let age: Int</span><br><span class="line">    var additionalInfo: String?</span><br><span class="line">    var addressInfo: String?</span><br><span class="line">    </span><br><span class="line">    enum CodingKeys: String, CodingKey &#123;</span><br><span class="line">        case firstName = &quot;first_name&quot;</span><br><span class="line">        case age</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//JSON 数据</span><br><span class="line">let json = #&quot; &#123;&quot;first_name&quot;:&quot;Tom&quot;, &quot;age&quot;: 2, &quot;additionalInfo&quot;:&quot;123&quot;, &quot;info&quot;:&quot;abc&quot;&#125; &quot;#</span><br><span class="line">//解码</span><br><span class="line">let person = try JSONDecoder().decode(Person.self, from: json.data(using: .utf8)!)</span><br><span class="line">print(person)</span><br><span class="line">//Person(firstName: &quot;Tom&quot;, age: 2, additionalInfo: nil, addressInfo: nil)</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="嵌套类型"><a href="#嵌套类型" class="headerlink" title="嵌套类型"></a>嵌套类型</h3><p>Swift 数据中属性可能是，嵌套的对象类型、数组或者字典类型，只要其中的每个元素都遵循 Codable 协议，那么整体数据类型就遵循 Codable 协议。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;family_name&quot;:&quot;101&quot;,</span><br><span class="line">    &quot;persons&quot;:[</span><br><span class="line">          &#123;</span><br><span class="line">             &quot;name&quot;: &quot;小明&quot;,</span><br><span class="line">             &quot;age&quot;: 1</span><br><span class="line">          &#125;,</span><br><span class="line">          &#123;</span><br><span class="line">             &quot;name&quot;: &quot;小红&quot;,</span><br><span class="line">             &quot;age&quot;: 1</span><br><span class="line">          &#125;</span><br><span class="line">    ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    let name: String</span><br><span class="line">    let age: Int</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">struct Family: Codable &#123;</span><br><span class="line">    let familyName: String</span><br><span class="line">    let persons: [Person]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let family = try JSONDecoder().decode(Family.self, from: json.data(using: .utf8)!)</span><br><span class="line">print(family)</span><br><span class="line">//Family(familyName: &quot;101&quot;, persons: [__lldb_expr_59.Person(name: &quot;小明&quot;, age: 1), __lldb_expr_59.Person(name: &quot;小红&quot;, age: 1)])</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="空值字段问题"><a href="#空值字段问题" class="headerlink" title="空值字段问题"></a>空值字段问题</h3><p>有时后端接口返回的数据可能有值，也可能只是返回空值，如何处理？</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;familyName&quot;:&quot;101&quot;,</span><br><span class="line">    &quot;person1&quot;: &#123;</span><br><span class="line">        &quot;name&quot;: &quot;小明&quot;,</span><br><span class="line">        &quot;age&quot;: 1</span><br><span class="line">    &#125;,</span><br><span class="line">    &quot;person2&quot;: &#123;&#125;,</span><br><span class="line">    &quot;person3&quot;: null</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这时需要把属性设置为可选的，当返回为空对象或 null 时，解析为 nil。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Codable &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: Int?</span><br><span class="line">&#125;</span><br><span class="line">struct Family: Codable &#123;</span><br><span class="line">    let familyName: String</span><br><span class="line">    var person1: Person?</span><br><span class="line">    var person2: Person?</span><br><span class="line">    var person3: Person?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let family = try JSONDecoder().decode(Family.self, from: json.data(using: .utf8)!)</span><br><span class="line">print(family)</span><br><span class="line">//Family(familyName: &quot;101&quot;, person1: Optional(__lldb_expr_83.Person(name: Optional(&quot;小明&quot;), age: Optional(1))), person2: Optional(__lldb_expr_83.Person(name: nil, age: nil)), person3: nil)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>当遇到返回值为 null 时，需要给对应的属性设置一个默认值，这时我们 可以重写 init(from decoder: Decoder) 方法，在里面做相应的处理，如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">init(from decoder: Decoder) throws &#123;</span><br><span class="line">        let container = try decoder.container(keyedBy: CodingKeys.self)</span><br><span class="line">        familyName = try container.decode(String.self, forKey: .familyName)</span><br><span class="line">        //..</span><br><span class="line">        person3 = try container.decodeIfPresent(Person.self, forKey: .person3) ?? Person(name: &quot;defaultName&quot;, age: -1)</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>上面使用了 decodeIfPresent 方法，当不确定键值是否会存在时，在设置属性时把这个属性设置为可选，然后使用 decodeIfPresent 这个方法会查找该键值是否存在，如果存在就decode，如果不存在就会返回 nil。</p>
+<h3 id="枚举值"><a href="#枚举值" class="headerlink" title="枚举值"></a>枚举值</h3><p>在后端返回的数据中，有的字段是确定的几种类别，我们希望转换成枚举类型，方便使用。例如性别数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    &quot;name&quot;: &quot;小明&quot;,</span><br><span class="line">    &quot;age&quot;: 1,</span><br><span class="line">    &quot;gender&quot;: &quot;male&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">enum Gender: String, Codable &#123;</span><br><span class="line">    case male</span><br><span class="line">    case female</span><br><span class="line">&#125;</span><br><span class="line">struct Person: Codable &#123;</span><br><span class="line">    var name: String?</span><br><span class="line">    var age: Int?</span><br><span class="line">    var gender: Gender?</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>枚举类型要默认支持 Codable 协议，需要声明为具有原始值的形式，并且原始值的类型需要支持 Codable 协议。上面例子使用字符串作为枚举类型的原始值，每个枚举成员的隐式原始值为该枚举成员的名称。如果对应的数据为整数的话，枚举可声明为：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">enum Gender: Int, Codable &#123;</span><br><span class="line">    case male = 1</span><br><span class="line">    case female = 2</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="日期解析"><a href="#日期解析" class="headerlink" title="日期解析"></a>日期解析</h3><p>JSONDecoder 类声明了一个 DateDecodingStrategy 类型的属性，用来制定日期类型的解析策略。可选的格式标准有 secondsSince1970、millisecondsSince1970、iso8601 等</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">let json = &quot;&quot;&quot;</span><br><span class="line">&#123;</span><br><span class="line">    &quot;birthday&quot;: &quot;2001-04-20T14:15:00-0000&quot;</span><br><span class="line">&#125;</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line"></span><br><span class="line">struct Person: Codable &#123;</span><br><span class="line">    var birthday: Date?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let decoder = JSONDecoder()</span><br><span class="line">decoder.dateDecodingStrategy = .iso8601</span><br><span class="line"></span><br><span class="line">let person = try decoder.decode(Person.self, from: json.data(using: .utf8)!)</span><br><span class="line">print(person)</span><br><span class="line">//Person(birthday: Optional(2001-04-20 14:15:00 +0000))</span><br></pre></td></tr></table></figure>
+
+<p>JSONDecoder 也提供了定制化方式，通过扩展 DateFormatter 定义一个新的格式，把这个作为参数传入 dateDecodingStrategy。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">extension DateFormatter &#123;</span><br><span class="line">    static let myDateFormatter: DateFormatter = &#123;</span><br><span class="line">        let formatter = DateFormatter()</span><br><span class="line">        formatter.dateFormat = &quot;yyyy-MM-dd&#x27;T&#x27;HH:mm:ss.SSSZZZZZ&quot;</span><br><span class="line">        formatter.timeZone = TimeZone(secondsFromGMT: 8)</span><br><span class="line">        formatter.locale = Locale(identifier: &quot;zh_Hans_CN&quot;)</span><br><span class="line">        return formatter</span><br><span class="line">    &#125;()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let decoder = JSONDecoder()</span><br><span class="line">decoder.dateDecodingStrategy = .formatted(DateFormatter.myDateFormatter)</span><br></pre></td></tr></table></figure>
+
+
+<hr>
+<h2 id="plist-文件解析"><a href="#plist-文件解析" class="headerlink" title="plist 文件解析"></a>plist 文件解析</h2><p>Codable 协议并非只支持 JSON 格式的数据，它同样支持 plist 文件格式。使用方式与 JSON 格式一致，并不需要对已经实现的 Codable 协议作任何修改，只需要将 JSONEncoder 和 JSONDecoder 替换成对应的 PropertyListEncoder 和 PropertyListDecoder 即可。</p>
+<p>plist 本质上是特殊格式标准的 XML 文档，所以理论上来说，我们可以参照系统提供的 Decoder&#x2F;Encoder 自己实现任意格式的数据序列化与反序列化方案。同时苹果也随时可能通过实现新的 Decoder&#x2F;Encoder 类来扩展其他数据格式的处理能力。Codable 的能力并不止于此，它具有很大的可扩展空间。</p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://developer.apple.com/documentation/foundation/archives_and_serialization/encoding_and_decoding_custom_types">https://developer.apple.com/documentation/foundation/archives_and_serialization/encoding_and_decoding_custom_types</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/50043306">https://zhuanlan.zhihu.com/p/50043306</a><br><a target="_blank" rel="noopener" href="https://me.harley-xk.studio/posts/201706281716">https://me.harley-xk.studio/posts/201706281716</a>  </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

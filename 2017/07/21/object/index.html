@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Objective-C对象解析 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Objective-C对象解析</div>
+  <div class="post-meta">
+    <div class="date">2017 July 21st</div>
+    <div class="tags">
+      
+      <div class="tag-item">基础</div>
+      
+      <div class="tag-item">OC</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>OC是C语言的超集，是扩充C的面向对象编程语言。OC的语法基本上是照搬C语言的，对象所占内存总是分配在“堆空间”中，而绝不会分配在“栈”上。<br>每个OC对象实例都是指向某块内存数据的指针，所以声明变量时，类型后面要跟一个 * 字符，有时会遇到定义里不含 * 的变量它们可能会使用栈空间，这些变量保存的不是OC对象，比如CGRect是c的结构体。</p>
+<p>例如： NSString * pointerVar &#x3D; @“aa”;<br>pointerVar存放内存地址的变量，NSString自身的数据就存于那个地址中。可以说，变量指向NSString实例。<br>特殊类型id，能代指任意OC对象类型。id本身已经是指针。可以写为 id pointerVar &#x3D; @“aa”; 区别在于，如果声明指定了具体类型，那么在该类实例上调用其所没有的方法时，编译器会探知此情况，并发出警告信息。</p>
+<h3 id="OC对象底层实现"><a href="#OC对象底层实现" class="headerlink" title="OC对象底层实现"></a>OC对象底层实现</h3><p>了解了OC对象之后，来看看OC的对象是怎样通过C语言来进行实现的。由于水平有限，只能简单梳理一下，有兴趣的可查看苹果源码 <a target="_blank" rel="noopener" href="https://opensource.apple.com/tarballs/objc4/">https://opensource.apple.com/tarballs/objc4/</a> ，进行深入了解。<br><br></p>
+<h5 id="OC-对象都是-C-语言结构体"><a href="#OC-对象都是-C-语言结构体" class="headerlink" title="OC 对象都是 C 语言结构体"></a>OC 对象都是 C 语言结构体</h5><p>描述OC对象所用的数据结构定义在运行期程序库的头文件里，每个对象结构体的首个成员是Class类的变量，该变量定义了对象所属的类，通常称为 is a 指针。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">@interface NSObject &lt;NSObject&gt; &#123;</span><br><span class="line">    Class isa  OBJC_ISA_AVAILABILITY;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">typedef struct objc_class *Class;</span><br><span class="line">typedef struct objc_object *id;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">struct objc_class : objc_object &#123;</span><br><span class="line">    // Class ISA;</span><br><span class="line">    Class superclass;</span><br><span class="line">    cache_t cache;             // formerly cache pointer and vtable</span><br><span class="line">    class_data_bits_t bits;    // class_rw_t * plus custom rr/alloc flags</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">struct objc_object &#123;    </span><br><span class="line">    isa_t isa;</span><br><span class="line">    ...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">union isa_t </span><br><span class="line">&#123;</span><br><span class="line">    isa_t() &#123; &#125;</span><br><span class="line">    isa_t(uintptr_t value) : bits(value) &#123; &#125;</span><br><span class="line"></span><br><span class="line">    Class cls;</span><br><span class="line">    uintptr_t bits;</span><br><span class="line">    </span><br><span class="line">    struct &#123;</span><br><span class="line">        uintptr_t indexed           : 1;</span><br><span class="line">        uintptr_t has_assoc         : 1;</span><br><span class="line">        uintptr_t has_cxx_dtor      : 1;</span><br><span class="line">        uintptr_t shiftcls          : 44;</span><br><span class="line">        uintptr_t magic             : 6;</span><br><span class="line">        uintptr_t weakly_referenced : 1;</span><br><span class="line">        uintptr_t deallocating      : 1;</span><br><span class="line">        uintptr_t has_sidetable_rc  : 1;</span><br><span class="line">        uintptr_t extra_rc          : 8;</span><br><span class="line">    &#125;;</span><br><span class="line">&#125;;</span><br><span class="line">    </span><br></pre></td></tr></table></figure>
+
+<p>1、结构体 objc_class 中存放类的元数据。objc_class 结构体是继承自 objc_object 的，首个变量也是isa指针，说明Class本身也是OC对象。</p>
+<p>2、superclass定义了本类的超类。每一个 objc_class 有一个指向自己的父类的指针 superclass 用来查找继承的方法。类所属的类型是另外一个类，叫做“元类” (metaclass)，用来表述类对象本身所具备的元数据。类方法就是定义于此处，这些方法可以理解成类对象的实例方法。每个类仅有一个类对象，每个类对象仅有一个与之相关的元类。如下图：</p>
+<p><img src="/images/2017/objectc-1.png"></p>
+<p>3、isa_t isa 描述了实例所属的类，这个结构体中包含了当前对象指向的类的信息。通过图上的关系可一步步查询出对象是否能响应某个方法，是否遵循某个协议等。当实例方法被调用时，它要通过自己持有的 isa 来查找对应的类，然后在结构体 class_data_bits_t 中查找对应方法的实现。</p>
+<p>4、cache：用于缓存最近使用的方法。一个接收者对象接收到一个消息时，它会根据isa指针去查找能够响应这个消息的对象。在实际使用中，这个对象只有一部分方法是常用的，很多方法其实很少用或者根本用不上。这种情况下，如果每次消息来时，我们都是methodLists中遍历一遍，性能势必很差。这时，cache就派上用场了。在我们每次调用过一个方法后，这个方法就会被缓存到cache列表中，下次调用的时候runtime就会优先去cache中查找，如果cache没有，才去methodLists中查找方法。这样，对于那些经常用到的方法的调用，提高了调用的效率。</p>
+<h3 id="OC对象实例"><a href="#OC对象实例" class="headerlink" title="OC对象实例"></a>OC对象实例</h3><p>举个例子，当我们定义一个类，带有两个成员变量：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">@interface SomeObject : NSObject &#123;</span><br><span class="line">    NSString * var1;</span><br><span class="line">    NSString * var2;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个对象的底层的数据结构，相当于是：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">struct SomeObject &#123;</span><br><span class="line">    struct NSObject &#123;</span><br><span class="line">        struct objc_class &#123;</span><br><span class="line">            Class isa;</span><br><span class="line">        &#125;;</span><br><span class="line">    &#125;;</span><br><span class="line">    NSString * var1;</span><br><span class="line">    NSString * var2;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>对象在内存中的情况：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Class isa;</span><br><span class="line">NSString * var1;</span><br><span class="line">NSString * var2;</span><br></pre></td></tr></table></figure>
+<p>所以说，OC中的对象是一个指向ClassObject地址的变量：<br>id obj &#x3D; &amp;ClassObject 。<br>对象的实例变量则是，ClassObject地址加上变量对应的偏移量：<br>void *ivar &#x3D; &amp;obj + offset(N)</p>
+<p><img src="/images/2017/objectc-2.png"></p>
+<p>OC中构成一个对象有三个部分：<br>创建好一个对象后，有一块首地址指向Class的内存，就是Class类型的 isa 指针，指向结构体 objc_class，其中类的成员变量，对象方法就存放在这。 objc_class 有superclass ，指向元类(metaclass)，类方法就保存在其中。如下图：</p>
+<p><img src="/images/2017/objectc-3.png"></p>
+<p>让每一个类的 isa 指向对应的元类，这样就达到了使类方法和实例方法的调用机制相同的目的：</p>
+<ul>
+<li>实例方法调用时，通过对象的 isa 在类中获取方法的实现</li>
+<li>类方法调用时，通过类的 isa 在元类中获取方法的实现</li>
+</ul>
+<p><img src="/images/2017/objectc-11.png"></p>
+<br>
+
+<h3 id="在类继承体系中查询类型信息"><a href="#在类继承体系中查询类型信息" class="headerlink" title="在类继承体系中查询类型信息"></a>在类继承体系中查询类型信息</h3><p>可用类型信息查询方法来检视类继承体系：</p>
+<ul>
+<li><p>isMemberOfClass: 能够判断出对象是否为某个特定类的实例<br>[[NSMutableArray array] isMemberOfClass:[NSArray class]] &#x3D; NO</p>
+</li>
+<li><p>isKindOfClass: 则能判断出是否为某类或派生类的实例<br>[[NSMutableArray array] isKindOfClass:[NSArray class]] &#x3D; YES</p>
+</li>
+</ul>
+<p>使用isa指针获取对象所属的类，然后通过super_class指针在继承体系中游走。由于对象是动态的，此特性显得极为重要。必须查询类型信息，方能完全了解对象的真实类型。</p>
+<ol>
+<li>每个实例都有一个指向Class对象的指针，用以表明其类型，而这些Calss对象则构成类的继承体系</li>
+<li>如果对象类型无法在编译期确定，那么就应该使用类型信息查询方法来探知。</li>
+<li>尽量使用类型信息查询方法来确定对象类型，而不要直接比较类对象 <del>[obj1 class] &#x3D;&#x3D; [NSString class]</del>， 因为某些对象可能实现了消息转发功能。</li>
+</ol>
+<br>
+
+
+<h3 id="OC对象创建"><a href="#OC对象创建" class="headerlink" title="OC对象创建"></a>OC对象创建</h3><p>下面简单来看一下，+ alloc 和 - init，这两个方法，都做了什么。<br>整个对象的初始化，就是分配内存空间，初始化 isa_t 结构体的过程。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">+ (id)alloc &#123;</span><br><span class="line">    return _objc_rootAlloc(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">// Base class implementation of +alloc. cls is not nil.</span><br><span class="line">// Calls [cls allocWithZone:nil].</span><br><span class="line">id</span><br><span class="line">_objc_rootAlloc(Class cls)</span><br><span class="line">&#123;</span><br><span class="line">    return callAlloc(cls, false/*checkNil*/, true/*allocWithZone*/);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">// Call [cls alloc] or [cls allocWithZone:nil], with appropriate </span><br><span class="line">// shortcutting optimizations.</span><br><span class="line">static ALWAYS_INLINE id</span><br><span class="line">callAlloc(Class cls, bool checkNil, bool allocWithZone=false)</span><br><span class="line">&#123;</span><br><span class="line">    if (slowpath(checkNil &amp;&amp; !cls)) return nil;</span><br><span class="line"></span><br><span class="line">#if __OBJC2__</span><br><span class="line">    if (fastpath(!cls-&gt;ISA()-&gt;hasCustomAWZ())) &#123;</span><br><span class="line">        // No alloc/allocWithZone implementation. Go straight to the allocator.</span><br><span class="line">        // fixme store hasCustomAWZ in the non-meta class and </span><br><span class="line">        // add it to canAllocFast&#x27;s summary</span><br><span class="line">        if (fastpath(cls-&gt;canAllocFast())) &#123;</span><br><span class="line">            // No ctors, raw isa, etc. Go straight to the metal.</span><br><span class="line">            bool dtor = cls-&gt;hasCxxDtor();</span><br><span class="line">            id obj = (id)calloc(1, cls-&gt;bits.fastInstanceSize());</span><br><span class="line">            if (slowpath(!obj)) return callBadAllocHandler(cls);</span><br><span class="line">            obj-&gt;initInstanceIsa(cls, dtor);</span><br><span class="line">            return obj;</span><br><span class="line">        &#125;</span><br><span class="line">        else &#123;</span><br><span class="line">            // Has ctor or raw isa or something. Use the slower path.</span><br><span class="line">            id obj = class_createInstance(cls, 0);</span><br><span class="line">            if (slowpath(!obj)) return callBadAllocHandler(cls);</span><br><span class="line">            return obj;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">#endif</span><br><span class="line"></span><br><span class="line">    // No shortcuts available.</span><br><span class="line">    if (allocWithZone) return [cls allocWithZone:nil];</span><br><span class="line">    return [cls alloc];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>1、allco方法，最主要的几行代码就是：<br>id obj &#x3D; (id)calloc(1, cls-&gt;bits.fastInstanceSize());<br>obj.isa &#x3D; (uintptr_t)cls;<br>在使用 calloc 为对象分配一块内存空间之前，我们要先获取对象在内存的大小，在获取对象大小之后，调用 calloc 函数就可以为对象分配内存空间了，接着就是写入isa指针，初始化引用计数器，以及重置所有实例变量。 </p>
+<blockquote>
+<p>有关初始化isa的内容，可查看： <a target="_blank" rel="noopener" href="http://www.jianshu.com/p/e694678be145">从 NSObject 的初始化了解 isa
+</a></p>
+</blockquote>
+<p>2、init 方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">- (id)init &#123;</span><br><span class="line">    return _objc_rootInit(self);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">id</span><br><span class="line">_objc_rootInit(id obj)</span><br><span class="line">&#123;</span><br><span class="line">    // In practice, it will be hard to rely on this function.</span><br><span class="line">    // Many classes do not properly chain -init calls.</span><br><span class="line">    return obj;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>从此可知 init 方法只是调用了 _objc_rootInit 并返回了当前对象<br>alloc 方法会返回一个合法的没有初始化的实例对象。每一个发送到实例的消息会被翻译为objc_msgSend() 函数的调用，它的参数是指向 alloc 返回的对象的、名为 self 的指针的。这样之后 self 已经可以执行所有方法了。<br>为了完成两步创建，第一个发送给新创建的实例的方法是约定俗成的 init 方法。 </p>
+<br>
+
+
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/fedbc5c2f189">http://www.jianshu.com/p/fedbc5c2f189</a><br><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/f725d2828a2f">http://www.jianshu.com/p/f725d2828a2f</a><br><a target="_blank" rel="noopener" href="http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html">http://www.sealiesoftware.com/blog/archive/2009/04/14/objc_explain_Classes_and_metaclasses.html</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

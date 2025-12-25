@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Application-Extension（三）：Share-Extension 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Application-Extension（三）：Share-Extension</div>
+  <div class="post-meta">
+    <div class="date">2017 October 22nd</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="Share-Extension-简介"><a href="#Share-Extension-简介" class="headerlink" title="Share Extension 简介"></a>Share Extension 简介</h3><p>前两篇文章介绍了<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/9d031aa8afa3">Application Extension运行原理</a>、<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/24a51f123633">Today Extension</a>，本篇来介绍一下 Share Extension 创建和使用。<br>分享扩展给用提供一个方便的途径来分享内容，例如在某个带有分享按钮的应用中，用户可以选择一个分享扩展，来把要想分享的内容或者评论发布到自己的社交账号。</p>
+<p>可以在iOS、macOS上创建分享扩展，在创建之前要注意：</p>
+<ul>
+<li>确保用户在使用你的分享扩展时，方便、快捷</li>
+<li>确保用户能够预览、编辑、配置要分享的内容</li>
+<li>在分享之前确认内容</li>
+</ul>
+<p> ###创建 Share Extension<br>下面就来在iOS上创建一个分享扩展，就接着上篇的Today项目里面创建。<br><em><strong>注意本例子使用的是 Xcode9，iOS 11。</strong></em><br>新建 target</p>
+<p><img src="/images/2017/extensionIII-1.png" alt="创建 Share Extension"></p>
+<p>创建之后Xcode默认的模板就可直接运行，在运行的时候可以选择运行主体应用Containing App，想要看到你的分享的扩展，需要另打开一个带有分享按钮的应用当做你的扩展的宿主应用Host App，在Host App中展开分享页面才能看到，要是看不到的话，点击More更多按钮，在里面打开就能看到。</p>
+<p>最好直接选择分享扩展运行，方便我们调试，在选择分享扩展运行时，弹出个框选择一个iOS App来当做你的扩展的Host App，如下图所示：</p>
+<p><img src="/images/2017/extensionIII-2.png"></p>
+<p>例子选择打开系统的相册，运行打开相册，点击分享按钮，看到创建的扩展，点击就会弹出系统默认的编辑视图。</p>
+<p><img src="/images/2017/extensionIII-3.png"></p>
+<p><img src="/images/2017/extensionIII-4.png"></p>
+<p>若是系统弹出的默认编辑视图不能满足你的需求，也可以不用系统默认的分享弹出框，完全自己实现一个编辑视图。</p>
+<h3 id="声明-Share-Extension-支持的数据类型"><a href="#声明-Share-Extension-支持的数据类型" class="headerlink" title="声明 Share Extension 支持的数据类型"></a>声明 Share Extension 支持的数据类型</h3><p>使用Xcode创建 Share Extension 后，项目文件夹里默认生成的文件有 ShareViewController、Info.plist、storyboard。<br>Info.plist里面包含 Share Extension 的一些配置文件，值得注意的是 NSExtension 扩展描述字段，用来设置扩展的一些属性：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;key&gt;NSExtension&lt;/key&gt;</span><br><span class="line">	&lt;dict&gt;</span><br><span class="line">		&lt;key&gt;NSExtensionAttributes&lt;/key&gt;</span><br><span class="line">		&lt;dict&gt;</span><br><span class="line">			&lt;key&gt;NSExtensionActivationRule&lt;/key&gt;</span><br><span class="line">			&lt;string&gt;TRUEPREDICATE&lt;/string&gt;</span><br><span class="line">        &lt;/dict&gt;</span><br><span class="line">		&lt;key&gt;NSExtensionMainStoryboard&lt;/key&gt;</span><br><span class="line">		&lt;string&gt;MainInterface&lt;/string&gt;</span><br><span class="line">		&lt;key&gt;NSExtensionPointIdentifier&lt;/key&gt;</span><br><span class="line">		&lt;string&gt;com.apple.share-services&lt;/string&gt;</span><br><span class="line">	&lt;/dict&gt;</span><br></pre></td></tr></table></figure>
+<p>根据你的分享扩展的需要去添加对应键。<br>NSExtensionAttributes 是用来描述扩展的属性字段，里面包含了 NSExtensionActivationRule ，这个用来控制 Share Extension 或者 Action Extension 所能支持的分享的内容，默认的值是 TRUEPREDICATE 分享的内容都满足扩展需要，该分享扩展会一直在分享列表显示供用户使用。如果对分享的内容有所限制，例如微信、微博，最多能分享九张图，如果你的选择了多于九张图，则在分享列里就不会显示微信、微博的分享。想要添加限制，需要修改 NSExtensionActivationRule 对应的值为 dictionary，里面所能包含的键有<a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/AppExtensionKeys.html#//apple_ref/doc/uid/TP40014212-SW2">AppExtensionKeys</a>：</p>
+<p><img src="/images/2017/extensionIII-5.png"></p>
+<p>包含了支持的最大、最小的内容个数、文件个数、图片个数、视频个数、链接个数等。例如下面的属性配置最大支持10张图片、1个视频、1个网页：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;key&gt;NSExtensionAttributes&lt;/key&gt;</span><br><span class="line">    &lt;dict&gt;</span><br><span class="line">        &lt;key&gt;NSExtensionActivationRule&lt;/key&gt;</span><br><span class="line">        &lt;dict&gt;</span><br><span class="line">            &lt;key&gt;NSExtensionActivationSupportsImageWithMaxCount&lt;/key&gt;</span><br><span class="line">            &lt;integer&gt;10&lt;/integer&gt;</span><br><span class="line">            &lt;key&gt;NSExtensionActivationSupportsMovieWithMaxCount&lt;/key&gt;</span><br><span class="line">            &lt;integer&gt;1&lt;/integer&gt;</span><br><span class="line">            &lt;key&gt;NSExtensionActivationSupportsWebURLWithMaxCount&lt;/key&gt;</span><br><span class="line">            &lt;integer&gt;1&lt;/integer&gt;</span><br><span class="line">        &lt;/dict&gt;</span><br><span class="line">    &lt;/dict&gt;</span><br></pre></td></tr></table></figure>
+
+<p>如果不支持某特定的数据格式可设置值为0，或者从dictionary中移除对应的值。</p>
+<h3 id="处理-Share-Extension-的数据"><a href="#处理-Share-Extension-的数据" class="headerlink" title="处理 Share Extension 的数据"></a>处理 Share Extension 的数据</h3><p>默认创建的ShareViewController 继承自SLComposeServiceViewController 。在ShareViewController中有个 didSelectPost 方法：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">//用户点击发布post按钮后，调用此方法。</span><br><span class="line">//默认状态会在该方法里面实现extensionContext 的 -completeRequestReturningItems:completionHandler:方法</span><br><span class="line">//子类要覆盖此方法，从而能够根据上下文内容，来执行post操作</span><br><span class="line">// 子类可以用super调用此方法来完成默认的行为; 如果一个子类不调用super，那么它必须手动调用extensionContext的completeRequestReturningItems:方法。</span><br><span class="line">- (void)didSelectPost &#123;</span><br><span class="line">        //执行post 操作</span><br><span class="line">        //获取分享的内容，发送请求</span><br><span class="line">        //NSExtensionItem *inputItem = self.extensionContext.inputItems.firstObject;</span><br><span class="line"></span><br><span class="line">        [self.extensionContext completeRequestReturningItems:@[] completionHandler:nil];</span><br><span class="line"></span><br><span class="line">        //或者直接调用 [super didSelectPost]  默认状态下完成操作</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<br>
+ NSExtensionContext 类型的属性，是宿主应用(Host App) 调起扩展所对应的上下文，里面的值包含了想要分享的图片、文字、网页等内容信息。
+
+<p><img src="/images/2017/extensionIII-6.png" alt="NSExtensionContext"></p>
+<ul>
+<li>属性 inputItems : 该数组存储着容器应用传入给NSExtensionContext的NSExtensionItem数组。其中每个NSExtensionItem标识了一种类型的数据。</li>
+<li>方法 completeRequestReturningItems: 通知宿主应用的扩展已完成发布请求。调用此方法后，扩展视图会关闭，其中的items就是返回宿主应用中的数据项。</li>
+<li>方法 cancelRequestWithError:	通知宿主应用的扩展已取消请求。其中error为错误的描述信息。</li>
+</ul>
+<p>NSExtensionItem类的结构如下：</p>
+<p><img src="/images/2017/extensionIII-7.png" alt="NSExtensionItem"></p>
+<p>NSExtensionItem中的attachments属性，是一个附件数组，数组里的是NSItemProvider类型，其中包含了图片、视频、链接等内容。<br>要想获得 NSItemProvider 中的内容会使用到其类中的一个方法 loadItemForTypeIdentifier:options:completionHandler 加载typeIdentifier指定的资源，加载完成后会触发completionHandler。</p>
+<p>所以 NSExtensionContext 上下文里的数据结构如下：<br><img src="/images/2017/extensionIII-8.png" alt="NSExtensionContext.png"></p>
+<p>从 NSItemProvider 中获取分享内容的方法，如下（获取分享的网页链接的数据）：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[self.extensionContext.inputItems enumerateObjectsUsingBlock:^(NSExtensionItem * _Nonnull extItem, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">    [extItem.attachments enumerateObjectsUsingBlock:^(NSItemProvider * _Nonnull itemProvider, NSUInteger idx, BOOL * _Nonnull stop) &#123;</span><br><span class="line">        if ([itemProvider hasItemConformingToTypeIdentifier:@&quot;public.url&quot;]) &#123;</span><br><span class="line">            [itemProvider loadItemForTypeIdentifier:@&quot;public.url&quot;</span><br><span class="line">                                            options:nil</span><br><span class="line">                                  completionHandler:^(NSURL *  _Nullable item, NSError * _Null_unspecified error) &#123;</span><br><span class="line">                                      //NSLog(@&quot;url === %@&quot;, item);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+
+<p>就这样一步步获取到要分享的内容，获取到内容后发送内容给服务器，Share Extension 可以通过与容器应用Containing App 共享数据，在Containing App中显示从 Host App 分享过来的数据。<br>（Extension和Containing App间共享数据，在上一篇文章<a target="_blank" rel="noopener" href="http://www.jianshu.com/p/24a51f123633">Today Extension</a>有介绍，同样的方法可以去查看，这里就不在赘述了）</p>
+<p>简单的写了个小例子，效果如下：</p>
+<p><img src="/images/2017/extensionIII-9.gif"></p>
+<br>
+
+<p>Demo地址：<a target="_blank" rel="noopener" href="https://github.com/MA806P/MYZAppExtension">https://github.com/MA806P/MYZAppExtension</a></p>
+<br>
+
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/Today.html#//apple_ref/doc/uid/TP40014214-CH11-SW1">App Extension Programming Guide - Today</a><br><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/863ce6729455">http://www.jianshu.com/p/863ce6729455</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

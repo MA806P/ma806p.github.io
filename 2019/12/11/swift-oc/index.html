@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Swift、OC混用 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Swift、OC混用</div>
+  <div class="post-meta">
+    <div class="date">2019 December 11th</div>
+    <div class="tags">
+      
+      <div class="tag-item">OC</div>
+      
+      <div class="tag-item">Swift</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>本文介绍一下，Swift、OC 的互相调用的方法。<br>两种情况，OC 中调用 Swift 的情况，和 Swift 中调用 OC 的情况。本文是在当前最新的环境下的操作，Swift 5、Xcode 11.3。</p>
+<h3 id="1、OC-中调用-Swift-的情况"><a href="#1、OC-中调用-Swift-的情况" class="headerlink" title="1、OC 中调用 Swift 的情况"></a>1、OC 中调用 Swift 的情况</h3><p>在 OC 的项目中新建一个 Swift 的文件，在创建的同时，Xcode 会弹出提示是否创建桥接文件，选择创建，然后会发现 Xcode 会自动创建一个桥接文件 <strong>xxx-Bridging-Header.h</strong><br><img src="/images/2019/SwiftOC-1.png">  </p>
+<p>然后在 OC 的代码中导入头文件 <strong>#import “xxx-Swift.h”</strong> , 这个是 Xcode 自动生成的 Swift 转 OC 的接口头文件，以项目名称命名，”项目名-Swift.h”，这个在工程配置 Build Settings 中 Swift Compiler - General，可以看到。导入后，在 OC 文件中就可以使用 Swift 了。  </p>
+<p>如果有报错，<strong>‘xxx-Swift.h’ file not found</strong> 需要设置一下配置信息，targets -&gt; Build Settings -&gt; 搜索 packaging 找到 Defines Module 设置为 Yes，然后重新编译就会成功了。<br><img src="/images/2019/SwiftOC-2.png"></p>
+<p>然后就是在 Swift 文件中编写代码，这里要注意想要在 OC 中使用 Swift 中的类，需要继承自 NSObject，属性和方法要想在 OC 中使用需要加上 @objc。<br>在 Swift 4 之前，如果你用 Swift 写的 class 是继承自 NSObject 的话，Swift 会默认自动为所有的非 private 的类和成员加上 @objc。<br>另外，如有需求需要 OC 和 Swift 中使用不一样的方法名或者类名，可以使用 @objc(xxx) 转换成希望用到的名字。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">//swift 文件</span><br><span class="line">import Foundation</span><br><span class="line"></span><br><span class="line">class Person: NSObject  &#123;</span><br><span class="line">    @objc var name: String?</span><br><span class="line">    var age: Int?</span><br><span class="line">    </span><br><span class="line">    @objc func sayHello(name: String) &#123;</span><br><span class="line">        print(&quot;hello \(name)&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    @objc(greeting:)</span><br><span class="line">    func 打招呼(名字: String) &#123;</span><br><span class="line">        print(&quot;你好，\(名字)&quot;)</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//在 OC 中调用</span><br><span class="line">#import &quot;xxx-Swift.h&quot;</span><br><span class="line">Person *p = [[Person alloc] init];</span><br><span class="line">[p sayHelloWithName:@&quot;abc&quot;];</span><br><span class="line">[p greeting:@&quot;123&quot;];</span><br></pre></td></tr></table></figure>
+
+<p>点击导入的头文件，<strong>#import “xxx-Swift.h”</strong>，跳转进去可看到系统将 Swift 转换后的代码：<br><img src="/images/2019/SwiftOC-3.png"></p>
+<h3 id="2、Swift-中调用-OC-的情况"><a href="#2、Swift-中调用-OC-的情况" class="headerlink" title="2、Swift 中调用 OC 的情况"></a>2、Swift 中调用 OC 的情况</h3><p>在 Swift 的项目中，新建一个 OC 的文件，同样也会创建一个桥接文件 <strong>xxx-Bridging-Header.h</strong>，在这个桥接文件用来导入要暴露给 Swift 要用的头文件。<br> <img src="/images/2019/SwiftOC-4.png"></p>
+<p>创建好 OC 文件后，在 <strong>xxx-Bridging-Header.h</strong> 导入 OC 的头文件，然后再 Swift 代码中就可以使用了。<br><img src="/images/2019/SwiftOC-5.png"></p>
+<h3 id="3、可能遇到的问题"><a href="#3、可能遇到的问题" class="headerlink" title="3、可能遇到的问题"></a>3、可能遇到的问题</h3><p>在从 Swift 低版本升级的时候，可能会报错:<br><img src="/images/2019/SwiftOC-6.png"><br>这是需要设置一下：<br><img src="/images/2019/SwiftOC-7.png"></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

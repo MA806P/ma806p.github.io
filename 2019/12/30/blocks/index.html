@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS Blocks 小结 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS Blocks 小结</div>
+  <div class="post-meta">
+    <div class="date">2019 December 30th</div>
+    <div class="tags">
+      
+      <div class="tag-item">基础</div>
+      
+      <div class="tag-item">OC</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>本文介绍一下 iOS 中 Block 相关内容，总结 Block 相关的使用方法和注意事项。</p>
+<h3 id="Block-概述"><a href="#Block-概述" class="headerlink" title="Block 概述"></a>Block 概述</h3><p>Block 也被称作闭包，是不带有名称的函数，匿名函数。相当于是一个代码块，把想要执行的代码封装在代码块里，等需要的时候调用。</p>
+<p>Block 表达式语法：</p>
+<blockquote>
+<p>返回值类型(^变量名)(参数) &#x3D; ^返回值类型(参数){ 表达式 }<br>int (^myBlock1)(int) &#x3D; ^(int num) { return num + 1; };<br>void (^myBlock2)(void) &#x3D; ^(void){ NSLog(@”无参数，无返回值”); };  </p>
+</blockquote>
+<br>
+
+
+<h3 id="Block-常见用法"><a href="#Block-常见用法" class="headerlink" title="Block 常见用法"></a>Block 常见用法</h3><p>在 OC 中经常会用到 Block。使用 Block 方便快捷，集中代码块，适用于轻便、简洁的回调，如网络传输等。下面介绍几种常见的用法：  </p>
+<h4 id="1、声明为属性"><a href="#1、声明为属性" class="headerlink" title="1、声明为属性"></a>1、声明为属性</h4><p>可将 block 声明为某个类的属性，在别的地方初始化赋值之后，等待触发回调传值等操作。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">@property (nonatomic, copy) void(^blockName)(NSInteger type);</span><br><span class="line">someObj.blockName = ^(NSInteger type) &#123;</span><br><span class="line">    //...</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">//如要是觉得 block 语法书写别扭、不友好，也可使用 typedef 定义一个 block 类型，方便使用：</span><br><span class="line">typedef void(^BlockName)(NSInteger);</span><br><span class="line">@property (nonatomic, copy) BlockName blockName;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2、作为方法参数调用"><a href="#2、作为方法参数调用" class="headerlink" title="2、作为方法参数调用"></a>2、作为方法参数调用</h4><p>当有时调用一个耗时的方法处理，不会立即返回，需要时间进行处理，当处理完成后告知调用者处理完毕，可进行后面的操作，在这样的情景下就可使用 block，例如网络请求回调。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (void)doSomethingParameters:(id)parameters completion:(void (^)(NSInteger type))completion &#123;</span><br><span class="line">    //...</span><br><span class="line">    completion(1);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">[self doSomethingParameters:nil completion:^(NSInteger type) &#123;</span><br><span class="line">    //处理完成，这里可进行后续操作...</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure>
+
+<br>
+
+
+
+
+<h3 id="Block-的实质"><a href="#Block-的实质" class="headerlink" title="Block 的实质"></a>Block 的实质</h3><p>Block 其实是作为 C语言的代码来进行处理的，通过编译器将 Block 语法转换为相关的 C语言代码，然后进行编译执行。可以通过 clang 来将 OC 代码转换为 C&#x2F;C++ 代码，执行下面命令：  </p>
+<blockquote>
+<p>clang -rewrite-objc main.m</p>
+</blockquote>
+<p>然后生成 main.cpp 文件。可以看到，简单的几行代码，转化为一堆 C语言代码：   </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">int main(int argc, const char * argv[]) &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        void (^blk)(void) = ^()&#123; NSLog(@&quot;Block !&quot;); &#125;;</span><br><span class="line">        blk();</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/2019/block-2.png">   </p>
+<p>上面的代码其实就是，将 Block 的匿名函数作为 C语言的函数来处理。<br>就是使用函数指针调用函数，将函数  _main_block_func_0(__cself) 赋值给 impl.FuncPtr， 然后调用 blk-&gt;impl.FuncPtr(blk)，参数 __cself 就是指向 blk 自身的指针。  </p>
+<br>
+
+
+<h4 id="Block-就是-OC-对象"><a href="#Block-就是-OC-对象" class="headerlink" title="Block 就是 OC 对象"></a>Block 就是 OC 对象</h4><p>OC 中由类生成对象，就是由该类生成对象的各个结构体，通过对象的成员变量 isa 指针指向该类的结构体实例 objc_class 继承自 objc_object，该结构体实例持有声明的成员变量、方法的名称、方法的实现(函数指针)、属性以及父类的指针。具体内容请参考之前的文章 <a target="_blank" rel="noopener" href="http://www.yupeng.fun/2017/07/21/object/">Objective-C对象解析</a>  </p>
+<p>Block 就是 OC 对象。 <strong>__main_block_impl_0</strong> 结构体相当于，基于 objc_object 结构体的 OC 对象的结构体。<br>值得注意的是，impl.isa &#x3D; &amp;_NSConcreteStackBlock;<br>_NSConcreteStackBlock 相当于一个结构体实例，将 Block 作为 OC 对象处理时，关于该类的信息就放在 _NSConcreteStackBlock 中。  </p>
+<br>
+
+
+<h3 id="Block-截获变量"><a href="#Block-截获变量" class="headerlink" title="Block 截获变量"></a>Block 截获变量</h3><p>如下面例子，定义一个 Block，在代码块里打印变量 a，然后修改后调用 Block 打印出的变量 a 的值不变。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NSInteger val = 10;</span><br><span class="line">void (^blockName)(void) = ^&#123;</span><br><span class="line">    NSLog(@&quot;val = %ld&quot;, val);</span><br><span class="line">&#125;;</span><br><span class="line">blockName(); // val = 10</span><br><span class="line">val = 20;</span><br><span class="line">blockName(); // val = 10</span><br></pre></td></tr></table></figure>
+<p>为何修改后打印 a 的值不变，因为 Block 语法的表达式使用的是它之前声明的局部变量 a。Block 表达式截获所使用的局部变量的值，保存了该变量的瞬时值。所以在第二次执行 Block 表达式时，即使已经改变了局部变量 a 的值，也不会影响 Block 表达式在执行时所保存的局部变量的瞬时值。<br>这就是 Block 变量截获局部变量值的特性。  </p>
+<p>通过上面的方法转换为 C语言，可以看到在 Block 中使用外面的变量，变量被作为成员变量追加到 <strong>__main_block_impl_0</strong>  结构体中了。  </p>
+<p><img src="/images/2019/block-3.png">  </p>
+<p>从上图中可看到，截获自动变量，就是在表达式中所使用的变量被保存到 Block 的结构体中 <strong>__cself-&gt;val</strong> ，所以在 Block 之外修改变量 val 的值，Block 表达式里面的 val 值不变。  </p>
+<p>如果变量是对象类型的话，如下图所示：  </p>
+<p><img src="/images/2019/block-30.png">  </p>
+<p>在外面修改 obj 对象后， block 中的 obj 变量也是不会变化的。因为截获自动变量后，block 里的 obj 和外面的 obj 不是同一个指针了。<br>值得注意的是，如不在外面修改 obj 对象的话，block 中 obj 和外面的 obj 指向的是同一个地址，修改后外面的 obj 才指向新的地址。<br>转换为 C 语言，截获基本变量和截获对象对比可看到，多了两个函数，<strong>__main_block_copy_0</strong> 和 <strong>__main_block_dispose_0</strong>， <strong>__main_block_copy_0</strong>  的作用是将截获的对象复制给 Block 结构体的成员变量，持有对象，这样截获的对象就能够超出其变量作用域而存在。下文说到 Block 存储域的时候还会提到。  </p>
+<br>
+
+<p>另外，在使用 C语言数组时要注意，截获自动变量的方法没有实现对 C 数组的截获，可使用指针来解决。  </p>
+<p><img src="/images/2019/block-1.png">  </p>
+<p>如上图所示，为何会报错呢？<br>通过上面截获变量的例子可知，变量被赋值给 Block 结构体中的成员变量，因为 C语言数组类型变量不能赋值给数组类型变量：char a[10]&#x3D;{‘a’}; char b[10]&#x3D;a; 这样编译不能通过，所以会报错。</p>
+<h4 id="block-说明符"><a href="#block-说明符" class="headerlink" title="__block 说明符"></a>__block 说明符</h4><p>在 Block 中只能<strong>使用</strong>保存的局部变量的瞬时值，并不能直接对其进行修改，想要修改需要在局部变量前加 <em>__block</em> 修饰。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">__block NSInteger val = 10;</span><br><span class="line">void (^blockName)(void) = ^&#123;</span><br><span class="line">    val = 30;</span><br><span class="line">    NSLog(@&quot;val = %ld&quot;, val);</span><br><span class="line">&#125;;</span><br><span class="line">blockName(); // val = 30</span><br></pre></td></tr></table></figure>
+
+<p> <em>__block</em> 类似于 static、auto，用于指定将变量值设置到哪个存储域中。auto 表示作为自动变量存储在栈中，static 表示作为静态变量存储在数据区中。</p>
+<p>继续转换为 C语言来看一下，如下图：  </p>
+<p><img src="/images/2019/block-4.png"></p>
+<p>可看到，使用在变量前加上 <em>__block</em> 说明符后，代码增加了很多，<em>__block</em> 变量变成了*__Block_byref_val_0* 结构体类型的变量。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">struct __Block_byref_val_0 &#123;</span><br><span class="line">  void *__isa;</span><br><span class="line">  __Block_byref_val_0 *__forwarding;</span><br><span class="line">  int __flags;</span><br><span class="line">  int __size;</span><br><span class="line">  NSInteger val;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">__Block_byref_val_0 val = &#123;(void*)0,(__Block_byref_val_0 *)&amp;val, 0, sizeof(__Block_byref_val_0), 10&#125;;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">__Block_byref_val_0 *val = __cself-&gt;val; // bound by ref</span><br><span class="line">(val-&gt;__forwarding-&gt;val) = 30;</span><br></pre></td></tr></table></figure>
+<p>其中结构体的成员变量 *__Block_byref_val_0 <em>__forwarding</em> 是指向自身的指针，通过这个指针来访问变量 <em>__forwarding-&gt;val</em>。为何这样使用，下面来介绍。  </p>
+<br>
+
+<h3 id="Block-存储域"><a href="#Block-存储域" class="headerlink" title="Block 存储域"></a>Block 存储域</h3><p>前面说过，Block 是作为 OC 对象处理的，impl.isa &#x3D; &amp;_NSConcreteStackBlock; 该类的信息就放在 _NSConcreteStackBlock 中。<br>除了 _NSConcreteStackBlock 类型，还有其他两种类型 _NSConcreteGlobalBlock 和 _NSConcreteMallocBlock，这三类所在内存存储区域有区别：  </p>
+<ul>
+<li>_NSConcreteStackBlock  栈区</li>
+<li>_NSConcreteGlobalBlock 数据区域</li>
+<li>_NSConcreteMallocBlock 堆区</li>
+</ul>
+<h4 id="NSConcreteGlobalBlock"><a href="#NSConcreteGlobalBlock" class="headerlink" title="_NSConcreteGlobalBlock"></a>_NSConcreteGlobalBlock</h4><p>前面出现的 Block 例子，使用的是 _NSConcreteStackBlock 设置在栈上。<br>在全局变量使用 Block 时，生成的是 _NSConcreteGlobalBlock 类对象，如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">void (^blockName)(void) = ^&#123; NSLog(@&quot;block&quot;); &#125;;</span><br><span class="line">int main() &#123;</span><br><span class="line">    blockName();</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>因为在使用全局变量的地方不能使用自动变量，所以就不存在堆自动变量进行截获。此种类型的 Block 结构体实例内容不依赖于执行的状态，所以整个程序只需一个实例，将 Block 用结构体实例设置在与全局变量相同的数据区域中即可。<br>总结来说就是，在全局变量有 Block 语法时，Block 语法的表达式不使用截获的自动变量时，Block 为 _NSConcreteGlobalBlock 类对象。  </p>
+<h4 id="NSConcreteMallocBlock"><a href="#NSConcreteMallocBlock" class="headerlink" title="_NSConcreteMallocBlock"></a>_NSConcreteMallocBlock</h4><p>配置在全局变量上的 Block 在变量作用域外也可以通过指针访问使用，但是配置在栈上的 Block 若其所在变量作用域结束，该 Block 就被废弃，同样的 <strong>__block</strong> 变量也配置在栈上，若所在变量作用域结束，则该 __block 变量也会被废弃。  </p>
+<p>因此提供了将 Block 和 __block 变量从栈上复制到堆上的方法来解决这个问题，从栈上复制到堆上，即使变量作用域结束，堆上的 Block 还可以继续存在。<br>复制到堆上的 Block 将 _NSConcreteMallocBlock 类对象写入到 Block 结构体实例的成员变量 isa:  impl.isa &#x3D; &amp;_NSConcreteMallocBlock;<br>__block 变量的结构体成员变量 __forwarding 可以实现无论 __block 变量配置在栈上，还是堆上都能正确的访问 __block 变量。  </p>
+<p>在 ARC 模式下，编译器会判断，自动生成将 Block 从栈上复制到堆上的代码。但是当，向方法或函数的参数中传递 Block 时，需要手动复制，如下面的代码。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">- (NSArray *)getBlockArray &#123;</span><br><span class="line">    int val = 10;</span><br><span class="line">    //需要使用 copy 复制，不然函数执行完成，栈上的 Block 被废弃，执行报错</span><br><span class="line">    return [NSArray arrayWithObjects:</span><br><span class="line">            [^&#123;NSLog(@&quot;blk0: %d&quot;, val);&#125; copy],</span><br><span class="line">            [^&#123;NSLog(@&quot;blk1: %d&quot;, val);&#125; copy] , nil];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">NSArray *tempArray = [self getBlockArray];</span><br><span class="line">void(^blk)(void) = [tempArray objectAtIndex:0];</span><br><span class="line">blk();</span><br></pre></td></tr></table></figure>
+
+<p>如果在方法或函数中复制了传递过来的参数，那么就不必再调用该方法或函数前手动复制了，例如，在方法命中含有 usingBlock 时，[array enumerateObjectsUsingBlock:…]，或者 GCD 的 API 中，不用手动复制。  </p>
+<p>当对 Block 调用 copy 方法时，_NSConcreteStackBlock 类会从栈复制到堆上。_NSConcreteGlobalBlock 类什么也不做。_NSConcreteMallocBlock 类引用计数器增加。  </p>
+<p>什么时候栈上的 Block 会复制到堆上：  </p>
+<ul>
+<li>调用 Block 的 copy 实例方法时</li>
+<li>Block 作为函数返回值返回时</li>
+<li>将 Block 赋值给有 __strong 修饰符 id 类型的类或 Block类型变量时</li>
+<li>在方法名含有 usingBlock 的 Coca 框架方法 或 GCD 的 API 中传递 Block 时</li>
+</ul>
+<p>注意下面几种情况，ARC下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//将 Block 赋值给有 __strong 修饰符 id 类型的类或 Block类型变量时，栈上的 Block 会复制到堆上</span><br><span class="line">NSInteger val = 3;</span><br><span class="line">NSLog(@&quot;block = %@&quot;, ^&#123; NSLog(@&quot;val = %ld&quot;, val); &#125;);</span><br><span class="line">//block = &lt;__NSStackBlock__: 0x7ffeefbff540&gt;</span><br><span class="line">        </span><br><span class="line">NSInteger i = 6;</span><br><span class="line">//捕获变量，和上面的对比，这里将 Block 赋值，会从栈上复制到堆上</span><br><span class="line">void (^blockName)(void) = ^&#123; NSLog(@&quot;i = %ld&quot;, i); &#125;;</span><br><span class="line">blockName(); // i = 6</span><br><span class="line">NSLog(@&quot;block = %@&quot;, blockName); </span><br><span class="line">//block = &lt;__NSMallocBlock__: 0x10280df70&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">__block NSInteger val = 3;</span><br><span class="line">NSLog(@&quot;block = %@&quot;, ^&#123; val = 30; NSLog(@&quot;val = %ld&quot;, val); &#125;);</span><br><span class="line">//block = &lt;__NSStackBlock__: 0x7ffeefbff528&gt;</span><br><span class="line">        </span><br><span class="line">__block NSInteger i = 6;</span><br><span class="line">void (^blockName)(void) = ^&#123; i = 60;  NSLog(@&quot;i = %ld&quot;, i); &#125;;</span><br><span class="line">blockName(); // i = 60</span><br><span class="line">NSLog(@&quot;block = %@&quot;, blockName); </span><br><span class="line">//block = &lt;__NSMallocBlock__: 0x100704250&gt;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//在没有捕获自动变量时， Block 结构体实例是 _NSConcreteGlobalBlock</span><br><span class="line">NSLog(@&quot;block = %@&quot;, ^&#123; NSLog(@&quot;no val&quot;); &#125;);</span><br><span class="line">//block = &lt;__NSGlobalBlock__: 0x100001028&gt;</span><br><span class="line">        </span><br><span class="line">static NSInteger val = 3;</span><br><span class="line">NSLog(@&quot;block = %@&quot;, ^&#123; val = 30; NSLog(@&quot;val = %ld&quot;, val); &#125;);</span><br><span class="line">//block = &lt;__NSGlobalBlock__: 0x100001028&gt;</span><br><span class="line">        </span><br><span class="line">void (^blockName)(void) = ^&#123; NSLog(@&quot;no val&quot;); &#125;;</span><br><span class="line">blockName();</span><br><span class="line">NSLog(@&quot;block = %@&quot;, blockName);</span><br><span class="line">//block = &lt;__NSGlobalBlock__: 0x100001048&gt;</span><br><span class="line">        </span><br><span class="line">static NSInteger i = 6;</span><br><span class="line">void (^blockName)(void) = ^&#123; i = 60;  NSLog(@&quot;i = %ld&quot;, i); &#125;;</span><br><span class="line">blockName(); // i = 60</span><br><span class="line">NSLog(@&quot;block = %@&quot;, blockName); //block = &lt;__NSGlobalBlock__: 0x100001048&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+<h4 id="block-变量和对象"><a href="#block-变量和对象" class="headerlink" title="__block 变量和对象"></a>__block 变量和对象</h4><p>当 Block 从栈复制到堆时， __block 变量也全部被从栈复制到堆并被 Block 所持有。<br>若有多个 Block 使用同一个 __block 变量时，任何一个 Block 从栈复制到堆时，__block 变量也会从栈复制到堆，剩下的 Block 从栈复制到堆，被复制的 Block 持有 __block 变量并增加 __block 变量的引用计数。<br>若配置在堆上的 Block 被废弃，它所使用的 __block 变量也会被释放。</p>
+<p>前面提到 __block 变量的结构体成员变量 __forwarding 可以实现无论 __block 变量配置在栈上，还是堆上都能正确的访问 __block 变量。如下例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">__block NSInteger val = 10;</span><br><span class="line">void (^blockName)(void) = [^&#123;val = 30; NSLog(@&quot;val = %ld&quot;, val); &#125; copy];</span><br><span class="line">        </span><br><span class="line">blockName(); // val = 30</span><br><span class="line">NSLog(@&quot; %ld &quot;, val); //30</span><br><span class="line">        </span><br><span class="line">val = 20;</span><br><span class="line">NSLog(@&quot; %ld &quot;, val); //20</span><br></pre></td></tr></table></figure>
+<p><img src="/images/2019/block-5.png"></p>
+<p><em>__block</em> 变量从栈上复制到堆上，此时会将成员变量 <em>__forwarding</em> 的值替换为复制到堆上的 <em>__block</em> 变量结构体实例的地址。<em>val.__forwarding</em> 使用的是同一个在堆上的值，从而能保证正确的访问同一个 <em>__block</em> 变量。</p>
+<p>上图中有两个函数，__main_block_copy_0 和 __main_block_dispose_0，在 Block 复制到堆上和从堆上释放时被调用。将使用到的 __block 变量或者截获的对象复制给 Block 结构体的成员变量，持有对象。这样截获的对象就能够超出其变量作用域而存在。通过参数 BLOCK_FIELD_IS_BYREF 和 BLOCK_FIELD_IS_OBJECT 来区分函数对象类型是 __block 变量还是对象。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">id array = [NSMutableArray array];</span><br><span class="line">void (^blk)(void) = ^()&#123;</span><br><span class="line">    //截获对象</span><br><span class="line">    [array addObject:@(1)];</span><br><span class="line">    NSLog(@&quot;Block ! %ld&quot;, [array count]);</span><br><span class="line">&#125;;</span><br><span class="line">blk();</span><br></pre></td></tr></table></figure>
+
+
+
+<br>
+
+<h3 id="Block-的循环引用问题"><a href="#Block-的循环引用问题" class="headerlink" title="Block 的循环引用问题"></a>Block 的循环引用问题</h3><p>如在 block 中使用了对象， block 会对使用的对象进行持有，如该对象同时持有该 block 则会造成循环引用的问题，互相持有不能释放。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">self.blockName = ^() &#123;</span><br><span class="line">    [self.delegate doSomething];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">//解决方法，在 ARC 下使用 __weak 进行修饰。这样 block 就不持有 self，避免循环引用。</span><br><span class="line">__weak __typeof(self) weakSelf = self;</span><br><span class="line">self.blockName = ^() &#123;</span><br><span class="line">    [weakSelf.delegate doSomething];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//下面代码会有内存泄漏吗</span><br><span class="line">- (void)viewDidLoad &#123;</span><br><span class="line">    [super viewDidLoad];</span><br><span class="line">    NSNotificationCenter *__weak center = [NSNotificationCenter defaultCenter];</span><br><span class="line">    id __block token = [center addObserverForName:UIApplicationDidEnterBackgroundNotification</span><br><span class="line">                                           object:nil</span><br><span class="line">                                            queue:[NSOperationQueue mainQueue]</span><br><span class="line">                                       usingBlock:^(NSNotification * _Nonnull note) &#123;</span><br><span class="line">        [self doSomething];</span><br><span class="line">        [center removeObserver:token];</span><br><span class="line">        token = nil;</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)doSomething &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)dealloc &#123;</span><br><span class="line">    NSLog(@&quot;%s&quot;, __FUNCTION__);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">//__block token，如果不加 __block 在Block里的 [center removeObserver:token]; token 为空。因为 token 在执行完后才返回值，所以一开始捕获到的，是返回之前的没有被初始化的。加上 __block 是通过指针 __forwarding-&gt;token 取值，能够正确访问到。</span><br><span class="line">//上面如果 block 没有执行，则会内存泄漏。center 持有 token，token 持有 block，block 持有 self 也持有 token，token 不释放，self 不会释放</span><br><span class="line"></span><br><span class="line">//最简单的解决方法就是</span><br><span class="line">__weak typeof(self) wkSelf = self;</span><br><span class="line">id __block __weak wkToken = [wkCenter addObserverForName:UIApplicationDidEnterBackgroundNotification</span><br><span class="line">                                      object:nil</span><br><span class="line">                                       queue:[NSOperationQueue mainQueue]</span><br><span class="line">                                  usingBlock:^(NSNotification * _Nonnull note) &#123;</span><br><span class="line">   [wkSelf doSomething];</span><br><span class="line">   [wkCenter removeObserver:wkToken];</span><br><span class="line">&#125;];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="weak、-strong-的使用"><a href="#weak、-strong-的使用" class="headerlink" title="__weak、 __strong 的使用"></a>__weak、 __strong 的使用</h3><h4 id="声明一个对象："><a href="#声明一个对象：" class="headerlink" title="声明一个对象："></a>声明一个对象：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">id __strong obj = [[NSObject alloc] init];</span><br><span class="line"></span><br><span class="line">//编译器会转换为下面的代码</span><br><span class="line">id __attribute__((objc_ownership(strong))) obj = ((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)((NSObject *(*)(id, SEL))(void *)objc_msgSend)((id)objc_getClass(&quot;NSObject&quot;), sel_registerName(&quot;alloc&quot;)), sel_registerName(&quot;init&quot;));</span><br><span class="line"></span><br><span class="line">//上面的代码其实就是下面的函数调用</span><br><span class="line">id obj = objc_msgSend(NSObject, @selector(alloc));</span><br><span class="line">objc_msgSend(obj,selector(init));</span><br><span class="line">objc_release(obj);</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">__weak id weakObj = obj;</span><br><span class="line"></span><br><span class="line">//转换为</span><br><span class="line">__attribute__((objc_ownership(weak))) id weakObj = obj;</span><br><span class="line"></span><br><span class="line">//相关的调用</span><br><span class="line">id weakObj ;</span><br><span class="line">objc_initWeak(&amp;weakObj,obj);</span><br><span class="line">objc_destoryWeak(&amp;weakObj);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">id objc_initWeak(id *object, id value) &#123;   </span><br><span class="line">    *object = nil; </span><br><span class="line">    return objc_storeWeak(object, value);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">void objc_destroyWeak(id *object) &#123; </span><br><span class="line">    objc_storeWeak(object, nil);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>有关底层实现可查看 clang 文档 <a target="_blank" rel="noopener" href="http://clang.llvm.org/docs/AutomaticReferenceCounting.html">http://clang.llvm.org/docs/AutomaticReferenceCounting.html</a></p>
+<p>weak 表是用Hash table实现的， objc_storeWeak 函数就把第一个入参的变量地址注册到weak表中，然后根据第二个入参来决定是否移除。如果第二个参数为0，那么就把 __weak变量从weak表中删除记录，并从引用计数表中删除对应的键值记录。  </p>
+<p>如果 __weak 引用的原对象如果被释放了，那么对应的 __weak 对象就会被指为nil。就是通过 objc_storeWeak 函数这些函数来实现的。  </p>
+<br>
+
+<p>我们已经知道使用 weakSelf 来解决循环引用的问题，为何有的还需要在 block 里使用 strongSelf ?</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">__weak __typeof(self) weakSelf = self;</span><br><span class="line">self.blockName = ^() &#123;</span><br><span class="line">		__strong typeof(weakSelf) strongSelf = weakSelf;</span><br><span class="line">    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^&#123;</span><br><span class="line">            [strongSelf.delegate doSomething];</span><br><span class="line">        &#125;);</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>有的情况下 block 会延迟调用，在 block 未调用前 self 可能 已经释放掉了，这时再在 block 使用 weakSelf ，weakSelf 为空了。在 block 里面使用的 __strong 修饰的 weakSelf 是为了在函数生命周期中防止 self 提前释放。strongSelf 是一个自动变量当 block 执行完毕就会释放自动变量 strongSelf ，不会对 self 进行一直进行强引用。  </p>
+<p>另外要注意的是，有些情况在 block 未执行的时候，self 就已经释放掉了，block 在执行时 strongSelf 还是 nil，为了安全，最好还是在执行时判断 strongSelf &#x3D;&#x3D; nil.  </p>
+<p>总结来说就是，weakSelf 是为了 block 不持有 self，避免循环引用。strongSelf 防止 block 在执行的过程中 self 提前释放。  </p>
+<br>
+
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://book.douban.com/subject/24720270/">Objective-C高级编程</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/701da54bd78c">深入研究Block</a><br><a target="_blank" rel="noopener" href="https://www.galloway.me.uk/2013/05/a-look-inside-blocks-episode-3-block-copy/">A look inside blocks</a>  </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

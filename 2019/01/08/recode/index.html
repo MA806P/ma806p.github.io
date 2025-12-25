@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS 代码混淆 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS 代码混淆</div>
+  <div class="post-meta">
+    <div class="date">2019 January 8th</div>
+    <div class="tags">
+      
+      <div class="tag-item">项目</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>class-dump 可以很方便的导出程序头文件，考虑到App安全问题，防止我们核心的代码被别看到，需要对我们的代码进行混淆。</p>
+<h3 id="class-dump介绍"><a href="#class-dump介绍" class="headerlink" title="class-dump介绍"></a>class-dump介绍</h3><ul>
+<li>class-dump可以将 Mach-O 文件中的 OC 运行时的声明信息导出，即编写 OC 代码时的.h文件。class-dump是对”otool -ov”信息的翻译.以一种我们熟悉的易读的方式呈现。</li>
+</ul>
+<blockquote>
+<p>Mach-O（Mach Object File Format）是 macOS 上的可执行文件格式，类似于 Linux 和大部分 UNIX 的原生格式 </p>
+</blockquote>
+<ul>
+<li><p>otool工具<br>otool(object file displaying tool):目标文件的展示工具。可以用来发现应用中使用到了那些系统库，调用了那些系统方法。使用了库中那些对象及属性，它是Xcode自带的常用工具。</p>
+</li>
+<li><p>class-dump安装和使用<br>1、下载 class-dump <a target="_blank" rel="noopener" href="http://stevenygard.com/projects/class-dump/">http://stevenygard.com/projects/class-dump/</a><br>2、将 class-dump 执行文件拖入到 &#x2F;usr&#x2F;local&#x2F;bin 目录下<br>3、导出 .h 文件，用终端输入命令class-dump -H [.app文件的路径] -o [输出文件夹路径]</p>
+</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">class-dump -H .../xxx.app -o .../file</span><br><span class="line">class-dump -H /System/Library/Frameworks/AppKit.framework -o .../file</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h3 id="Objective-C-代码混淆"><a href="#Objective-C-代码混淆" class="headerlink" title="Objective-C 代码混淆"></a>Objective-C 代码混淆</h3><p>我们希望在开发时一直保留清晰可读的程序代码，方便自己。同时，希望编译出来的二进制包含乱七八糟的混淆后的程序代码，防止他人看到。可以在Build Phrase 中设定在编译之前进行方法名的字符串替换。</p>
+<p>1、创建混淆脚本 confuse.sh<br>目的是为了把敏感方法名集中写在一个名叫func.list的文件中，逐一 #define 成随机字符，追加写入.h。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line">#!/usr/bin/env bash</span><br><span class="line"></span><br><span class="line">TABLENAME=symbols</span><br><span class="line">SYMBOL_DB_FILE=&quot;symbols&quot;</span><br><span class="line">STRING_SYMBOL_FILE=&quot;func.list&quot;</span><br><span class="line">HEAD_FILE=&quot;$PROJECT_DIR/$PROJECT_NAME/codeObfuscation.h&quot;</span><br><span class="line">export LC_CTYPE=C</span><br><span class="line"></span><br><span class="line">#维护数据库方便日后作排重</span><br><span class="line">createTable()</span><br><span class="line">&#123;</span><br><span class="line">    echo &quot;create table $TABLENAME(src text, des text);&quot; | sqlite3 $SYMBOL_DB_FILE</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">insertValue()</span><br><span class="line">&#123;</span><br><span class="line">    echo &quot;insert into $TABLENAME values(&#x27;$1&#x27; ,&#x27;$2&#x27;);&quot; | sqlite3 $SYMBOL_DB_FILE</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">query()</span><br><span class="line">&#123;</span><br><span class="line">    echo &quot;select * from $TABLENAME where src=&#x27;$1&#x27;;&quot; | sqlite3 $SYMBOL_DB_FILE</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">ramdomString()</span><br><span class="line">&#123;</span><br><span class="line">    openssl rand -base64 64 | tr -cd &#x27;a-zA-Z&#x27; |head -c 16</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">rm -f $SYMBOL_DB_FILE</span><br><span class="line">rm -f $HEAD_FILE</span><br><span class="line">createTable</span><br><span class="line"></span><br><span class="line">touch $HEAD_FILE</span><br><span class="line">echo &#x27;#ifndef Demo_codeObfuscation_h</span><br><span class="line">#define Demo_codeObfuscation_h&#x27; &gt;&gt; $HEAD_FILE</span><br><span class="line">echo &quot;//confuse string at `date`&quot; &gt;&gt; $HEAD_FILE</span><br><span class="line">cat &quot;$STRING_SYMBOL_FILE&quot; | while read -ra line; do</span><br><span class="line">    if [[ ! -z &quot;$line&quot; ]]; then</span><br><span class="line">        ramdom=`ramdomString`</span><br><span class="line">        echo $line $ramdom</span><br><span class="line">        insertValue $line $ramdom</span><br><span class="line">        echo &quot;#define $line $ramdom&quot; &gt;&gt; $HEAD_FILE</span><br><span class="line">    fi</span><br><span class="line">done</span><br><span class="line">echo &quot;#endif&quot; &gt;&gt; $HEAD_FILE</span><br><span class="line"></span><br><span class="line">sqlite3 $SYMBOL_DB_FILE .dump</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>2、配置 Build Phase<br>在工程Build Phase中添加执行脚本操作，执行confuse.sh脚本</p>
+<p>3、创建函数名列表func.list，写入待混淆的函数名，并将文件放置于与confuse.sh脚本同级如:<br>-(void)sample;<br>-(void)seg1:(NSString *)string seg2:(NSUInteger)num;<br>这样写：<br>sample<br>seg1<br>seg2</p>
+<p>4、build 项目，混淆脚本会在编译前运行，进行字符随机替换，并且每次build的随机字符不同<br>如有报错：<br><img src="/images/2019/coderename-1.png"></p>
+<p>需要切换到工程目录下，输入命令行 chmod 755 confuse.sh 给我们的脚本本间授权<br>编译项目成功后，在工程目录下面脚本生成了 codeObfuscation.h 文件<br>把混淆头文件 codeObfuscation.h 加入 Prefix.pch 中。</p>
+<p>5、编译查看结果<br><img src="/images/2019/coderename-2.png"></p>
+<p><img src="/images/2019/coderename-3.png" alt="codeObfuscation.h"></p>
+<p><img src="/images/2019/coderename-4.png" alt="class-dump 导出的头文件"></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://www.desgard.com/iosre-1/">https://www.desgard.com/iosre-1/</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/yiyaaixuexi/article/details/29201699">https://blog.csdn.net/yiyaaixuexi/article/details/29201699</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/0d42e5c6361c">https://www.jianshu.com/p/0d42e5c6361c</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

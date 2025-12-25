@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Application-Extension（二）：Today-Extension 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Application-Extension（二）：Today-Extension</div>
+  <div class="post-meta">
+    <div class="date">2017 October 12th</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>在通知中心的Today的视图中显示的 extension 叫做 widget ，widget 可以方便用户快速的得到想要的信息，不用再通过复杂的步骤打开app才能找到自己想要的东西，只要下拉就可方便的看到，iOS设备中即使在锁屏的状态下也能查看。例如，用户下拉滑到Today查看现在的股票信息、天气、日程等等，如今越来越多的用户会频繁的通过Today来快速的得到信息。</p>
+<h3 id="Today-Widget"><a href="#Today-Widget" class="headerlink" title="Today Widget"></a>Today Widget</h3><p>在创建widget的时候应该注意：<br>1、确保每次查看时都要更新，显示最新的内容<br>2、交互流程合理<br>3、注意性能问题，确保使用流畅</p>
+<p>由于用户在使用Today widget是快速短暂的，所以在设计widget的时候应注意UI简洁，限制显示的内容，只把用户最感兴趣的内容显示出来。</p>
+<p>在不同的平台上的widget有所不同：<br>iOS：widget不支持键盘输入，用户需要在 containing app 中去设置对应的 widget 要显示的内容。例如，天气的 widget 要是用户想添加要显示的城市天气，那就需要打开天气应用，在城市列表中添加要显示的城市。</p>
+<p><img src="/images/2017/extensionII-1.jpeg" alt="iOS天气widget"></p>
+<p>macOS：当 Today widget 运行时，用户可以去修改配置改变要显示的内容。例如天气widget可以添加想要显示的城市天气。<br><img src="/images/2017/extensionII-2.png" alt="macOS天气widget"></p>
+<p><img src="/images/2017/extensionII-3.png" alt="macOS天气widget编辑"><br>当用户安装了带有Today widget 的应用，可以在通知中心Today的视图内添加该应用的widget，可以在编辑widget的页面添加、删除、修改widget。</p>
+<h3 id="创建Today-Extension"><a href="#创建Today-Extension" class="headerlink" title="创建Today Extension"></a>创建Today Extension</h3><p>这里在iOS上创建个Today Extension的小例子用来显示主应用里面的内容。<br><em><strong>注意本例子是在 iOS10以上的系统上创建，之前的系统要另行适配。</strong></em><br>新建一个项目，在项目里添加target，选择Today Extension：</p>
+<p><img src="/images/2017/extensionII-4.png"></p>
+<ul>
+<li>Xcode的Today模板会生成默认的实现文件，在Today的Info.plist文件中默认的NSExtension值如下：</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;key&gt;NSExtension&lt;/key&gt;</span><br><span class="line">	&lt;dict&gt;</span><br><span class="line">		&lt;key&gt;NSExtensionMainStoryboard&lt;/key&gt;</span><br><span class="line">		&lt;string&gt;MainInterface&lt;/string&gt;</span><br><span class="line">		&lt;key&gt;NSExtensionPointIdentifier&lt;/key&gt;</span><br><span class="line">		&lt;string&gt;com.apple.widget-extension&lt;/string&gt;</span><br><span class="line">	&lt;/dict&gt;</span><br></pre></td></tr></table></figure>
+<p>如不想使用系统默认的 storyboard 可以删除NSExtensionMainStoryboard 键值对，添加自己的实现文件 ，NSExtensionPrincipalClass 对应的是自定义的view controller名。<br>NSExtensionPointIdentifier对应的值是Extension的反向DNS名称。</p>
+<p>创建好之后运行项目，在通知中心中编辑widget添加到刚创建的widget就可看到，如下图：</p>
+<p><img src="/images/2017/extensionII-5.png"><br>图标就是你的应用图标，标题默认的创建的Today名称，可以在Info.plist中修改CFBundleDisplayName显示的标题的内容。<br>然后就可以在TodayViewController中添加想要显示的内容了。常见的widget，在右上角带有展开&#x2F;折叠按钮，这个在TodayViewController中设置好属性就可以实现</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">//支持展开、折叠</span><br><span class="line">self.extensionContext.widgetLargestAvailableDisplayMode = NCWidgetDisplayModeExpanded;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>Apple 为扩展提供了一个 <code>NSExtensionContext</code> 类来与host app应用进行交互。用户在host app中启动扩展后，host app提供一个上下文给扩展，里面最主要的是包含了 inputItems 这样的待处理的数据。</p>
+</blockquote>
+<p>当点击展开或者折叠时会调用下面的方法，从而去改变widget的高度，默认的为展开的widget的高度是固定的110。<br>Xcode的TodayExtension的模板中生成的TodayViewController中默认的遵循NCWidgetProviding协议，协议里有下面几个方法：</p>
+<p><img src="/images/2017/extensionII-6.png"></p>
+<ul>
+<li><code>widgetPerformUpdateWithCompletionHandler</code> 在TodayViewController中实现这个方法后，当用户操作显示通知中心Today视图，就会调用这个方法只要以显示就会调用，从而可以及时的去更新状态。即使你的扩展现在不可见 (也就是用户没有拉开通知中心)，系统也会时不时地调用实现了的这个方法，来要求扩展刷新界面。在这个方法中我们一般可以做一些像 API 请求之类的事情，在获取到了数据并更新了界面，或者是失败后都使用提供的 completionHandler 来向系统进行报告。</li>
+<li><code>widgetActiveDisplayModeDidChange</code> 当widget的展开或折叠的状态改变时就会调用该方法，在这个方法里可以通过改变<code>self.preferredContentSize</code>的值改变widget的高度，从而适应不同的状态。展开折叠是在iOS10以后才加入的功能，所以这个方法只有在iOS10之后才有。</li>
+</ul>
+<h3 id="Extension和Containing-App间共享代码"><a href="#Extension和Containing-App间共享代码" class="headerlink" title="Extension和Containing App间共享代码"></a>Extension和Containing App间共享代码</h3><p>在App里创建的某个类，要想在Extension中也能使用，在Target Membership中勾选就可以了。同样的要想在Extension中使用App  Assets.xcassets里面的图片，勾选就可以了。</p>
+<p><img src="/images/2017/extensionII-7.png"></p>
+<p><img src="/images/2017/extensionII-8.png"></p>
+<br>
+
+
+
+<h3 id="Extension和Containing-App间共享数据"><a href="#Extension和Containing-App间共享数据" class="headerlink" title="Extension和Containing App间共享数据"></a>Extension和Containing App间共享数据</h3><p>沙盒限制了我们在设备上随意读取和写入。但是从iOS8开始有了新的功能，App Groups 为同一个 vender 的应用或者扩展定义了一组域，在这个域中同一个 group 可以共享一些资源。对于我们的例子来说，我们只需要使用同一个 group 下的 NSUserDefaults 就能在主体应用不活跃时向其中存储数据，然后在扩展初始化时从同一处进行读取就行了。</p>
+<p>对于应用和其对应的扩展来说，可以使用 App Groups 来进行数据共享。</p>
+<p>首先我们需要开启 App Groups。选择containing app 的 target，打开它的 Capabilities ，找到 App Groups 并打开开关，然后添加一个 group 名字。接下来你还需要为 TodayExtension 这个 target 进行同样的配置，只不过不再需要新建 group，而是勾选刚才创建的 group 就行。</p>
+<p><img src="/images/2017/extensionII-9.png"></p>
+<p>然后在App中保存要在widget中显示的数据：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSUserDefaults * groupDefault = [[NSUserDefaults alloc] initWithSuiteName:@&quot;group.myzTodayGroup&quot;];</span><br><span class="line">[groupDefault setObject:dataArray forKey:@&quot;myzTodayDataArray&quot;];</span><br></pre></td></tr></table></figure>
+<p>在TodayExtension中就可以获取到数据，从而显示在widget中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">NSUserDefaults * groupDefault = [[NSUserDefaults alloc] initWithSuiteName:@&quot;group.myzTodayGroup&quot;];</span><br><span class="line">NSArray * dataArray = [groupDefault objectForKey:@&quot;myzTodayDataArray&quot;];</span><br></pre></td></tr></table></figure>
+
+<h4 id="从TodayExtension启动应用"><a href="#从TodayExtension启动应用" class="headerlink" title="从TodayExtension启动应用"></a>从TodayExtension启动应用</h4><p>接着来处理在widget点击内容后，然后跳转到 containing app 查看详细信息。也就是从 widget 启动 containing app ，还要向 app 传递数据。可以使用系统提供的 NSExtensionContext 类，通过NSExtensionContext 来调用 <code>openURL(URL:completionHandler:)</code>启动 containing app  :</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.extensionContext openURL:[NSURL URLWithString:[NSString stringWithFormat:@&quot;myzwidget://open]] completionHandler:nil];</span><br></pre></td></tr></table></figure>
+<p>然后选择containing app 的 target，设置对应的 URL Scheme：<br><img src="/images/2017/extensionII-91.png"></p>
+<p>然后在 AppDelegate 中获取打开的事件，做出相应的反应：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)application:(UIApplication *)application openURL:(nonnull NSURL *)url options:(nonnull NSDictionary&lt;UIApplicationOpenURLOptionsKey,id&gt; *)options &#123;</span><br><span class="line">    </span><br><span class="line">    if ([[url scheme] isEqualToString:@&quot;myzwidget&quot;]) &#123;</span><br><span class="line">        //...</span><br><span class="line">        return YES;</span><br><span class="line">    &#125;</span><br><span class="line">    return NO;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>小例子实现了在widget中显示应用中前三行的内容，效果如下：</p>
+<p><img src="/images/2017/extensionII-92.gif" alt="Widget.gif"></p>
+<br>
+
+<p>Demo地址：<a target="_blank" rel="noopener" href="https://github.com/MA806P/MYZAppExtension">https://github.com/MA806P/MYZAppExtension</a></p>
+<br>
+
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/General/Conceptual/ExtensibilityPG/Today.html#//apple_ref/doc/uid/TP40014214-CH11-SW1">App Extension Programming Guide - Today</a><br><a target="_blank" rel="noopener" href="https://onevcat.com/2014/08/notification-today-widget/">https://onevcat.com/2014/08/notification-today-widget/</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

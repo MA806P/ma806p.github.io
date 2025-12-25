@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    用枚举表示状态、选项 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">用枚举表示状态、选项</div>
+  <div class="post-meta">
+    <div class="date">2017 April 6th</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>系统框架中频繁使用到枚举类型，在以一系列常量来表示状态码或可组合的选项时，最好使用枚举为其命名。<br>C++11标准扩充了枚举的特性，最新版系统框架使用了“强类型”（strong type）的枚举，OC也能得益于C++11标准。<br>枚举只是一种常量命名方式。编译器会为枚举分配一个独有的编号，从0开始，每个枚举递增1.实现枚举所用的数据类型取决于编译器，不过其二进制位的个数必须能完全表示下枚举编号才行。<br>C++11标准修订了枚举的某些特性。其中一项改动是：可以指明用何种底层数据类型来保存保存枚举类型的变量。</p>
+<h3 id="状态"><a href="#状态" class="headerlink" title="状态"></a>状态</h3><p>枚举与状态。状态，同时只能有一种。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">typedef enum : NSUInteger &#123;</span><br><span class="line">    MyEnumValueA,</span><br><span class="line">    MyEnumValueB,</span><br><span class="line">    MyEnumValueC,</span><br><span class="line">&#125; MyEnum;</span><br><span class="line">//MyEnum en = MyEnumValueA;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//NS_ENUM，定义状态等普通枚举</span><br><span class="line">typedef NS_ENUM(NSUInteger, MyEnum)&#123;</span><br><span class="line">    MyEnumValueA,</span><br><span class="line">    MyEnumValueB,</span><br><span class="line">    MyEnumValueC,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<h3 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h3><p>选项，同时可以有一种或一种以上。定义选项的时候，若这些选项可以彼此组合，则应使用枚举类型。各选项之间可通过”按位或操作符“来组合。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">typedef enum : NSUInteger &#123;</span><br><span class="line">    MyEnumValueNone = 0,</span><br><span class="line">    MyEnumValueA = 1 &lt;&lt; 0, //值为2的0次方 , 相当于把1向左移动几位</span><br><span class="line">    MyEnumValueB = 1 &lt;&lt; 1, //值为2的1次方</span><br><span class="line">    MyEnumValueC = 1 &lt;&lt; 2,</span><br><span class="line">&#125; MyEnum;</span><br></pre></td></tr></table></figure>
+
+
+<p>在每个枚举值所对应的二进制表示中，只有1个二进制位的值是1。用”按位或操作符“可组合多个选项。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">MyEnum en = MyEnumValueA | MyEnumValueB; //(按为或运算 = 0011)</span><br><span class="line">//用“与”运算取出对应位</span><br><span class="line">if (en &amp; MyEnumValueA) &#123; // (0011 &amp; 0001 = 0001 值为YES)</span><br><span class="line">    NSLog(@“A”);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">   0011</span><br><span class="line"> &amp; 0001</span><br><span class="line">----------</span><br><span class="line">   0001</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">//NS_OPTIONS，定义选项</span><br><span class="line">typedef NS_OPTIONS(NSUInteger, MyEnum)&#123;</span><br><span class="line">    MyEnumValueNone = 0,</span><br><span class="line">    MyEnumValueA = 1 &lt;&lt; 0,</span><br><span class="line">    MyEnumValueB = 1 &lt;&lt; 1,</span><br><span class="line">    MyEnumValueC = 1 &lt;&lt; 2,</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<br>
+<br>
+
+<h3 id="OC中枚举的使用"><a href="#OC中枚举的使用" class="headerlink" title="OC中枚举的使用"></a>OC中枚举的使用</h3><p>Foundation框架中定义了一些辅助的宏，用这些宏来定义枚举类型时，也可以指定用于保存枚举值的底层数据类型。这些宏具备向后兼容（backward compatibility）能力，如果目标平台的编译器支持新标准，那就使用新式语法，否则改用旧式语法。这些宏是用#define预处理指令来定义的。typedef NS_ENUM，typedef NS_OPTIONS</p>
+<p>这两个宏的定义在Foundation.framework的NSObjCRuntime.h中：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">#if (__cplusplus &amp;&amp; __cplusplus &gt;= 201103L &amp;&amp; (__has_extension(cxx_strong_enums) || __has_feature(objc_fixed_enum))) || (!__cplusplus &amp;&amp; __has_feature(objc_fixed_enum))  </span><br><span class="line">#define NS_ENUM(_type, _name) enum _name : _type _name; enum _name : _type  </span><br><span class="line">#if (__cplusplus)  </span><br><span class="line">#define NS_OPTIONS(_type, _name) _type _name; enum : _type  </span><br><span class="line">#else  </span><br><span class="line">#define NS_OPTIONS(_type, _name) enum _name : _type _name; enum _name : _type  </span><br><span class="line">#endif  </span><br><span class="line">#else  </span><br><span class="line">#define NS_ENUM(_type, _name) _type _name; enum  </span><br><span class="line">#define NS_OPTIONS(_type, _name) _type _name; enum  </span><br><span class="line">#endif  </span><br></pre></td></tr></table></figure>
+<p>需要分别处理不同情况，所以上述代码用多种方式来定义这两个宏。第一个#if用来判断编译器是否支持新式枚举。若不支持，那么就用老式语法来定义枚举。<br>根据是否要将代码按C++模式编译 NS_OPTIONS宏的定义方式也有所不同。如果不按C++编译，其展开方式就和NS_ENUM相同。若按C++编译，则展开后代码略有不同。原因在于，用按位或运算来操作两个枚举值时，C++编译模式的处理办法与非C++模式不一样。作为选项的枚举值经常需要按位或运算来组合，在用或运算操作两个枚举值时，C++认为运算结果的数据类型应该是枚举的底层数据类型，也就是NSUInteger。而C++不允许将这个底层类型”隐式转换“为枚举类型本身。因此，凡是需要以按位或操作来组合的枚举都应使用NS_OPTIONS定义。若是枚举不需要互相组合，则应使用NS_ENUM来定义。</p>
+<p>我们总习惯在switch语句中加上default分支。若是使用枚举来定义状态，则最好不要有default分支。如果稍后又加了一种状态，那么编译器就会发出警告信息，提示新加入的状态并未在switch分支中处理。假如写上了default分支那么他就会处理这个新状态，导致编译器不发警告信息。用NS_ENUM定义其他枚举类型时也要注意此问题。这样能确保switch语句能正确处理所有样式。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><ol>
+<li>如果把传递给某个方法的选项表示为枚举类型，而多个选项又可同时使用，那么就将各选项值定义为2的幂，以便通过按位或操作将其组合起来。</li>
+<li>用NS_Enum 与 NS_OPTIONS 宏来定义枚举类型，并指明其底层数据类型。这样做可以确保枚举是用开发者所选的底层数据类型实现出来的，而不会采用编译器所选的类型。</li>
+<li>在处理枚举类型的switch语句不要实现default分支。这样的话，加入新枚举之后，编译器就会提示开发者：switch语句并未处理所有枚举。</li>
+</ol>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

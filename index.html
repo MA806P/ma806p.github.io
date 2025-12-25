@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <div class="post-list">
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2021/06/16/codable-default/">Swift - Codable 解码设置默认值</a>
+    <div class="post-item-summary">
+      Swift - Codable 解码设置默认值
+上一篇 Swift - Codable 使用小记 文章中介绍了 Codable 的使用，它能够把 JSON 数据转换成 Swift 代码中使用的类型。本文来进一步研究使用 Codable 解码如何设置默认值的问题。  
+解码遇到的问题之前的文章中提到了，遇到 JSON 数据中字段为空的情况，把属性设置为可选的，当返回为空对象或 null 时，解析为 nil。当我们希望字段为空时，对应的属性要设置一个默认值，我们处理的一种方法是重
+      <a class="read-more" href="/2021/06/16/codable-default/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2021.06.16</div>
+      <div class="tags">
+        
+        <div class="tag-item">Swift</div>
+        
+        <div class="tag-item">Codable</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2021/06/08/codable/">Swift - Codable 使用小记</a>
+    <div class="post-item-summary">
+      Codable 简介Codable 协议在 Swift4.0 开始被引入，目标是取代现有的 NSCoding 协议，它对结构体，枚举和类都支持。Codable 的引入简化了JSON 和 Swift 类型之间相互转换的难度，能够把 JSON 这种弱类型数据转换成代码中使用的强类型数据。  
+Codable 是 Encodable 和 Decodable 两个协议的组合：  
+1public typealias Codable = Decodable &amp; Encodabl
+      <a class="read-more" href="/2021/06/08/codable/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2021.06.08</div>
+      <div class="tags">
+        
+        <div class="tag-item">Swift</div>
+        
+        <div class="tag-item">Codable</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/11/23/jenkins-test/">Jenkins 自动化测试 iOS 项目</a>
+    <div class="post-item-summary">
+      简介上一篇文章 Jenkins 自动化打包 iOS 项目 已经介绍了 Jenkins，以及在 mac 上安装 Jenkins。本文来介绍一下使用 Jenkins 来完成自动化测试，并输出测试覆盖率。有关 iOS 单元测试的内容，可以查看之前的文章 iOS 单元测试 - XCTest。  
+
+iOS 测试覆盖率首先在 Xcode 中开启 Coverage ，可以选择你要收集覆盖率的 target，那些 pods 里面的第三方的库就不要勾选了，只需测试查看项目中的覆盖率。  
+ 
+      <a class="read-more" href="/2020/11/23/jenkins-test/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.11.23</div>
+      <div class="tags">
+        
+        <div class="tag-item">测试</div>
+        
+        <div class="tag-item">自动化</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/11/16/jenkins/">Jenkins 自动化打包 iOS 项目</a>
+    <div class="post-item-summary">
+      Jenkins 简介Jenkins 是一款流行的持续集成（Continuous Integration）工具，广泛用于项目开发，具有自动化构建、测试和部署等功能。Jenkins 是一个开源项目，用 Java 语言编写，它提供了一种易于使用的持续集成系统，使开发者从繁杂的集成中解脱出来，专注于更为重要的业务逻辑实现上。同时 Jenkins 能实施监控集成存在的错误，提供详细的日志文件和提醒功能，还能用图表的形式形象地展示项目构建的趋势和稳定性。  
+本文就来介绍一下 Jenki
+      <a class="read-more" href="/2020/11/16/jenkins/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.11.16</div>
+      <div class="tags">
+        
+        <div class="tag-item">自动化</div>
+        
+        <div class="tag-item">CI</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/09/28/media-01/">音视频小结（一）：音频基础</a>
+    <div class="post-item-summary">
+      前言5G 时代音视频的地位越来越重要，直播、音乐、在线教育、短视频等相关APP 层出不穷，对于开发者而言，掌握音视频相关知识可很好提升自己的竞争力。本系列文章会总结一些音视频知识，从零开始记录总结音视频相关知识。本篇文章是对音频基础知识的总结介绍。
+音频概念声音是振动产生的声波，通过介质（空气、固体、液体）传播并能被人或动物听觉器官所感知的波动现象。声音是由物体的振动所引起，振动频率一般会以赫兹表示，记为Hz，指每秒周期性震动的次数。
+• 波长，指波在一个振动周期内传播的距离
+      <a class="read-more" href="/2020/09/28/media-01/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.09.28</div>
+      <div class="tags">
+        
+        <div class="tag-item">音视频</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/07/02/render/">iOS 渲染小结</a>
+    <div class="post-item-summary">
+      本文整理一下有关计算机图像渲染流程，以及 iOS 渲染相关知识，最后介绍一下在 iOS 开发过程中保持 APP 流畅的注意事项。  
+简介在显示器上显示的图像是由一帧一帧的画面组成的，当一帧画面绘制完成后，准备画下一帧，显示器会发出一个垂直同步信号 VSync（vertical synchronization）刷新画面。显示器通常以固定频率进行刷新，这个刷新率就是 VSync 信号产生的频率。计算机通过 CPU、GPU、显示器协同工作显示图像。CPU 计算好显示内容提交到 G
+      <a class="read-more" href="/2020/07/02/render/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.07.02</div>
+      <div class="tags">
+        
+        <div class="tag-item">基础</div>
+        
+        <div class="tag-item">渲染</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/05/18/xctest/">iOS单元测试-XCTest</a>
+    <div class="post-item-summary">
+      简介单元测试（Unit Testing）又称为模块测试，是针对程序模块软件设计来进行正确性检验的测试工作。程序单元是应用的最小可测试部件。对于面向对象编程，最小单元就是方法，包括基类、抽象类、或者派生类中的方法。  
+单元测试通常由软件开发人员编写，用于确保他们所写的代码符合软件需求和遵循开发目标。通常来说，每修改一次程序就会进行最少一次单元测试，在编写程序的过程中前后很可能要进行多次单元测试，以证实程序达到工作目标要求。  
+Xcode 集成了对单元测试的支持 XCTest
+      <a class="read-more" href="/2020/05/18/xctest/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.05.18</div>
+      <div class="tags">
+        
+        <div class="tag-item">测试</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/04/16/kvo-kvc/">iOS KVC/KVO小结</a>
+    <div class="post-item-summary">
+      本文对 KVC、KVO 相关知识进行全面的整理总结，介绍了相关的基本概念、使用方法、注意事项、实现原理等。后续如有更深的理解会继续整理总结。
+简介KVC ( Key-value coding 键值编码 ) 是一种由 NSKeyValueCoding 非正式协议启用的机制，对象采用该机制提供对其属性的间接访问。当对象符合键值编码时，通过字符串名称访问对象属性。键值编码的机制也是其他 Cocoa 框架的基础，例如 KVO。  
+KVO ( Key-value observing 
+      <a class="read-more" href="/2020/04/16/kvo-kvc/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.04.16</div>
+      <div class="tags">
+        
+        <div class="tag-item">基础</div>
+        
+        <div class="tag-item">OC</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/03/29/nsoperation/">NSOperation、NSOperationQueue 小结</a>
+    <div class="post-item-summary">
+      本篇文章将会简单介绍 iOS 多线程相关的内容。对 NSOperation、NSOperationQueue 的使用进行介绍总结。还将会介绍线程锁相关的内容。  
+iOS 多线程多线程在开发中被广泛使用，创建多个线程，每个线程上同时执行不同的任务，从而更快更好使用 CPU 来进行工作。iOS 中提供了多种创建线程的方法，方便开发者操作使用。  
+1、pthreadPOSIX 线程，定义了创建和操纵线程的一套 C语言的 API，使用方法如下：  
+123456789101112
+      <a class="read-more" href="/2020/03/29/nsoperation/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.03.29</div>
+      <div class="tags">
+        
+        <div class="tag-item">OC</div>
+        
+        <div class="tag-item">多线程</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2020/03/15/uml/">UML 图总结</a>
+    <div class="post-item-summary">
+      UML 简介UML（Unified Modeling Language）统一建模语言，又称标准建模语言，为面向对象开发系统的产品进行说明、可视化、和编制文档的一种标准语言，大多以图表的方式表现出来。
+UML 的目标是定义一些通用的建模语言并对这些建模语言做出简单的说明，帮助我们按照实际情况或者按照我们需要的样式对系统进行可视化；提供一种详细说明系统的结构或行为的方法；给出一个指导系统构造的模板；对我们所做出的决策进行文档化。
+UML 图UML 的核心是图表，大致可以将这些图归
+      <a class="read-more" href="/2020/03/15/uml/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2020.03.15</div>
+      <div class="tags">
+        
+        <div class="tag-item">项目</div>
+        
+      </div>
+    </div>
+  </section>
+  
+</div>
+
+
+<div class="paginator">
+  <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/2/">&gt;</a>
+</div>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

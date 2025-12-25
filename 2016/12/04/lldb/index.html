@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    LLDB调试器 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">LLDB调试器</div>
+  <div class="post-meta">
+    <div class="date">2016 December 4th</div>
+    <div class="tags">
+      
+      <div class="tag-item">调试</div>
+      
+      <div class="tag-item">测试</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>在iOS开发中经常使用NSLog进行打印调试，简单方便。NSLog每次调用会打印大量信息，时间、名称、进程等信息，多次调用打印会消耗资源，程序变慢效率低下，每次调试完毕要及时清理NSLog。 另外，每次想要NSLog打印看到信息，需要重新编译运行，对于较大的项目费时费力，所以调试最好使用调试器，LLDB调试器功能强大，由于能力有限只能简单介绍一下LLDB调试器的皮毛。</p>
+<h1 id="LLDB"><a href="#LLDB" class="headerlink" title="LLDB"></a>LLDB</h1><p><a target="_blank" rel="noopener" href="http://lldb.llvm.org/index.html">LLDB</a>是新一代高性能调试器，是Xcode上的默认调试器，支持调试C，Objective-C和C ++。LLDB命令结构有统一的格式。</p>
+<h4 id="LLDB命令结构"><a href="#LLDB命令结构" class="headerlink" title="LLDB命令结构"></a>LLDB命令结构</h4><p><img src="/images/2016/lldb-2.png"><br><noun>命令、<verb>命令操作、options命令选项、argument参数。命令各个元素之间用空格隔开，如果参数之中有空格则需要加上双引号。如果参数中带有反斜杠和双引号，则需要在其前面加上反斜杠。</p>
+<p>options命令选项可以放在命令行的任何地方，但是如果argument参数以“-”开头，那么必须在option后面添加“–”结束标志进行区分，从而确定option的正确位置。例如你想启动一程序，“process launch”命令的option为“–stop-at-entry”，同时希望命令的argument为“-program_arg value”，你应该输入的命令为：</p>
+<blockquote>
+<p>(lldb) process launch –stop-at-entry – -program_arg value</p>
+</blockquote>
+<p>help，它会列举出所有的命令。可以通过 help <command> 来了解更多细节，例 help print、help thread<br>详细的LLDB命令可以参考 <a target="_blank" rel="noopener" href="http://lldb.llvm.org/lldb-gdb.html">LLDB command examples</a> 命令总览。</p>
+<h4 id="在Xcode中使用LLDB调试程序"><a href="#在Xcode中使用LLDB调试程序" class="headerlink" title="在Xcode中使用LLDB调试程序"></a>在Xcode中使用LLDB调试程序</h4><p>从Xcode 5开始LLDB成为了Xcode的默认调试器。LLDB提供了Xcode的底层调试环境，调试区域中的控制台窗口，用于在Xcode IDE环境中直接调用LLDB命令。<br><img src="/images/2016/lldb-1.png"></p>
+<ul>
+<li><p>print（简写 p）打印值。<br><code>(lldb) p number (NSInteger) $0 = 1</code><br>可以给 print 指定不同的打印格式 print&#x2F;<fmt><br><code>(lldb) p/x number (NSInteger) $1 = 0x0000000000000001</code><br>16进制 p&#x2F;x ，二进制(t&#x3D;two) p&#x2F;t , 打印字符 p&#x2F;c , 打印以\0终止的字符串 p&#x2F;s 。<a target="_blank" rel="noopener" href="https://sourceware.org/gdb/onlinedocs/gdb/Output-Formats.html">查看所有格式</a></p>
+</li>
+<li><p>expression（简写 e）可改变程序中的值。<br><code>(lldb) e string = @“xxx.png”</code><br>输入 help print，可看到 ‘print’ is an abbreviation for ‘expression –’.   (“print”是 “expression –”的缩写)</p>
+</li>
+<li><p>po 打印对象<br><code>(lldb) po string</code><br> 可以看到到对象的 description 方法的结果。和命令 (lldb) e -O – string一个效果，e -o – 的别名就是 po (print object 的缩写)。</p>
+</li>
+<li><p>image<br><code>(lldb) image list</code>  可以查看工程中使用到的库信息<br><code>(lldb) image lookup --address 0x0000000107c3f7d4</code>查找文件的原始地址</p>
+</li>
+</ul>
+<h4 id="在命令行中使用LLDB调试程序"><a href="#在命令行中使用LLDB调试程序" class="headerlink" title="在命令行中使用LLDB调试程序"></a>在命令行中使用LLDB调试程序</h4><p>Xcode IDE通过将LLDB完全集成到源编辑，构建和使用图形控件的“运行调试”循环，自动化了许多这些操作。 从命令行了解这些操作如何工作有助于在Xcode控制台窗口中理解和使用LLDB调试器的功能。</p>
+<ul>
+<li><p>加载程序到LLDB中<br>首先要创建一个程序用来调试。打开终端输入命令进入lldb，载入程序。<br><code>$ lldb  (lldb) file /Users/Developer/Xcode/Build/Products/Test.app</code><br>或者直接载入<br><code>$ lldb /Users/Developer/Xcode/Build/Products/Test.app Current executable set to &#39;/Users/Developer/Xcode/Build/Products/Test.appp&#39; (x86_64).</code></p>
+</li>
+<li><p>启动程序<br><code>(lldb) process launch (lldb) run  (lldb) r</code><br>可以使用进程ID或进程名来连接一个已经运行的程序，–waitfor选项告诉LLDB等待下一个名称为指定名称的程序出现，然后连接它。<br><code>(lldb) process attach --pid 123  (lldb) process attach --name Sketch (lldb) process attach --name Sketch --waitfor</code></p>
+</li>
+<li><p>breakpoint 设置断点<br><code>(lldb) breakpoint set --file main.m --line 12  (lldb) breakpoint set -f main.m -l 12</code><br>在函数名为foo处设置断点：<br><code>(lldb) breakpoint set --name foo (lldb) breakpoint set -n foo (lldb) breakpoint set --name foo --name bar</code><br>在C++中给所有命名为foo的方法设置断点<br><code>(lldb) breakpoint set --method foo  (lldb) breakpoint set -M foo</code><br>在OC中给选择器名为alignLeftEdges:的设置断点<br><code>(lldb) breakpoint set --selector alignLeftEdges:  (lldb) breakpoint set -S alignLeftEdges:</code><br>也可以写成：<br><code>(lldb) breakpoint set -n &quot;-[SKTGraphicView alignLeftEdges:]&quot;  (lldb) br s -n &quot;-[SKTGraphicView alignLeftEdges:]&quot;</code><br>将断点限定在一个特定的可执行库中<br><code>(lldb) breakpoint set --shlib foo.dylib --n foo</code></p>
+</li>
+<li><p>设置别名<br>如果觉得命令行太麻烦可以自定义简单的名称，例如：<br><code>(lldb) command alias bfl breakpoint set -f %1 -l %2  (lldb) bfl foo.c 12</code><br>出去已创建的别名命令<br><code>(lldb) command unalias bfl</code></p>
+</li>
+<li><p>控制程序<br><code>(lldb) thread continue (lldb) thread step-in  (lldb) thread step-over (lldb) thread step-out</code></p>
+</li>
+<li><p>查看线程状态<br><code>(lldb) thread list</code></p>
+</li>
+</ul>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>LLDB功能强大，可以做的事情很多，这里只是简单的整理了一下常用的命令，还有许多调试技巧等待着我们去发现，这么强大的调试器是值得我们花费时间和精力去深入研究的，熟练掌握调试技能会极大的提高工作效率。</p>
+<h1 id="References"><a href="#References" class="headerlink" title="References"></a>References</h1><p><a target="_blank" rel="noopener" href="http://lldb.llvm.org/tutorial.html">http://lldb.llvm.org/tutorial.html</a><br><a target="_blank" rel="noopener" href="https://www.objc.io/issues/19-debugging/lldb-debugging/">https://www.objc.io/issues/19-debugging/lldb-debugging/</a><br><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/Introduction.html#//apple_ref/doc/uid/TP40012917-CH1-SW1">https://developer.apple.com/library/content/documentation/IDEs/Conceptual/gdb_to_lldb_transition_guide/document/Introduction.html#//apple_ref/doc/uid/TP40012917-CH1-SW1</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    正则表达式 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">正则表达式</div>
+  <div class="post-meta">
+    <div class="date">2018 December 15th</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p><strong>正则表达式</strong>（Regular Expression，常简写为regex、regexp或RE），使用单个字符串来描述、匹配一系列匹配某个句法规则的字符串。<br>在编写处理字符串的时候，经常会有查找符合某些复杂规则字符串的需要，例如，查找字符串中的数字、电话号码等。正则表达式就是用于描述这些规则的工具，就是一种记录文本规则的代码。</p>
+<h3 id="基本语法"><a href="#基本语法" class="headerlink" title="基本语法"></a>基本语法</h3><p>一个正则表达式通常被称为一个<strong>模式</strong>（pattern），为用来描述或者匹配一系列匹配某个句法规则的字符串。例如：Handel、Händel和Haendel这三个字符串，都可以由<code>H(a|ä|ae)ndel</code>这个模式来描述。大部分正则表达式的形式都有如下的结构：</p>
+<p>1、选择</p>
+<ul>
+<li>竖线 <code>|</code> 代表选择（或集），具有最低优先级。例如<code>gray|grey</code>可以匹配grey或gray。</li>
+</ul>
+<p>2、数量限定<br>某个字符后的数量限定符用来限定前面这个字符允许出现的个数。最常见的数量限定符包括<code>+</code>、<code>?</code>、<code>*</code>和<code>{}</code>（不加数量限定则代表出现一次且仅出现一次）：</p>
+<ul>
+<li>加号 <code>+</code> 代表前面的字符必须至少出现一次。（1次或多次）。例如，<code>goo+gle</code>可以匹配google、gooogle、goooogle等</li>
+<li>问号 <code>?</code> 代表前面的字符最多只可以出现一次。（0次或1次）。例如，<code>colou?r</code>可以匹配color或者colour</li>
+<li>星号 <code>*</code> 代表前面的字符可以不出现，也可以出现一次或者多次。（0次、1次或多次）。例如，<code>0*42</code>可以匹配42、042、0042、00042等。</li>
+<li>花括号 <code>{}</code> 代表重复的次数。<code>{n}</code> 重复n次。<code>{n,}</code>重复n次或更多次。<code>{n,m}</code>重复n到m次。</li>
+</ul>
+<p>3、匹配</p>
+<ul>
+<li>圆括号 <code>()</code> 可以用来定义操作符的范围和优先度。例如，<code>gr(a|e)y</code>等价于<code>gray|grey</code>，<code>(grand)?father</code>匹配father和grandfather。</li>
+</ul>
+<p>上述这些构造子都可以自由组合，因此<code>H(ae?|ä)ndel</code>和<code>H(a|ae|ä)ndel</code>是相同的。</p>
+<p>精确的语法可能因不同的工具或程序而异。<br><br></p>
+<h3 id="元字符"><a href="#元字符" class="headerlink" title="元字符"></a>元字符</h3><p>常用的元字符：<br><code>.</code>	 匹配除换行符以外的任意字符<br><code>\w</code>	匹配字母或数字或下划线或汉字<br><code>\s</code>	匹配任意的空白符<br><code>\d</code>	匹配数字<br><code>\b</code>	匹配单词的开始或结束<br><code>^</code>	匹配字符串的开始<br><code>$</code>	匹配字符串的结束</p>
+<p>例子：<br>1、<code>\ba\w*\b</code>匹配以字母a开头的单词，先是某个单词开始<code>\b</code>，然后是字母a,然后是任意数量的字母或数字<code>\w*</code>，最后是单词结束处<code>\b</code>。</p>
+<p>2、<code>^\d{5,12}$</code> 匹配5位到12位数字，<code>{5,12}</code>重复的次数不能少于5次，不能多于12次，否则都不匹配。<br>使用了<code>^</code>和<code>$</code>，整个字符串都要用来和<code>\d{5,12}</code>来匹配，整个字符串必须是5到12个数字。<br>3、<code>Windows\d+</code> 匹配Windows后面跟1个或更多数字</p>
+<p>4、<code>^\w+</code>匹配一行的第一个单词(或整个字符串的第一个单词，具体匹配哪个意思得看选项设置)</p>
+<p>有些正则表达式处理工具还有一个处理多行的选项。如果选中了这个选项，^和$的意义就变成了匹配行的开始处和结束处。<br><br></p>
+<h3 id="字符转义"><a href="#字符转义" class="headerlink" title="字符转义"></a>字符转义</h3><p>如果想查找元字符本身的话，比如你查找<code>.</code>，或者<code>*</code>，这时你就得使用<code>\</code>来取消这些字符的特殊意义，<code>\.</code>  <code>\*</code>。要查找<code>\</code>本身，也得用<code>\\</code>.</p>
+<p>例如：<br><code>deerchao\.net</code> 匹配 <code>deerchao.net</code><br><code>C:\\Windows</code> 匹配 <code>C:\Windows</code>。<br><br></p>
+<h3 id="字符类"><a href="#字符类" class="headerlink" title="字符类"></a>字符类</h3><p>当匹配没有预定义元字符的字符集合只需要在方括号里列出它们就行了，像<code>[aeiou]</code>就匹配任何一个英文元音字母，<code>[.?!]</code>匹配标点符号(.或?或!)。</p>
+<p>也可以指定一个字符范围，像<code>[0-9]</code>代表的含意与<code>\d</code>就是完全一致的：一位数字。<br>同理<code>[a-z0-9A-Z_]</code>也完全等同于<code>\w</code>（如果只考虑英文的话）。</p>
+<p><code>\(?0\d{2}[) -]?\d{8}</code> 可匹配几种格式的电话号码，(010)88886666，或022-22334455，或02912345678等。<br>首先是一个转义字符<code>\(</code>，它能出现0次或1次<code>?</code>，然后是一个0，后面跟着2个数字<code>\d{2}</code>，然后是<code>)</code>或<code>-</code>或空格中的一个，它出现1次或不出现<code>?</code>，最后是8个数字<code>\d{8}</code>。<br>有个问题就是，这个也能匹配，010)12345678或(022-87654321这样的“不正确”的格式。要解决这个问题，需要用到分枝条件。<br><br></p>
+<h3 id="分支条件"><a href="#分支条件" class="headerlink" title="分支条件"></a>分支条件</h3><p>正则表达式里的<strong>分枝条件</strong>指的是有几种规则，如果满足其中任意一种规则都应该当成匹配，具体方法是用|把不同的规则分隔开。</p>
+<p><code>\(0\d{2}\)[- ]?\d{8}|0\d{2}[- ]?\d{8}</code>这个表达式匹配3位区号的电话号码，其中区号可以用小括号括起来，也可以不用，区号与本地号间可以用连字号或空格间隔，也可以没有间隔。你可以试试用分枝条件把这个表达式扩展成也支持4位区号的。</p>
+<p><code>\d{5}-\d{4}|\d{5}</code>这个表达式用于匹5位数字，或者用连字号间隔的9位数字。</p>
+<p>***使用分枝条件时，要注意各个条件的顺序。***如果你把它改成<code>\d{5}|\d{5}-\d{4}</code>的话，那么就只会匹配5位数字(以及9位数字前5位)。<br>因为匹配分枝条件时，将会从左到右地测试每个条件，如果满足了某个分枝的话，就不会去再管其它的条件了。</p>
+<br>
+
+<h3 id="常用正则表达式"><a href="#常用正则表达式" class="headerlink" title="常用正则表达式"></a>常用正则表达式</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">用户名	/^[a-z0-9_-]&#123;3,16&#125;$/</span><br><span class="line"></span><br><span class="line">密码	/^[a-z0-9_-]&#123;6,18&#125;$/</span><br><span class="line"></span><br><span class="line">十六进制值	/^#?([a-f0-9]&#123;6&#125;|[a-f0-9]&#123;3&#125;)$/</span><br><span class="line"></span><br><span class="line">电子邮箱	/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]&#123;2,6&#125;)$/</span><br><span class="line">/^[a-z\d]+(\.[a-z\d]+)*@([\da-z](-[\da-z])?)+(\.&#123;1,2&#125;[a-z]+)+$/</span><br><span class="line">URL	/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]&#123;2,6&#125;)([\/\w \.-]*)*\/?$/</span><br><span class="line"></span><br><span class="line">IP 地址	/((2[0-4]\d|25[0-5]|[01]?\d\d?)\.)&#123;3&#125;(2[0-4]\d|25[0-5]|[01]?\d\d?)/</span><br><span class="line">/^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.)&#123;3&#125;(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/</span><br><span class="line"></span><br><span class="line">HTML 标签	/^&lt;([a-z]+)([^&lt;]+)*(?:&gt;(.*)&lt;\/\1&gt;|\s+\/&gt;)$/</span><br><span class="line"></span><br><span class="line">Unicode编码中的汉字范围	/^[\u2E80-\u9FFF]+$/</span><br></pre></td></tr></table></figure>
+
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="http://deerchao.net/tutorials/regex/regex.htm">http://deerchao.net/tutorials/regex/regex.htm</a><br><a target="_blank" rel="noopener" href="https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F">https://zh.wikipedia.org/wiki/%E6%AD%A3%E5%88%99%E8%A1%A8%E8%BE%BE%E5%BC%8F</a><br><a target="_blank" rel="noopener" href="http://tool.oschina.net/uploads/apidocs/jquery/regexp.html">http://tool.oschina.net/uploads/apidocs/jquery/regexp.html</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md">https://github.com/ziishaned/learn-regex/blob/master/translations/README-cn.md</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

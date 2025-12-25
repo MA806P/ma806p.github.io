@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <div class="post-list">
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/08/24/git/">Git 使用小记</a>
+    <div class="post-item-summary">
+      每个项目都有一个 Git 目录（译注：如果 git clone 出来的话，就是其中 .git 的目录；如果 git clone –bare 的话，新建的目录本身就是 Git 目录。），它是 Git 用来保存元数据和对象数据库的地方。该目录非常重要，每次克隆镜像仓库的时候，实际拷贝的就是这个目录里面的数据。
+1、基本的 Git 工作流程如下：在工作目录中修改某些文件。对修改后的文件进行快照，然后保存到暂存区域。提交更新，将保存在暂存区域的文件快照永久转储到 Git 目录中。
+2
+      <a class="read-more" href="/2018/08/24/git/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.08.24</div>
+      <div class="tags">
+        
+        <div class="tag-item">项目</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/06/21/https/">HTTPS</a>
+    <div class="post-item-summary">
+      在 HTTP 协议中有可能存在信息窃听或身份伪装等安全问题。使用 HTTPS 通信机制可以有效地防止这些问题。本篇文章来了解一下 HTTPS。
+HTTP 的缺点1、通信使用明文，不加密，内容可能会被窃听由于 HTTP 本身不具备加密的功能，无法做到对 HTTP 协议通信的请求和响应的内容进行加密。TCP&#x2F;IP 是可能被窃听的网络，TCP&#x2F;IP 协议族的工作机制，通信内容在所有的通信线路上都有可能遭到窥视。即使已经过加密处理的通信，也会被窥视到通信内容，只是
+      <a class="read-more" href="/2018/06/21/https/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.06.21</div>
+      <div class="tags">
+        
+        <div class="tag-item">网络</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/06/03/RAC/">RAC</a>
+    <div class="post-item-summary">
+      本篇文章是用来记录一下有关 ReactiveCocoa 的学习笔记。
+简介ReactiveCocoa（简称 RAC）是由 Github 开源的一个应用于 iOS 和 macOS 开发的新框架。RAC具有函数式编程和响应式编程的特性，可称其为函数响应式编程（FRP, Functional Reactive Programming）框架。
+
+“函数式编程”（programming paradigm）属于”结构化编程”的一种，主要思想是把运算过程尽量写成一系列嵌套的函数调用。特点：
+      <a class="read-more" href="/2018/06/03/RAC/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.06.03</div>
+      <div class="tags">
+        
+        <div class="tag-item">OC</div>
+        
+        <div class="tag-item">RAC</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/05/02/mvvm/">MVC, MVVM, MVP简介</a>
+    <div class="post-item-summary">
+      前言本篇文章介绍一下在 iOS 开发中常用的架构模式。好的架构应该具有哪些特征呢？1、每个对象都拥有一个特定、明确的角色2、有一个简单的数据流，容易理解，方便调试3、不依赖于某个特定的框架或者服务4、足够灵活，架构容易理解，修改容易5、可测试性
+MVC, MVVM, MVP，三种模式都是把所有的实体归类到了下面三种分类中的一种：
+
+Models（模型） 数据层，或者负责处理数据的 数据接口层
+Views（视图）展示层(GUI)。对于 iOS 来说所有以 UI 开头的类基本都属
+      <a class="read-more" href="/2018/05/02/mvvm/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.05.02</div>
+      <div class="tags">
+        
+        <div class="tag-item">项目</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/04/17/cocoapods/">CocoaPods的使用</a>
+    <div class="post-item-summary">
+      简介在 iOS 开发中不可避免地要使用第三方库，CocoaPods（ https://github.com/CocoaPods/CocoaPods ） 可以用来方便的统一管理这些第三方库，可以解决库与库之间的依赖关系，下载库的源代码，同时通过创建一个Xcode的workspace来将这些第三方库和我们的工程连接起来，使得我们可以节省设置和更新第三方开源库的时间。
+CocoaPods 的安装使用 CocoaPods，首先要下载安装，下载安装 CocoaPods 需要 Ruby 
+      <a class="read-more" href="/2018/04/17/cocoapods/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.04.17</div>
+      <div class="tags">
+        
+        <div class="tag-item">项目</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/03/14/nsdate/">iOS NSDate</a>
+    <div class="post-item-summary">
+      前言本篇文章总结一下在 iOS 开发中关于时间、日期的一些知识点。阅读本文你将会看到有关，NSDate、NSDateFormatter、NSTimeZone、NSLocale 、NSDateComponents、NSCalendar 的使用。
+开始之前先来一波科普：
+
+全球24个时区的划分在1884年国际会议上制定了全球性的标准时，明定以英国伦敦格林威治这个地方为零度经线的起点（亦称为本初子午线），并以地球由西向东每24小时自转一周360°，订定每隔经度15°，时差1小时。而
+      <a class="read-more" href="/2018/03/14/nsdate/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.03.14</div>
+      <div class="tags">
+        
+        <div class="tag-item">OC</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/02/25/iOS-purchase/">iOS In-App Purchase</a>
+    <div class="post-item-summary">
+      前言如果你的 app 涉及到付款的业务，用来获取订阅、游戏内货币、游戏关卡、优质内容的访问权限等，则需要使用苹果的App 内购买项目，苹果会从中抽取三成，如果试图绕过苹果的支付渠道，使用其他的方式支付，会导致 app 被拒绝，没办法，这就是游戏规则。
+
+App Store 审核指南 3在 App Store 中，您可以通过多种方式让自己的 app 实现盈利。如果您的业务模式并不显而易见，请务必在其元数据和 App Review 备注中加以说明。如果我们无法理解 app 的工作
+      <a class="read-more" href="/2018/02/25/iOS-purchase/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.02.25</div>
+      <div class="tags">
+        
+        <div class="tag-item">内购</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2018/01/21/animation/">iOS 动画</a>
+    <div class="post-item-summary">
+      Core Animation简介Core Animation，中文翻译为核心动画，它是一组非常强大的动画处理API，使用它能做出非常炫丽的动画效果，而且往往是事半功倍。也就是说，使用少量的代码就可以实现非常强大的功能。Core Animation可以用在Mac OS X和iOS平台。Core Animation的动画执行过程都是在后台操作的，不会阻塞主线程。要注意的是，Core Animation是直接作用在CALayer上的，并非UIView。有关CALayer可参看之前的
+      <a class="read-more" href="/2018/01/21/animation/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2018.01.21</div>
+      <div class="tags">
+        
+        <div class="tag-item">OC</div>
+        
+        <div class="tag-item">UI</div>
+        
+        <div class="tag-item">动画</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2017/12/20/viewlayer/">UIView、 CALayer</a>
+    <div class="post-item-summary">
+      简介在iOS中使用UIWindow和UIView在屏幕上显示APP的内容。UIWindow为APP提供了一个底层的容器，用来展示内容，其本身不会显示出来。而UIView可以在UIWindow这个容器里显示出某一部分的内容，你能看得见摸得着的东西基本上都是UIView，比如一个按钮、一个文本标签、一个文本输入框、一个图标等等，这些都是UIView。你可以创建不同的View去显示图片、文字，或者其他组合在一起的视图，你可以使用View去管理、组织其他的View。
+在一个应用中，至
+      <a class="read-more" href="/2017/12/20/viewlayer/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2017.12.20</div>
+      <div class="tags">
+        
+        <div class="tag-item">OC</div>
+        
+        <div class="tag-item">UI</div>
+        
+      </div>
+    </div>
+  </section>
+  
+  <section class="post-item">
+    <a class="post-item-title" href="/2017/11/20/urlsession/">NSURLSession</a>
+    <div class="post-item-summary">
+      前言本篇文章来介绍一下 NSURLSession 。之前的网络基础架构NSURLConnection，被苹果在iOS9之后宣布弃用，在2013年的WWDC上，Apple揭开了NSURLConnection继任者的面纱：NSURLSession。
+NSURLSession 介绍
+NSURLSession 支持 http2.0 协议。
+
+与NSURLConnection相比，NSURLSession最直接的改善就是提供了配置每个会话的缓存，协议，cookie和证书政策（crede
+      <a class="read-more" href="/2017/11/20/urlsession/"> ... </a>
+    </div>
+    <div class="post-item-extra">
+      <div class="date">2017.11.20</div>
+      <div class="tags">
+        
+        <div class="tag-item">网络</div>
+        
+      </div>
+    </div>
+  </section>
+  
+</div>
+
+
+<div class="paginator">
+  <a class="extend prev" rel="prev" href="/page/2/">&lt;</a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><a class="page-number" href="/page/5/">5</a><a class="extend next" rel="next" href="/page/4/">&gt;</a>
+</div>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

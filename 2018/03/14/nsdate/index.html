@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS NSDate 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS NSDate</div>
+  <div class="post-meta">
+    <div class="date">2018 March 14th</div>
+    <div class="tags">
+      
+      <div class="tag-item">OC</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本篇文章总结一下在 iOS 开发中关于时间、日期的一些知识点。阅读本文你将会看到有关，NSDate、NSDateFormatter、NSTimeZone、NSLocale 、NSDateComponents、NSCalendar 的使用。</p>
+<p>开始之前先来一波科普：</p>
+<blockquote>
+<p>全球24个时区的划分<br>在1884年国际会议上制定了全球性的标准时，明定以英国伦敦格林威治这个地方为零度经线的起点（亦称为本初子午线），并以地球由西向东每24小时自转一周360°，订定每隔经度15°，时差1小时。而每15°的经线则称为该时区的中央经线，将全球划分为24个时区。</p>
+</blockquote>
+<blockquote>
+<p>格林威治标准时间GMT<br>  十七世纪，格林威治皇家天文台为了海上霸权的扩张计画而进行天体观测。1675年旧皇家观测所(Old Royal Observatory) 正式成立，到了1884年决定以通过格林威治的子午线作为划分地球东西两半球的经度零度。观测所门口墙上有一个标志24小时的时钟，显示当下的时间，对全球而言，这里所设定的时间是世界时间参考点，全球都以格林威治的时间作为标准来设定时间，这就是我们耳熟能详的「格林威治标准时间」(Greenwich Mean Time，简称G.M.T.)的由来。</p>
+</blockquote>
+<blockquote>
+<p>世界协调时间UTC<br>  UTC指的是Coordinated Universal Time－ 世界协调时间（又称世界标准时间、世界统一时间），是经过平均太阳时(以格林威治时间GMT为准)、地轴运动修正后的新时标以及以「秒」为单位的国际原子时所综合精算而成的时间。</p>
+</blockquote>
+<h4 id="NSTimeZone"><a href="#NSTimeZone" class="headerlink" title="NSTimeZone"></a>NSTimeZone</h4><p>NSTimeZone 时区信息</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">// 创建时区</span><br><span class="line">NSTimeZone *zone1 = [[NSTimeZone alloc] initWithName:@&quot;Asia/Shanghai&quot;];</span><br><span class="line">NSTimeZone *zone2 = [NSTimeZone timeZoneWithName:@&quot;Asia/Shanghai&quot;];</span><br><span class="line">// 根据时区缩写创建</span><br><span class="line">NSTimeZone *zone4 = [NSTimeZone timeZoneWithAbbreviation:@&quot;HKT&quot;];</span><br><span class="line">// 根据零时区的秒数偏移量创建</span><br><span class="line">NSTimeZone *zone5 = [NSTimeZone timeZoneForSecondsFromGMT:28800];</span><br><span class="line"></span><br><span class="line">//Asia/Shanghai表示国内上海的时区名</span><br><span class="line">//用下面的方法来获取各时区对应的名称</span><br><span class="line">NSArray *nameArray = [NSTimeZone knownTimeZoneNames];</span><br><span class="line"></span><br><span class="line">//HKT = &quot;Asia/Hong_Kong&quot;</span><br><span class="line">//用下面的方法来获取所有时区对应的缩写数据</span><br><span class="line">NSDictionary *abbreviationDictionary = [NSTimeZone abbreviationDictionary];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">//获取时区信息</span><br><span class="line">    // 获取系统时区</span><br><span class="line">    NSTimeZone *zone1 = [NSTimeZone systemTimeZone];</span><br><span class="line">    // 获取本地时区</span><br><span class="line">    NSTimeZone *zone2 = [NSTimeZone localTimeZone];</span><br><span class="line">    // 获取默认时区</span><br><span class="line">    NSTimeZone *zone3 = [NSTimeZone defaultTimeZone];</span><br><span class="line"></span><br><span class="line">    // 计算该时区与 GMT 时区的时间差</span><br><span class="line">    NSInteger interval = [zone secondsFromGMT];</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="NSLocale"><a href="#NSLocale" class="headerlink" title="NSLocale"></a>NSLocale</h3><p>NSLocale 类返回本地化信息，主要体现在”语言”和”区域格式”这两个设置项。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">// 用标示符创建</span><br><span class="line">NSLocale *locale1 = [[NSLocale alloc] initWithLocaleIdentifier:@&quot;zh_CN&quot;];</span><br><span class="line">// 返回系统初始本地化信息</span><br><span class="line">NSLocale *locale2 = [NSLocale systemLocale];</span><br><span class="line">// 一直保持在 cache 中，第一次用此方法实例化对象后，即使修改了本地化设定，也不改变</span><br><span class="line">NSLocale *locale3 = [NSLocale currentLocale];</span><br><span class="line">// 每次修改本地化设定，其实例化的对象也会随之改变</span><br><span class="line">NSLocale *locale4 = [NSLocale autoupdatingCurrentLocale];</span><br></pre></td></tr></table></figure>
+
+<h3 id="NSDate"><a href="#NSDate" class="headerlink" title="NSDate"></a>NSDate</h3><p>NSDate 用来获取时间数据<br>NSTimeInterval 秒数值 : typedef double NSTimeInterval</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">NSDate *date = [NSDate date];</span><br><span class="line">//打印的数据：Tue Mar 13 16:37:14 2018</span><br><span class="line">//获取到的是当前设备系统所在时区的时间</span><br><span class="line"></span><br><span class="line">        </span><br><span class="line">// 当前时间加 n 秒后的值</span><br><span class="line">NSDate *date1 = [NSDate dateWithTimeIntervalSinceNow:10];</span><br><span class="line">// 某个时间增加 n 秒后的值</span><br><span class="line">NSDate *date2 = [NSDate dateWithTimeInterval:10 sinceDate:date1];</span><br><span class="line">// 从 1970-01-01 00:00:00 (GMT) 增加 n 秒后的值</span><br><span class="line">NSDate *date3 = [NSDate dateWithTimeIntervalSince1970:10];</span><br><span class="line">// 从 2001-01-01 00:00:00 (GMT) 增加 n 秒后的值</span><br><span class="line">NSDate *date4 = [NSDate dateWithTimeIntervalSinceReferenceDate:10];</span><br><span class="line">// 未来某一个时间</span><br><span class="line">NSDate *date5 = [NSDate distantFuture];</span><br><span class="line">// 过去某一个时间</span><br><span class="line">NSDate *date6 = [NSDate distantPast];        </span><br><span class="line">// 指定时间间隔</span><br><span class="line">NSDate *date7 = [date dateByAddingTimeInterval:20];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">//时间间隔，单位 秒</span><br><span class="line">    NSTimeInterval interval1 = [date timeIntervalSinceNow];</span><br><span class="line">    NSTimeInterval interval2 = [date2 timeIntervalSinceDate:date1];</span><br><span class="line">        </span><br><span class="line">    // 该时间 与 1970-01-01 00:00:00 (GMT) 的时间间隔</span><br><span class="line">    NSTimeInterval interval3 = [date timeIntervalSince1970];</span><br><span class="line">    //有时候时间戳，可能用到毫秒值，秒转化为毫秒</span><br><span class="line">    uint64 timeInt = interval3 * 1000;</span><br><span class="line">    NSLog(@&quot;%lf  %lld&quot;, interval3, timeInt); </span><br><span class="line">    //1520996792.058798  1520996792058</span><br><span class="line">        </span><br><span class="line">    // 该时间 与 2001-01-01 00:00:00 (GMT) 的时间间隔</span><br><span class="line">    NSTimeInterval interval4 = [date1 timeIntervalSinceReferenceDate];</span><br><span class="line">        </span><br><span class="line">    // 当前时间 与 2001-01-01 00:00:00 (GMT) 的时间间</span><br><span class="line">    NSTimeInterval interval5 = [NSDate timeIntervalSinceReferenceDate];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">时间的比较</span><br><span class="line">    NSDate *date1 = [NSDate date];</span><br><span class="line">    NSDate *date2 = [date1 dateByAddingTimeInterval:10];</span><br><span class="line">      </span><br><span class="line">    // 判断两个时间是否相等</span><br><span class="line">    [date1 isEqualToDate:date2];</span><br><span class="line"></span><br><span class="line">    // 比较两个时间大小</span><br><span class="line">    NSComparisonResult result = [date1 compare:date2];</span><br><span class="line"></span><br><span class="line">    // 比较两个时间，返回 较早的时间</span><br><span class="line">    NSDate *date3 = [date1 earlierDate:date2];</span><br><span class="line">            </span><br><span class="line">    // 比较两个时间，返回 较晚的时间</span><br><span class="line">    NSDate *date4 = [date1 laterDate:date2];</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="NSDateFormatter"><a href="#NSDateFormatter" class="headerlink" title="NSDateFormatter"></a>NSDateFormatter</h3><p>NSDateFormatter 时间格式化，用于将日期和时间从其内部表示形式转换为文本形式</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];</span><br><span class="line">dateFormatter.dateFormat = @&quot;yyyy-MM-dd HH:mm:ss&quot;;</span><br><span class="line">dateFormatter.timeZone = [NSTimeZone timeZoneWithName:@&quot;Asia/Shanghai&quot;];</span><br><span class="line"></span><br><span class="line">//NSDate 转换为 NSString</span><br><span class="line">NSString * nowDateStr = [dateFormatter stringFromDate:[NSDate date]];</span><br><span class="line">    </span><br><span class="line">//给定格式的日期字符串，转换为 NSDate</span><br><span class="line">//如果字符串格式不是dateFormat确定的格式，则返回值为空</span><br><span class="line">NSDate *timeDate = [dateFormatter dateFromString:@&quot;2018-03-13 16:20:48&quot;];</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//设置地区locale 不同，输出的时间格式也不同</span><br><span class="line">NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init]</span><br><span class="line">dateFormatter.locale = [[NSLocale alloc] initWithLocaleIdentifier:@&quot;en_US&quot;];</span><br><span class="line"></span><br><span class="line">dateFormatter.dateFormat = @&quot;EEE MMM dd HH:mm:ss&quot;;</span><br><span class="line">NSString * nowDateStr = [dateFormatter stringFromDate:[NSDate date]];</span><br><span class="line">//NSLocale设置为 en_US 输出为：  Tue Mar 13 19:34:53</span><br><span class="line">//zh_CN 输出为：周二 3月 13 19:35:36</span><br></pre></td></tr></table></figure>
+<br>
+
+<p> NSDateFormatter 常用的日期格式：</p>
+<table>
+<thead>
+<tr>
+<th>格式</th>
+<th>输出结果</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>yyyy-MM-dd</td>
+<td>2018-03-13</td>
+</tr>
+<tr>
+<td>MM dd yyyy</td>
+<td>03 13 2018</td>
+</tr>
+<tr>
+<td>yyyy-MM-dd HH:mm:ss</td>
+<td>2018-03-13 16:48:09</td>
+</tr>
+<tr>
+<td>EEE MMM dd HH:mm:ss</td>
+<td>周二 3月 13 19:35:36（zh_CN）<br>Tue Mar 13 19:34:53（en_US）</td>
+</tr>
+<tr>
+<td>yyyy-MM-dd a HH:mm:ss EEEE</td>
+<td>2018-03-13 下午 16:48:09 星期二（zh_CN）<br> 2018-03-13 PM 16:48:09 Tuesday (en_US)</td>
+</tr>
+<tr>
+<td>yyyy-MM-dd HH:mm:ss.SSS</td>
+<td>2018-03-13 16:48:12.319</td>
+</tr>
+</tbody></table>
+<br>
+
+<p> NSDateFormatter格式化参数：</p>
+<table>
+<thead>
+<tr>
+<th>参数</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>G</td>
+<td>公元[时代]，例如AD公元</td>
+</tr>
+<tr>
+<td>yy、yyyy</td>
+<td>年份， yy：年的后2位， yyyy：年 4位</td>
+</tr>
+<tr>
+<td>MM、MMM、MMMM</td>
+<td>月份<br>MM：显示为数字1-12，<br>MMM ：中英文显示有区别，如3月、Mar <br>MMMM：显示如 三月、March</td>
+</tr>
+<tr>
+<td>d、D、dd</td>
+<td>日<br>d：一个月中的第几天<br>D：一年中的第几天<br>dd：2位数表示，如02</td>
+</tr>
+<tr>
+<td>EEE、EEEE</td>
+<td>EEE：周几，中英文显示有区别，如周二、Tue<br>EEEE：星期几，如星期二、Tuesday</td>
+</tr>
+<tr>
+<td>w、W</td>
+<td>w：一年中的第几周<br>W：一个月中的第几周</td>
+</tr>
+<tr>
+<td>F</td>
+<td>月份包含几周，以7天为一个单位来统计周，与日历上的周几无关</td>
+</tr>
+<tr>
+<td>aa</td>
+<td>上午、下午，AM&#x2F;PM</td>
+</tr>
+<tr>
+<td>H</td>
+<td>时，24小时制，0-23</td>
+</tr>
+<tr>
+<td>K</td>
+<td>时，12小时制，0-11</td>
+</tr>
+<tr>
+<td>m、mm</td>
+<td>m：分，1-2位<br>mm：分，2位</td>
+</tr>
+<tr>
+<td>s、ss、S</td>
+<td>s：秒，1-2位<br>ss：秒，2位<br>S：毫秒</td>
+</tr>
+</tbody></table>
+<br>
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];</span><br><span class="line">dateFormatter.dateFormat = @&quot;yyyy年MM月dd日 HH点mm分ss秒 &#x27;Date Test&#x27;&quot;;</span><br><span class="line">NSString * nowDateStr = [dateFormatter stringFromDate:[NSDate date]];</span><br><span class="line">NSLog(@&quot; %@ &quot;, nowDateStr); </span><br><span class="line">//2018年03月13日 19点35分36秒 Date Test</span><br></pre></td></tr></table></figure>
+<br>
+
+<blockquote>
+<p><strong>注意</strong><br>在进行时间格式化时，别忘了设置时区 dateFormatter.timeZone &#x3D; … ，macOS、iOS11 默认的是使用系统所在的时区，如果忘了设置时区从字符串转化为 NSDate 可能返回值为空，且如果忘记在不同的地区获取的时间会不同，这是个坑，要注意。</p>
+</blockquote>
+<br>
+
+<h3 id="NSCalendar、NSDateComponents"><a href="#NSCalendar、NSDateComponents" class="headerlink" title="NSCalendar、NSDateComponents"></a>NSCalendar、NSDateComponents</h3><p>NSDateComponents 封装了具体年月日、时秒分、周、季度等。将时间表示成方便使用的方式，通过 NSDateComponents 可以快速而简单地获取某个时间点对应的“年”，“月”，“日”，“时”，“分”，“秒”，“周”等信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];</span><br><span class="line">calendar.timeZone = [NSTimeZone timeZoneWithName:@&quot;Asia/Shanghai&quot;];</span><br><span class="line"></span><br><span class="line">NSDateComponents *components = [calendar components:</span><br><span class="line">                                        NSCalendarUnitWeekday|</span><br><span class="line">                                        NSCalendarUnitMonth|</span><br><span class="line">                                        NSCalendarUnitDay</span><br><span class="line">                                                   fromDate:nowDate];</span><br><span class="line"></span><br><span class="line">NSInteger week = components.weekday;//周几，1-周日，2-周一，...</span><br><span class="line">NSInteger month = components.month;</span><br><span class="line">NSInteger day = components.day;</span><br></pre></td></tr></table></figure>
+<p>NSCalendarUnit :</p>
+<p><img src="/images/2018/nsdate-1.png" alt="NSCalendarUnit"></p>
+<br>
+
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/content/documentation/Cocoa/Conceptual/DatesAndTimes/DatesAndTimes.html#//apple_ref/doc/uid/10000039-SW1">Date and Time Programming Guide</a><br><a target="_blank" rel="noopener" href="http://userguide.icu-project.org/formatparse/datetime">http://userguide.icu-project.org/formatparse/datetime</a><br><a target="_blank" rel="noopener" href="http://www.cnblogs.com/QianChia/p/5782780.html">http://www.cnblogs.com/QianChia/p/5782780.html</a><br><a target="_blank" rel="noopener" href="http://www.cnblogs.com/QianChia/p/5782780.html">http://www.cnblogs.com/QianChia/p/5782780.html</a><br><a target="_blank" rel="noopener" href="https://www.douban.com/note/147740972/">https://www.douban.com/note/147740972/</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

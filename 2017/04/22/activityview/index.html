@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    UIActivityViewController使用 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">UIActivityViewController使用</div>
+  <div class="post-meta">
+    <div class="date">2017 April 22nd</div>
+    <div class="tags">
+      
+      <div class="tag-item">OC</div>
+      
+      <div class="tag-item">UI</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>苹果从iOS6开始，提供了一个活动列表视图，为分享和操作数据提供了一个统一的服务接口，通过UIActivityViewController来控制它的呈现和关闭，凡是继承UIActivity抽象类的子类对象都可以放在列表中呈现出来。如下图所示：</p>
+<p><img src="/images/2017/activity-1.PNG" alt="活动列表"></p>
+<p>通过下面代码，就可以调出视图：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- (IBAction)activity:(id)sender &#123;</span><br><span class="line"></span><br><span class="line">    // 设置分享内容</span><br><span class="line">    NSString *text = @&quot;分享内容&quot;;</span><br><span class="line">    UIImage *image = [UIImage imageNamed:@&quot;1.jpg&quot;];</span><br><span class="line">    NSURL *url = [NSURL URLWithString:@&quot;https://www.baidu.com&quot;];</span><br><span class="line">    NSArray *activityItems = @[text, image, url];</span><br><span class="line">    </span><br><span class="line">    UIActivityViewController *activityViewController =    [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:nil];</span><br><span class="line">    [self presentViewController:activityViewController animated:YES completion:nil];</span><br><span class="line">    </span><br><span class="line">    // 选中活动列表类型</span><br><span class="line">    [activityViewController setCompletionWithItemsHandler:^(NSString * __nullable activityType, BOOL completed, NSArray * __nullable returnedItems, NSError * __nullable activityError)&#123;</span><br><span class="line">        NSLog(@&quot;act type %@&quot;,activityType);</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>默认情况下，如没有指定 UIActivityViewController 的 applicationActivities ，那么系统将会自动检测所有可用于所提供内容的服务，显示在列表中，我们也可以排除特定的 Activity 类型。<br>activityViewController.excludedActivityTypes &#x3D; @[UIActivityTypePostToFacebook];</p>
+<p>当我们点击活动列表中的选项时，系统会作出相应的操作，例如常见的，微博、微信、QQ的分享：</p>
+<p><img src="/images/2017/activity-2.PNG" alt="微博分享"><br><img src="/images/2017/activity-3.PNG" alt="微信分享"><br><img src="/images/2017/activity-4.PNG" alt="QQ分享"></p>
+<h2 id="自定义-UIActivity"><a href="#自定义-UIActivity" class="headerlink" title="自定义 UIActivity"></a>自定义 UIActivity</h2><p>如果系统提供的操作不能满足我们的需求，也可以自定义UIActivity，可获取按钮选择事件，手动的进行处理。下面就来手动的实现微博分享操作。</p>
+<h5 id="1-创建WeiboActivity："><a href="#1-创建WeiboActivity：" class="headerlink" title="1.创建WeiboActivity："></a>1.创建WeiboActivity：</h5><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">//WeiboActivity.m</span><br><span class="line">#import &quot;WeiboActivity.h&quot;</span><br><span class="line">@implementation WeiboActivity</span><br><span class="line"></span><br><span class="line">+ (UIActivityCategory)activityCategory&#123;</span><br><span class="line">    return UIActivityCategoryShare;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (NSString *)activityType&#123;</span><br><span class="line">    return @&quot;com.myz.share.weibo.post&quot;;</span><br><span class="line">&#125;</span><br><span class="line">//显示在列表中的图标</span><br><span class="line">- (UIImage *)activityImage&#123;</span><br><span class="line">    return [UIImage imageNamed:@&quot;share_weibo&quot;];</span><br><span class="line">&#125;</span><br><span class="line">//显示在列表中标题</span><br><span class="line">- (NSString *)activityTitle&#123;</span><br><span class="line">    return @&quot;微博分享&quot;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (BOOL)canPerformWithActivityItems:(NSArray *)activityItems&#123;</span><br><span class="line">    return YES;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)prepareWithActivityItems:(NSArray *)activityItems&#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">- (void)performActivity &#123;</span><br><span class="line">    if (self.performWeiboActivityBlock) &#123;</span><br><span class="line">        self.performWeiboActivityBlock();</span><br><span class="line">    &#125;</span><br><span class="line">    [self activityDidFinish:YES];</span><br><span class="line">&#125;</span><br><span class="line">@end</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>UIActivity 类型:</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">+ (UIActivityCategory)activityCategory；</span><br><span class="line">- (NSString *)activityType；</span><br></pre></td></tr></table></figure>
+<p>UIActivity 类型又分为“分享”和“操作”两大类，如下图所示：</p>
+<p><img src="/images/2017/activity-5.PNG" alt="UIActivityType"></p>
+<ul>
+<li>列表未显示前判断是否显示该activity，YES显示。这里可以根据将要分享的内容activityItems来判断是否在列表中显示该activity。例如微博分享最多九张图，在这里可以判断是否超过，从而来确定是否显示。</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)canPerformWithActivityItems:(NSArray *)activityItems;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>点击该activity后调用的方法</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)performActivity;</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h6 id="2-自定义好了activity后就可以显示了："><a href="#2-自定义好了activity后就可以显示了：" class="headerlink" title="2.自定义好了activity后就可以显示了："></a>2.自定义好了activity后就可以显示了：</h6><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">WeiboActivity * weiboActivity = [[WeiboActivity alloc] init];</span><br><span class="line">weiboActivity.performWeiboActivityBlock = ^&#123;</span><br><span class="line">    [self socialSinaWeibo];</span><br><span class="line">&#125;;</span><br><span class="line">NSArray * activitys = @[weiboActivity];</span><br><span class="line"></span><br><span class="line">UIActivityViewController *activityViewController =    [[UIActivityViewController alloc] initWithActivityItems:activityItems applicationActivities:activitys];</span><br><span class="line">[self presentViewController:activityViewController animated:YES completion:nil];</span><br></pre></td></tr></table></figure>
+
+
+<p><img src="/images/2017/activity-6.PNG" alt="自定义分享按钮"></p>
+<h5 id="3-分享到微博"><a href="#3-分享到微博" class="headerlink" title="3.分享到微博"></a>3.分享到微博</h5><p>想要分享到微博，获取到点击事件后还需要进一步的处理，这里使用系统的微博分享接口，使用前需要在系统设置中登陆微博账号</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">//@import Social</span><br><span class="line">- (void)socialSinaWeibo &#123;</span><br><span class="line">    // 1. 判断设备是否支持指定的分享平台</span><br><span class="line">    // SLComposeViewController：社交分享的视图控制器</span><br><span class="line">    BOOL isAvailable = [SLComposeViewController isAvailableForServiceType:SLServiceTypeSinaWeibo];</span><br><span class="line">    if (isAvailable == NO) &#123;</span><br><span class="line">        NSLog(@&quot;应用不支持新浪微博分享&quot;);</span><br><span class="line">        return;</span><br><span class="line">    &#125;</span><br><span class="line">    // 2. 创建分享视图控制器，并指定分享平台</span><br><span class="line">    SLComposeViewController *composeVC = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeSinaWeibo];</span><br><span class="line">    /* 系统支持的分享功能可以分享的平台</span><br><span class="line">     SOCIAL_EXTERN NSString *const SLServiceTypeTwitter</span><br><span class="line">     SOCIAL_EXTERN NSString *const SLServiceTypeFacebook</span><br><span class="line">     SOCIAL_EXTERN NSString *const SLServiceTypeSinaWeibo</span><br><span class="line">     SOCIAL_EXTERN NSString *const SLServiceTypeTencentWeibo</span><br><span class="line">     SOCIAL_EXTERN NSString *const SLServiceTypeLinkedIn</span><br><span class="line">     */    </span><br><span class="line"></span><br><span class="line">    // 3. 设置分享内容</span><br><span class="line">    [composeVC setInitialText:@&quot;微博分享&quot;];</span><br><span class="line">    [composeVC addImage:[UIImage imageNamed:@&quot;1.png&quot;]];</span><br><span class="line">    [composeVC addURL:[NSURL URLWithString:@&quot;https://www.baidu.com&quot;]];</span><br><span class="line">    </span><br><span class="line">    // 4. 进入分享界面</span><br><span class="line">    [self presentViewController:composeVC animated:YES completion:^&#123;</span><br><span class="line">        NSLog(@&quot;进入分享界面&quot;);</span><br><span class="line">    &#125;];</span><br><span class="line">    // 5. 监听用户操作</span><br><span class="line">    [composeVC setCompletionHandler:^(SLComposeViewControllerResult result) &#123;</span><br><span class="line">        if (result == SLComposeViewControllerResultCancelled) &#123;</span><br><span class="line">            NSLog(@&quot;取消分享&quot;);</span><br><span class="line">        &#125;else if (result == SLComposeViewControllerResultDone) &#123;</span><br><span class="line">            NSLog(@&quot;分享成功&quot;);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;];</span><br><span class="line">    </span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/2017/activity-7.PNG" alt="微博分享"></p>
+<p><img src="/images/2017/activity-8.PNG" alt="分享结果"></p>
+<p>这样就可以实现自定义的微博分享的功能，可在微博中查看分享的内容，显示来自iOS。</p>
+<p>Demo: <a target="_blank" rel="noopener" href="https://github.com/MA806P/ActivityDemo">https://github.com/MA806P/ActivityDemo</a></p>
+<h4 id="References"><a href="#References" class="headerlink" title="References"></a>References</h4><p><a target="_blank" rel="noopener" href="https://github.com/nixzhu/dev-blog/blob/master/2014-04-22-ui-activity-viewcontroller.md">https://github.com/nixzhu/dev-blog/blob/master/2014-04-22-ui-activity-viewcontroller.md</a><br><a target="_blank" rel="noopener" href="http://www.jianshu.com/p/9de528d96466">http://www.jianshu.com/p/9de528d96466</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

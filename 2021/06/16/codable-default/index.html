@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Swift - Codable 解码设置默认值 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Swift - Codable 解码设置默认值</div>
+  <div class="post-meta">
+    <div class="date">2021 June 16th</div>
+    <div class="tags">
+      
+      <div class="tag-item">Swift</div>
+      
+      <div class="tag-item">Codable</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>Swift - Codable 解码设置默认值</p>
+<p>上一篇 <a href="https://ma806p.github.io/2021/06/08/codable/">Swift - Codable 使用小记</a> 文章中介绍了 Codable 的使用，它能够把 JSON 数据转换成 Swift 代码中使用的类型。本文来进一步研究使用 Codable 解码如何设置默认值的问题。  </p>
+<h2 id="解码遇到的问题"><a href="#解码遇到的问题" class="headerlink" title="解码遇到的问题"></a>解码遇到的问题</h2><p>之前的文章中提到了，遇到 JSON 数据中字段为空的情况，把属性设置为可选的，当返回为空对象或 null 时，解析为 nil。<br>当我们希望字段为空时，对应的属性要设置一个默认值，我们处理的一种方法是重写 init(from decoder: Decoder) 方法，在 decodeIfPresent 判断设置默认值，代码如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">struct Person: Decodable &#123;</span><br><span class="line">    let name: String</span><br><span class="line">    let age: Int</span><br><span class="line">    </span><br><span class="line">    enum CodingKeys: String, CodingKey &#123;</span><br><span class="line">        case name, age</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    init(from decoder: Decoder) throws &#123;</span><br><span class="line">        let container = try decoder.container(keyedBy: CodingKeys.self)</span><br><span class="line">        name = try container.decode(String.self, forKey: .name)</span><br><span class="line">        age = try container.decodeIfPresent(Int.self, forKey: .age) ?? -1</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let data = &quot;&quot;&quot;</span><br><span class="line">&#123; &quot;name&quot;: &quot;小明&quot;, &quot;age&quot;: null&#125;</span><br><span class="line">&quot;&quot;&quot;</span><br><span class="line">let p = try JSONDecoder().decode(Person.self, from: data.data(using: .utf8)!)</span><br><span class="line">//Person(name: &quot;小明&quot;, age: -1)</span><br></pre></td></tr></table></figure>
+<p>这种方法显然很麻烦，需要为每个类型添加 CodingKeys 和 init(from decoder: Decoder) 代码，有没有更好、更方便的方法呢？<br>我们先来了解一下 property wrapper 。    </p>
+<hr>
+<h2 id="Property-Wrapper"><a href="#Property-Wrapper" class="headerlink" title="Property Wrapper"></a>Property Wrapper</h2><p>property wrapper 属性包装器，在管理属性如何存储和定义属性的代码之间添加了一层隔离。当使用属性包装器时，你只需在定义属性包装器时编写一次管理代码，然后应用到多个属性上来进行复用。它相当于提供一个特殊的盒子，把属性值包装进去。当你把一个包装器应用到一个属性上时，编译器将合成提供包装器存储空间和通过包装器访问属性的代码。  </p>
+<p>例如有个需求，要求属性值不得大于某个数，实现的时候要一个个在属性 set 方法中判断是否大于，然后进行处理，这样很显然很麻烦。这时就可以定义一个属性包装器，在这里进行处理，然后把包装器应用到属性上去，代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line">@propertyWrapper</span><br><span class="line">struct SmallNumber &#123;</span><br><span class="line">    private var maximum: Int</span><br><span class="line">    private var number: Int</span><br><span class="line">    </span><br><span class="line">    var wrappedValue: Int &#123;</span><br><span class="line">        get &#123; return number &#125;</span><br><span class="line">        set &#123; number = min(newValue, maximum) &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    init() &#123;</span><br><span class="line">        maximum = 12</span><br><span class="line">        number = 0</span><br><span class="line">    &#125;</span><br><span class="line">    init(wrappedValue: Int) &#123;</span><br><span class="line">        maximum = 12</span><br><span class="line">        number = min(wrappedValue, maximum)</span><br><span class="line">    &#125;</span><br><span class="line">    init(wrappedValue: Int, maximum: Int) &#123;</span><br><span class="line">        self.maximum = maximum</span><br><span class="line">        number = min(wrappedValue, maximum)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">struct SmallRectangle &#123;</span><br><span class="line">    @SmallNumber var height: Int</span><br><span class="line">    @SmallNumber(wrappedValue: 10, maximum: 20) var width: Int</span><br><span class="line">&#125;</span><br><span class="line">var rect = SmallRectangle()</span><br><span class="line">print(rect.height, rect.width) //0 10</span><br><span class="line"></span><br><span class="line">rect.height = 30</span><br><span class="line">print(rect.height) //12</span><br><span class="line"></span><br><span class="line">rect.width = 40</span><br><span class="line">print(rect.width) //20</span><br><span class="line"></span><br><span class="line">print(rect)</span><br><span class="line">//SmallRectangle(_height: SmallNumber(maximum: 12, number: 12), _width: SmallNumber(maximum: 20, number: 20))</span><br></pre></td></tr></table></figure>
+<p>上面例子中 SmallNumber 定义了三个构造器，可使用构造器来设置被包装值和最大值， height 不大于 12，width 不大于 20。<br>通过打印的内容可看到 _height: SmallNumber(maximum: 12, number: 12)，被 SmallNumber 声明的属性，实际上存储的类型是 SmallNumber 类型，只不过编译器进行了处理，对外暴露的类型依然是原来的类型 Int。<br>编译器对属性的处理，相当于下面的代码处理方法：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">struct SmallRectangle &#123;</span><br><span class="line">    private var _height = SmallNumber()</span><br><span class="line">    var height: Int &#123;</span><br><span class="line">        get &#123; return _height.wrappedValue &#125;</span><br><span class="line">        set &#123; _height.wrappedValue = newValue &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    //...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>将属性 height 包装在 SmallNumber 结构体中，get  set 操作的值其实是结构体中 wrappedValue 的值。<br>弄清楚这些之后，我们利用属性包装器给属性包装一层，在 Codable 解码的时候操作的是 wrappedValue ，这时我们就可以在属性包装器中进行判断，设置默认值。顺着这个思路下面我们来实现以下。  </p>
+<hr>
+<h2 id="设置默认值"><a href="#设置默认值" class="headerlink" title="设置默认值"></a>设置默认值</h2><p>通过前面的分析，大概有了思路，定义一个能够提供默认值的 Default  property wrapper ，利用这个 Default 来包装属性，Codable 解码的时候把值赋值 Default 的 wrappedValue，如解码失败就在这里设置默认值。</p>
+<h3 id="初步实现"><a href="#初步实现" class="headerlink" title="初步实现"></a>初步实现</h3><p>初步实现的代码如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">@propertyWrapper</span><br><span class="line">struct Default: Decodable &#123;</span><br><span class="line">    var wrappedValue: Int</span><br><span class="line">    </span><br><span class="line">    init(from decoder: Decoder) throws &#123;</span><br><span class="line">        let container = try decoder.singleValueContainer()</span><br><span class="line">        wrappedValue = (try? container.decode(Int.self)) ?? -1</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">struct Person: Decodable &#123;</span><br><span class="line">    @Default var age: Int</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">let data = #&quot;&#123; &quot;age&quot;: null&#125;&quot;#</span><br><span class="line">let p = try JSONDecoder().decode(Person.self, from: data.data(using: .utf8)!)</span><br><span class="line">print(p, p.age)</span><br><span class="line">//Person(_age: Default(wrappedValue: -1)) -1</span><br></pre></td></tr></table></figure>
+<p>可以看到上面的例子中，JSON 数据为 null，解码到 age 设置了默认值 -1。  </p>
+<h3 id="改进代码"><a href="#改进代码" class="headerlink" title="改进代码"></a>改进代码</h3><p>接着我们来改进一下，上面例子只是对 Int 类型的设置了默认值，下面来使用泛型，扩展一下对别的类型支持。<br>还有一个问题就是，如果 JSON 中 age 这个 key 缺失的情况下，依然会发生错误，因为我们所使用的解码器默认生成的代码是要求 key 存在的。需要改进一下为 container 重写对于 Default 类型解码的实现。<br>改进后的代码如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line">protocol DefaultValue &#123;</span><br><span class="line">    associatedtype Value: Decodable</span><br><span class="line">    static var defaultValue: Value &#123; get &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@propertyWrapper</span><br><span class="line">struct Default&lt;T: DefaultValue&gt; &#123;</span><br><span class="line">    var wrappedValue: T.Value</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension Default: Decodable &#123;</span><br><span class="line">    init(from decoder: Decoder) throws &#123;</span><br><span class="line">        let container = try decoder.singleValueContainer()</span><br><span class="line">        wrappedValue = (try? container.decode(T.Value.self)) ?? T.defaultValue</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension KeyedDecodingContainer &#123;</span><br><span class="line">    func decode&lt;T&gt;(_ type: Default&lt;T&gt;.Type, forKey key: Key) throws -&gt; Default&lt;T&gt; where T: DefaultValue &#123;</span><br><span class="line">        //判断 key 缺失的情况，提供默认值</span><br><span class="line">        (try decodeIfPresent(type, forKey: key)) ?? Default(wrappedValue: T.defaultValue)</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">extension Int: DefaultValue &#123;</span><br><span class="line">    static var defaultValue = -1</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">extension String: DefaultValue &#123;</span><br><span class="line">    static var defaultValue = &quot;unknown&quot;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">struct Person: Decodable &#123;</span><br><span class="line">    @Default&lt;String&gt; var name: String</span><br><span class="line">    @Default&lt;Int&gt; var age: Int</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">let data = #&quot;&#123; &quot;name&quot;: null, &quot;age&quot;: null&#125;&quot;#</span><br><span class="line">let p = try JSONDecoder().decode(Person.self, from: data.data(using: .utf8)!)</span><br><span class="line">print(p, p.name, p.age)</span><br><span class="line">//Person(_name: Default&lt;Swift.String&gt;(wrappedValue: &quot;unknown&quot;), _age: Default&lt;Swift.Int&gt;(wrappedValue: -1))</span><br><span class="line">//unknown  -1</span><br></pre></td></tr></table></figure>
+<p>这样如我们需要对某种类型在解码时设置默认值，我们只需要对应的添加个扩展，遵循 DefaultValue 协议，提供一个想要的默认值 defaultValue 即可。<br>而且对于 JSON 中 key 缺失的情况，也做了处理，重写了 container.decode() 方法，判断 key 缺失的情况，如 key 缺失，返回默认值。  </p>
+<h3 id="设置多种默认值的情况"><a href="#设置多种默认值的情况" class="headerlink" title="设置多种默认值的情况"></a>设置多种默认值的情况</h3><p>有时我们再不同情况下，同种类型的数据需要设置不同的默认值，例如 String 类型的属性，在有的地方默认值需要设置为 “unknown”，有的地方则需要设置为 “unnamed”，这是我们处理方法如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">extension String &#123;</span><br><span class="line">    struct Unknown: DefaultValue &#123;</span><br><span class="line">        static var defaultValue = &quot;unknown&quot;</span><br><span class="line">    &#125;</span><br><span class="line">    struct Unnamed: DefaultValue &#123;</span><br><span class="line">        static var defaultValue = &quot;unnamed&quot;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">@Default&lt;String.Unnamed&gt; var name: String</span><br><span class="line">@Default&lt;String.Unknown&gt; var text: String</span><br></pre></td></tr></table></figure>
+<p>这样就实现了不同的情况定义不同的默认值。  </p>
+<hr>
+<h2 id="其他问题"><a href="#其他问题" class="headerlink" title="其他问题"></a>其他问题</h2><p>还有一个问题，自定义的数据类型，解码到异常的数据可能导致我们的代码崩溃，还是举之前文章中的例子，枚举类型解析，如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">enum Gender: String, Codable &#123;</span><br><span class="line">    case male</span><br><span class="line">    case female</span><br><span class="line">&#125;</span><br><span class="line">struct Person: Decodable &#123;</span><br><span class="line">    var gender: Gender</span><br><span class="line">&#125;</span><br><span class="line">//&#123; &quot;gender&quot;: &quot;other&quot; &#125;</span><br></pre></td></tr></table></figure>
+<p>当 JSON 数据中的 gender 对应的值不在 Gender 枚举的 case 字段中，解码的时候会出现异常，即使 gender 属性是可选的，也会出现异常。要解决这个问题，也可以重写 init(from decoder: Decoder) ，在里面进行判断是否解码异常，然后进行处理。  </p>
+<p>相比于使用枚举，其实这里用一个带有 raw value 的 struct 来表示会更好，代码如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">struct Gender: RawRepresentable, Codable &#123;</span><br><span class="line">    static let male = Gender(rawValue: &quot;male&quot;)</span><br><span class="line">    static let female = Gender(rawValue: &quot;female&quot;)</span><br><span class="line">    </span><br><span class="line">    let rawValue: String</span><br><span class="line">&#125;</span><br><span class="line">struct XMan: Decodable &#123;</span><br><span class="line">    var gender: Gender</span><br><span class="line">&#125;</span><br><span class="line">let mData = #&quot;&#123; &quot;gender&quot;: &quot;other&quot; &#125;&quot;#</span><br><span class="line">let m = try JSONDecoder().decode(XMan.self, from: mData.data(using: .utf8)!)</span><br><span class="line">print(m) //XMan(gender: Gender(rawValue: &quot;other&quot;))</span><br><span class="line">print(m.gender == .male) //false</span><br></pre></td></tr></table></figure>
+<p>这样，就算以后为 Gender 添加了新的字符串，现有的实现也不会被破坏，这样也更加稳定。  </p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://onevcat.com/2020/11/codable-default/">https://onevcat.com/2020/11/codable-default/</a><br><a target="_blank" rel="noopener" href="https://docs.swift.org/swift-book/LanguageGuide/Properties.html#ID617">https://docs.swift.org/swift-book/LanguageGuide/Properties.html#ID617</a><br><a target="_blank" rel="noopener" href="http://marksands.github.io/2019/10/21/better-codable-through-property-wrappers.html">http://marksands.github.io/2019/10/21/better-codable-through-property-wrappers.html</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

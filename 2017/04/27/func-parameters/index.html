@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    可变参数的函数 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">可变参数的函数</div>
+  <div class="post-meta">
+    <div class="date">2017 April 27th</div>
+    <div class="tags">
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>当我们无法列出传递函数的所有实参的类型和数目时,可以用省略号指定参数表</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)parameterList:(NSString *)a,...;</span><br></pre></td></tr></table></figure>
+
+<p>函数参数是以数据结构:栈的形式存取,从右至左入栈。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">void func(int x, float y, char z);</span><br></pre></td></tr></table></figure>
+<p>调用函数的时候，实参 char z 先进栈，然后是 float y，最后是 int x，因此在内存中变量的存放次序是 x-&gt;y-&gt;z，因此，从理论上说，我们只要探测到任意一个变量的地址，并且知道其他变量的类型，通过指针移位运算，则总可以找到其他的输入变量。</p>
+<p>获取参数：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">//va_list 是一个字符指针</span><br><span class="line">//可以理解为指向当前参数的一个指针</span><br><span class="line">//取参必须通过这个指针进行。</span><br><span class="line">typedef char * va_list;</span><br><span class="line"></span><br><span class="line">void va_start ( va_list ap, prev_param ); </span><br><span class="line">type va_arg ( va_list ap, type ); </span><br><span class="line">void va_end ( va_list ap ); </span><br></pre></td></tr></table></figure>
+<ol>
+<li>在调用参数表之前，定义一个 va_list 类型的变量，(假设va_list 类型变量被定义为ap)；</li>
+<li>然后应该对ap 进行初始化，让它指向可变参数表里面的第一个参数，这是通过 va_start 来实现的，第一个参数是 ap 本身，第二个参数是在变参表前面紧挨着的一个变量,即“…”之前的那个参数；</li>
+<li>然后是获取参数，调用va_arg，它的第一个参数是ap，第二个参数是要获取的参数的指定类型，然后返回这个指定类型的值，并且把 ap 的位置指向变参表的下一个变量位置；</li>
+<li>获取所有的参数之后，我们有必要将这个 ap 指针关掉，以免发生危险，方法是调用 va_end，他是输入的参数 ap 置为 NULL。通常va_start和va_end是成对出现。</li>
+</ol>
+<p>例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">- (void)parameterList:(int)a,... &#123;</span><br><span class="line">    </span><br><span class="line">    va_list argp;   //定义保存函数参数的结构</span><br><span class="line">    int argno = 0;</span><br><span class="line">    int para;       //argp指向传入的第一个可选参数，a是最后一个确定的参数</span><br><span class="line">    va_start( argp, a);</span><br><span class="line">    </span><br><span class="line">    while (1) &#123;</span><br><span class="line">        para = va_arg( argp, int);</span><br><span class="line">        if ( para == 0 ) &#123; break; &#125;</span><br><span class="line">        NSLog(@&quot;Parameter #%d is: %d\n&quot;, argno, para);</span><br><span class="line">        argno++;</span><br><span class="line">    &#125;</span><br><span class="line">    va_end( argp ); //将argp置为NULL</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">- (void)parameterStringList:(NSString *)msg,...&#123;</span><br><span class="line"></span><br><span class="line">    va_list argp;</span><br><span class="line">    NSString * parameter;</span><br><span class="line">    va_start(argp, msg);</span><br><span class="line">    </span><br><span class="line">    while (1) &#123;</span><br><span class="line">        parameter = va_arg(argp, NSString *);</span><br><span class="line">        if (parameter == nil) &#123; break; &#125;</span><br><span class="line">        NSLog(@&quot;parameter: %@&quot;, parameter);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    va_end(argp);</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>运行结果：</p>
+<p><img src="/images/2017/parameter-1.png" alt="可变参数函数调用"></p>
+<h6 id="References："><a href="#References：" class="headerlink" title="References："></a>References：</h6><p><a target="_blank" rel="noopener" href="http://www.cnblogs.com/hanyonglu/archive/2011/05/07/2039916.html">http://www.cnblogs.com/hanyonglu/archive/2011/05/07/2039916.html</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

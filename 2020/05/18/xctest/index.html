@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS单元测试-XCTest 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS单元测试-XCTest</div>
+  <div class="post-meta">
+    <div class="date">2020 May 18th</div>
+    <div class="tags">
+      
+      <div class="tag-item">测试</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>单元测试（Unit Testing）又称为模块测试，是针对程序模块软件设计来进行正确性检验的测试工作。程序单元是应用的最小可测试部件。对于面向对象编程，最小单元就是方法，包括基类、抽象类、或者派生类中的方法。  </p>
+<p>单元测试通常由软件开发人员编写，用于确保他们所写的代码符合软件需求和遵循开发目标。通常来说，每修改一次程序就会进行最少一次单元测试，在编写程序的过程中前后很可能要进行多次单元测试，以证实程序达到工作目标要求。  </p>
+<p>Xcode 集成了对单元测试的支持 XCTest。XCTest 是从 Xcode5 开始引入的一个测试框架，是上一代测试框架 OCUnit 的更现代化实现。XCTest 提供了与 Xcode 更好的集成。下面我们简单介绍下XCTest的使用。  </p>
+<h3 id="XCTest"><a href="#XCTest" class="headerlink" title="XCTest"></a>XCTest</h3><p>在 Xcode 新建项目时，勾选 Unit Tests 和 UI Tests，会创建对应的测试 target，并创建了继承于XCTestCase 的测试用例类，该类继承自 XCTestCase 类，其中包含三个方法：setUp，tearDown和 testExample。  </p>
+<ul>
+<li>setUp 用于在测试前设置好需要用到的对象等  </li>
+<li>tearDown 在测试结束时调用  </li>
+<li>testExample 是一个测试方法，测试方法命名通常是 testXXX 的格式，且不能有参数，不然不会识别为测试方法，测试方法的执行顺序是按照方法名中 test 后面的字符顺序执行的。  </li>
+<li>measureBlock: 性能测试方法，将需要性能测试的代码放入 block 里，运行这个方法会执行多次，运行时间比对设定的标准值和偏差判断是否可以通过测试</li>
+</ul>
+<p><img src="/images/2020/xctest-1.png">  </p>
+<p>创建完成后，就可以在测试方法里，编写测试代码，然后点击方法前的菱形按钮运行测试方法, 也可以使用快捷键 command+u 运行整个测试单元。正确运行后显示绿色对勾，运行错误会显示红色叉号。  </p>
+<p><img src="/images/2020/xctest-2.png">  </p>
+<h3 id="断言"><a href="#断言" class="headerlink" title="断言"></a>断言</h3><p>大部分的测试方法使用断言决定的测试结果。所有断言都有一个类似的形式：比较，表达式为真假，强行失败等。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">XCTFail(format...)  直接Fail</span><br><span class="line">XCTAssertNil(a1,format...)为空判断， a1为空时通过，反之不通过；</span><br><span class="line">XCTAssertNotNil(a1,format...) 不为空判断，a1不为空时通过，反之不通过；</span><br><span class="line">XCTAssert(expression,format...) 当expression求值为true时通过；</span><br><span class="line">XCTAssertTrue(expression,format...) 当expression求值为true时通过；</span><br><span class="line">XCTAssertFalse(expression,format...) 当expression求值为False时通过；</span><br><span class="line">XCTAssertEqualObjects(a1, a2,format...) 判断相等 [a1 isEqual:a2]值为TRUE时通过，其中一个不为空时，不通过；</span><br><span class="line">XCTAssertNotEqualObjects(a1, a2,format...) 判断不等，[a1 isEqual:a2]值为False时通过；</span><br><span class="line">XCTAssertEqual(a1, a2, format...)判断相等（当a1和a2是标量、结构体或联合体时使用,实际测试发现NSString也可以）；</span><br><span class="line">XCTAssertNotEqual(a1, a2, format...)判断不等（当a1和a2是标量、结构体或联合体时使用）；</span><br><span class="line">XCTAssertEqualWithAccuracy(a1, a2, accuracy, format...)判断相等，（double或float类型）提供一个误差范围，当在误差范围（+/-accuracy）以内相等时通过测试；</span><br><span class="line">XCTAssertNotEqualWithAccuracy(a1, a2, accuracy, format...) 判断不等，（double或float类型）提供一个误差范围，当在误差范围以内不等时通过测试；</span><br><span class="line">XCTAssertThrows(expression, format...)异常测试，当expression发生异常时通过；反之不通过；（很变态）</span><br><span class="line">XCTAssertThrowsSpecific(expression, specificException, format...) 异常测试，当expression发生specificException异常时通过；反之发生其他异常或不发生异常均不通过；</span><br><span class="line">XCTAssertThrowsSpecificNamed(expression, specificException, exception_name, format...)异常测试，当expression发生具体异常、具体异常名称的异常时通过测试，反之不通过；</span><br><span class="line">XCTAssertNoThrow(expression, format…)异常测试，当expression没有发生异常时通过测试；</span><br><span class="line">XCTAssertNoThrowSpecificNamed(expression, specificException, exception_name, format...)异常测试，当expression没有发生具体异常、具体异常名称的异常时通过测试，反之不通过</span><br></pre></td></tr></table></figure>
+
+<p>自定义断言宏<br>在使用断言时，经常使用一些特定情况的断言，写非常的啰嗦，难以阅读。并且还都是重复代码。可以通过编写自己的断言宏来解决这个问题。例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">NSString *string = @&quot;http&quot;;</span><br><span class="line">XCTAssertTrue([string isKindOfClass:[NSString class]] &amp;&amp; [string hasPrefix:@&quot;http&quot;],</span><br><span class="line">    @&quot;&#x27;%@&#x27; is not a valid URL string&quot;, string);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">//自定义断言</span><br><span class="line">#define AssertIsValidURLString(a) \</span><br><span class="line">if (![a isKindOfClass:[NSString class]] || ![a hasPrefix:@&quot;http&quot;]) &#123; \</span><br><span class="line">    XCTFail(@&quot;&#x27;%@&#x27; is not a valid URL string&quot;, a); \</span><br><span class="line">&#125;\</span><br><span class="line"></span><br><span class="line">NSString *text = @&quot;123&quot;;</span><br><span class="line">AssertIsValidURLString(text);</span><br></pre></td></tr></table></figure>
+<p>对于更复杂的断言和检查，可以使用简单的辅助类，方便检查。  </p>
+<h3 id="异步测试"><a href="#异步测试" class="headerlink" title="异步测试"></a>异步测试</h3><p>测试异步方法时，例如网络请求等耗时操作，由于执行结果不是立即就能获取到，XCTest 提供了一些辅助方法，如下例所示：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">- (void)testAsynExample &#123;</span><br><span class="line">    XCTestExpectation *expectation = [self expectationWithDescription:@&quot;操作超时。。&quot;];</span><br><span class="line">    NSOperationQueue *queue = [[NSOperationQueue alloc]init];</span><br><span class="line">    [queue addOperationWithBlock:^&#123;</span><br><span class="line">        sleep(2); //模拟耗时操作</span><br><span class="line">        [expectation fulfill];</span><br><span class="line">        XCTAssert(YES, @&quot;fail&quot;); //判断异步方法的结果是否正确</span><br><span class="line">    &#125;];</span><br><span class="line"></span><br><span class="line">    //等待 XCTestExpectation fulfill，设置延时等待多少秒，如果超时就报错</span><br><span class="line">    [self waitForExpectationsWithTimeout:1 handler:^(NSError * _Nullable error) &#123;</span><br><span class="line">        if (error) &#123;</span><br><span class="line">            NSLog(@&quot;Error: %@&quot;, error);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>waitForExpectationsWithTimeout: 方法会在规定时间内，等待期望  XCTestExpectation 满足 fulfill，规定时间内不满足期望就会报错。  </p>
+<p>异步测试除了使用 expectationWithDescription 以外，还可以使用  expectationForPredicate 和 expectationForNotification </p>
+<ul>
+<li>expectationForPredicate</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (void)testAsynExample &#123;</span><br><span class="line">    XCTAssertNil(self.imageView.image);</span><br><span class="line">    [self.imageView setImageWithURL:self.jpegURL];</span><br><span class="line">    </span><br><span class="line">    NSPredicate *predicate = [NSPredicate predicateWithFormat:@&quot;image != nil&quot;];</span><br><span class="line">    [self expectationForPredicate:predicate evaluatedWithObject:self.imageView handler:nil];</span><br><span class="line">    [self waitForExpectationsWithTimeout:10 handler:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>NSPredicate 谓词判断，是否加载出了图片，self.imageView.image !&#x3D; nil，在规定时间内是否测试通过。</p>
+<ul>
+<li>expectationForNotification 监听一个通知，在规定时间内等待，是否收到通知</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (void)testAsynExample &#123;</span><br><span class="line">    //....</span><br><span class="line">    [self expectationForNotification:@&quot;NotificationName&quot; object:nil handler:nil];</span><br><span class="line">    [self waitForExpectationsWithTimeout:10 handler:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="UITest"><a href="#UITest" class="headerlink" title="UITest"></a>UITest</h3><p>上面介绍的单元测试是对 app 的业务逻辑以及网络接口方面的测试。下面来介绍一下 UI 的测试。  在创建项目时勾选 UI Tests 会创建对应的 UI 测试的 target，如果你要在已有项目中添加 UI Tests 的话，可以新建一个 iOS UI Testing 的 target。创建完成后和上面一样也会创建对应的继承于 XCTestCase 测试类。  </p>
+<p><img src="/images/2020/xctest-3.png">  </p>
+<h4 id="UI-行为录制"><a href="#UI-行为录制" class="headerlink" title="UI 行为录制"></a>UI 行为录制</h4><p>写好 UI 后就可以，进行我们的 UI 测试了，在 setUp 中，我们使用 XCUIApplication 的 launch 方法来启动测试 app。XCUIApplication 是 UIApplication 在测试进程中的代理 (proxy)，我们可以在 UI 测试中通过这个类型和应用本身进行一些交互，比如开始或者终止一个 app。<br>然后使用 Xcode 的 UI Testing 直接录制操作，操作如下：  </p>
+<p><img src="/images/2020/xctest-4.gif"> </p>
+<p>点击录制按钮，启动 app，点击 UI 就会在测试方法中，生成对应的测试代码，看起来很厉害的样子。  </p>
+<h4 id="获取-UI-元素"><a href="#获取-UI-元素" class="headerlink" title="获取 UI 元素"></a>获取 UI 元素</h4><p>在录制时，点击输入框，可以看到获取 UI 元素的代码，如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (void)testExample &#123;</span><br><span class="line">    XCUIApplication *app = [[XCUIApplication alloc] init];</span><br><span class="line">    XCUIElement *element = [[[[[[[[[app childrenMatchingType:XCUIElementTypeWindow] elementBoundByIndex:0] childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element childrenMatchingType:XCUIElementTypeOther].element;</span><br><span class="line">    [[element childrenMatchingType:XCUIElementTypeTextField].element tap];</span><br><span class="line">    [[element childrenMatchingType:XCUIElementTypeSecureTextField].element tap];</span><br><span class="line">    </span><br><span class="line">    [app.buttons[@&quot;login&quot;].staticTexts[@&quot;login&quot;] tap];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>自动录制生成的代码使用了很多 query 来查询文本框，获取代表 app 中具体 UI 元素的 XCUIElement，然后对其进行测试操作。但是这样产生大量代码，难以理解，我们可使用简洁的方法获取 UI 元素。<br>在 Interface Builder 或者代码中进行设置 textfield 的 identifier :  </p>
+<p><img src="/images/2020/xctest-5.png"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">- (void)testExample &#123;</span><br><span class="line">    </span><br><span class="line">    NSString *name = @&quot;admin&quot;;</span><br><span class="line">    NSString *pwd = @&quot;123&quot;;</span><br><span class="line">    </span><br><span class="line">    XCUIApplication *app = [[XCUIApplication alloc] init];</span><br><span class="line">    //获取 name 输入框</span><br><span class="line">    XCUIElement *nameTextField = app.textFields[@&quot;nameTextField&quot;];</span><br><span class="line">    [nameTextField tap];</span><br><span class="line">    [nameTextField typeText:name]; //输入框中写入文字</span><br><span class="line">    </span><br><span class="line">    //获取 pwd 输入框</span><br><span class="line">    XCUIElement *pwdTextField = app.secureTextFields[@&quot;pwdTextField&quot;];</span><br><span class="line">    [pwdTextField tap];</span><br><span class="line">    [pwdTextField typeText:pwd];</span><br><span class="line">    </span><br><span class="line">    //点击 login 按钮</span><br><span class="line">    [app.buttons.staticTexts[@&quot;login&quot;] tap];</span><br><span class="line">    </span><br><span class="line">    //登录需要网络请求，等待一段时间。登录成功 push 到下一个页面</span><br><span class="line">    //这里判断在规定的时间内导航栏是否 push 过去</span><br><span class="line">    XCUIElement *nav = app.navigationBars[name].staticTexts[name];</span><br><span class="line">    NSPredicate *predicate = [NSPredicate predicateWithFormat:@&quot;exists == 1&quot;];</span><br><span class="line">    [self expectationForPredicate:predicate evaluatedWithObject:nav handler:nil];</span><br><span class="line">    [self waitForExpectationsWithTimeout:6 handler:nil];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>上面的操作是获取两个输入框，并写入内容，点击登录 push 到下一个页面。  </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>本篇文章介绍了，使用 Xcode 来进行单元测试的一些操作，可以看到还是很方便快捷的。熟练掌握单元测试的一些技巧，对于提高 app 的质量还是有很大帮助的。</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="http://liuyanwei.jumppo.com/2016/03/10/iOS-unit-test.html">iOS单元测试</a><br><a target="_blank" rel="noopener" href="https://objccn.io/issue-15-2/">XCTest 测试实战</a><br><a target="_blank" rel="noopener" href="https://onevcat.com/2015/09/ui-testing/">WWDC15 Session笔记 - Xcode 7 UI 测试初窥</a>  </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

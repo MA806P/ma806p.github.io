@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Jenkins 自动化测试 iOS 项目 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Jenkins 自动化测试 iOS 项目</div>
+  <div class="post-meta">
+    <div class="date">2020 November 23rd</div>
+    <div class="tags">
+      
+      <div class="tag-item">测试</div>
+      
+      <div class="tag-item">自动化</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>上一篇文章 <a target="_blank" rel="noopener" href="http://yupeng.fun/2020/11/16/jenkins/">Jenkins 自动化打包 iOS 项目</a> 已经介绍了 Jenkins，以及在 mac 上安装 Jenkins。本文来介绍一下使用 Jenkins 来完成自动化测试，并输出测试覆盖率。<br>有关 iOS 单元测试的内容，可以查看之前的文章 <a target="_blank" rel="noopener" href="http://yupeng.fun/2020/05/18/xctest/">iOS 单元测试 - XCTest</a>。  </p>
+<hr>
+<h2 id="iOS-测试覆盖率"><a href="#iOS-测试覆盖率" class="headerlink" title="iOS 测试覆盖率"></a>iOS 测试覆盖率</h2><p>首先在 Xcode 中开启 Coverage ，可以选择你要收集覆盖率的 target，那些 pods 里面的第三方的库就不要勾选了，只需测试查看项目中的覆盖率。  </p>
+<p><img src="/images/2020/jenkins-test-01.png">  </p>
+<p>打开之后，点击测试，测试执行完成后就可以看到代码的覆盖率了。  </p>
+<p><img src="/images/2020/jenkins-test-02.png">  </p>
+<hr>
+<h2 id="Jenkins-自动化测试"><a href="#Jenkins-自动化测试" class="headerlink" title="Jenkins 自动化测试"></a>Jenkins 自动化测试</h2><p>有关 Jenkins 安装在上篇文章中已经介绍了，这里我们直接看一下在 Jenkins 上自动化测试的流程。  </p>
+<h3 id="安装工具"><a href="#安装工具" class="headerlink" title="安装工具"></a>安装工具</h3><p>首先需要在 mac 上安装一下 OCUnit2JUnit 和 slather。  </p>
+<p>1、安装 OCUnit2JUnit<br><a target="_blank" rel="noopener" href="https://github.com/ciryon/OCUnit2JUnit">OCUnit2JUnit</a> 是一个脚本，可将 OCUnit 的输出转换为 JUnit 使用的格式。 主要目的是能够在 Jenkins 上解析 OCUnit  测试用例的输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gem install ocunit2junit -n /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+<p>2、安装 slather<br><a target="_blank" rel="noopener" href="https://github.com/SlatherOrg/slather">slather</a> 为 Xcode 项目生成测试覆盖率报告，并将其挂接到 Jenkins 上。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo gem install nokogiri</span><br><span class="line">sudo gem install slather -n /usr/local/bin</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="Jenkins-配置"><a href="#Jenkins-配置" class="headerlink" title="Jenkins 配置"></a>Jenkins 配置</h3><p>首先在 Jenkins 插件管理中，搜索安装插件 JUnit 和 HTML Publisher。  </p>
+<p>插件安装完成之后，就可以进行后面的操作了。<br>1、在 Jenkins 中新建任务。<br>2、在配置构建中，添加 执行 shell，输入命令：  </p>
+<p><img src="/images/2020/jenkins-test-03.png">  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">cd $&#123;WORKSPACE&#125;/my-test</span><br><span class="line"></span><br><span class="line"># 进行测试并通过 ocunit2junit 转化为 JUnit 格式的结果</span><br><span class="line">xcodebuild test -project MyTestProject.xcodeproj -scheme MyTestProject -destination &#x27;platform=iOS Simulator,name=iPhone 11&#x27; -configuration Debug -enableCodeCoverage YES 2&gt;&amp;1 | /usr/local/bin/ocunit2junit</span><br><span class="line"></span><br><span class="line"># 创建 xml 报告，默认 xml 报告保存在当前目录 test-reports 文件夹</span><br><span class="line">/usr/local/bin/slather coverage --scheme MyTestProject MyTestProject.xcodeproj</span><br><span class="line"># 创建 html 报告，默认 html 报告保存路径为前目录 html 文件夹</span><br><span class="line">/usr/local/bin/slather coverage --html --scheme MyTestProject MyTestProject.xcodeproj</span><br></pre></td></tr></table></figure>
+
+<p>注意上面的 ${WORKSPACE} 就是项目文件夹所在的位置，如果项目代码就在这个文件夹里，后面就不用跟路径了，不然就重复了。<br>然后注意 scheme 名称，和 workspace 名称，如果项目没有使用 pod，只有 .xcodeproj 文件就不用加 –workspace 选项了，–ignore 忽略第三方的代码。  </p>
+<p>还有 &#x2F;usr&#x2F;local&#x2F;bin&#x2F;slather，&#x2F;usr&#x2F;local&#x2F;bin&#x2F;ocunit2junit  这个前面要加上文件路径，不然报错说找不到 slather 和 ocunit2junit。  </p>
+<p>3、添加构建后的操作<br>添加 publish JUnit test result report  </p>
+<p><img src="/images/2020/jenkins-test-04.png">  </p>
+<p>测试报告 xml 文件路径你就写，test-reports&#x2F;*.xml 就行，不用管项目中有没有这个文件夹，运行时会自动生成，test-reports 这个文件夹，然后生成的 xml 文件放在这里，你写别的文件夹运行会报错，说找不到文件，最好每次运行把这个 test-reports 文件夹删除，遇到重复运行的会报错。</p>
+<p>添加 publlish html reports  </p>
+<p><img src="/images/2020/jenkins-test-05.png">  </p>
+<p>输入导出的 html 文件名，这个直接写个名字就行了，导出的 html 就是在项目代码文件夹下面，会自动生成你输入的名字文件，然后生成成功后会导入到 .jenkins&#x2F;jobs&#x2F;项目名&#x2F;htmlreports&#x2F;CodeCoverage 文件夹中，你看到的报告网页就是这个，不知为何，在Jenkins 只能打开 index.html 的页面链接点击定位错误，直接在文件夹里点击 index.html 网页显示正常。</p>
+<p>4、立即构建<br>配置完成之后，就可以构建了，任务执行完成之后会生成代码覆盖率的报告，可以查看各个代码文件的覆盖率。<br><img src="/images/2020/jenkins-test-06.png">  </p>
+<p>构建执行完在项目文件夹下生成有关 html 文件，你可以打开网页查看。<br><img src="/images/2020/jenkins-test-07.png">  </p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://xiaoye220.github.io/Jenkins-UnitTest/">https://xiaoye220.github.io/Jenkins-UnitTest/</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

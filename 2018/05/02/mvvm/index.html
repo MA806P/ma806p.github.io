@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    MVC, MVVM, MVP简介 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">MVC, MVVM, MVP简介</div>
+  <div class="post-meta">
+    <div class="date">2018 May 2nd</div>
+    <div class="tags">
+      
+      <div class="tag-item">项目</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>本篇文章介绍一下在 iOS 开发中常用的架构模式。<br>好的架构应该具有哪些特征呢？<br>1、每个对象都拥有一个特定、明确的角色<br>2、有一个简单的数据流，容易理解，方便调试<br>3、不依赖于某个特定的框架或者服务<br>4、足够灵活，架构容易理解，修改容易<br>5、可测试性</p>
+<p>MVC, MVVM, MVP，三种模式都是把所有的实体归类到了下面三种分类中的一种：</p>
+<ul>
+<li>Models（模型） 数据层，或者负责处理数据的 数据接口层</li>
+<li>Views（视图）展示层(GUI)。对于 iOS 来说所有以 <em>UI</em> 开头的类基本都属于这层</li>
+<li>Controller&#x2F;Presenter&#x2F;ViewModel（控制器&#x2F;展示器&#x2F;视图模型）它是 <em>Model</em> 和 <em>View</em> 之间的中间人。一般来说，当用户对 <em>View</em> 有操作时它负责去修改相应 <em>Model</em>，当 <em>Model</em> 的值发生变化时它负责去更新对应 <em>View</em></li>
+</ul>
+<h3 id="MVC"><a href="#MVC" class="headerlink" title="MVC"></a>MVC</h3><p>MVC是构建 iOS App 的标准模式，是 Apple 推荐的一个架构模式，Apple 认为我们应该做的是，Controller 用于协调 View 和 Model 之间的关系，然后 Controller 是功能最多的部分，所以人们总是会将 View Controller 称之为Massive View Controller（重量级视图控制器）。</p>
+<p><img src="/images/2018/mvvm-1.png" alt="via: Stanford CS193p"></p>
+<br>
+
+<p>在实际的项目中，我们常常把 Model 放到了 Controller 里，而且 Model 也无法与 Controller 进行有效的通讯 (图中的 Notification &amp; KVO 部分)，另外 View Controller 与 View 的生命周期绑定得非常紧密，这导致 Controller 承载了太多的功能，没办法将这三者清晰地分离开来。MVC 的三种实体被紧密耦合着，每一种实体都和其他两种有着联系。View Controller 和 View 的权责被交织在了一起。人们在 View Controller 当中实现网络请求、下载、数据处理，会使得 Controller 非常臃肿，导致测试变得异常困难。传统的 MVC 已经不适合当下的 iOS 开发了。</p>
+<br>
+
+<h3 id="MVVM"><a href="#MVVM" class="headerlink" title="MVVM"></a>MVVM</h3><p>MVC 架构模式的几个不能避免的问题严重困扰开发者，厚重的ViewController、职责划分不清晰、较差的可测试性等，因此也就会有维护性较强、耦合性很低的一种新架构MVVM (MVC 引申出得新的架构)的流行。</p>
+<p><img src="/images/2018/mvvm-2.png"><br><br><br>View 持有 ViewModel 的引用，反之没有。ViewModel 持有 Model 的引用，反之没有<br>比起 MVC，MVVM 多了一个 ViewModel 用来处理一些业务逻辑、验证逻辑、网络请求等，要注意的是，任何视图本身的引用都不应该放在 ViewModel 中，ViewModel 是独立于 UIKit 的 。MVVM 架构把 ViewController 看做 View。View 和 Model 之间没有紧耦合。</p>
+<ul>
+<li>MVC中在 C 中获取到数据 M ，然后将 M 传递给 V，V上面有点击事件的时候传给 C，C 处理后改变 M，在传给 V 刷新页面。</li>
+<li>MVVM中在 VM 中获取数据 M ，M 更新的时候，通过 VM 和 V 之间的绑定，然后刷新 V。V 中有点击事件交给 VM 去处理，VM 处理后刷新 V。<br>将逻辑代码、网络请求等都写入了VM中，然后又由于VM中包含了所有的展示逻辑而且不会引用V，所以它是可以通过编程充分测试的。</li>
+</ul>
+<p>ViewModel 能主动调用对 Model 做更改，也能在 Model 更新的时候对自身进行调整，然后通过 View 和 ViewModel 之间的绑定，对 View 也进行对应的更新。它的职责就是作为一个表现视图显示自身所需数据的静态模型；它也有收集, 解释和转换那些数据的责任，这留给了 view (controller) 一个更加清晰明确的任务: 呈现由 ViewModel 提供的数据。</p>
+<p> View 和 ViewModel 之间的绑定，在 iOS 中我们可以使用 KVO 和 通知，但是用这些方式去做绑定不太方便。使用全量级的函数式响应编程框架,比如 <a target="_blank" rel="noopener" href="https://www.google.co.uk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=1&cad=rja&uact=8&ved=0CB4QFjAAahUKEwj2l6rZv5jJAhUFUhQKHWahCKs&url=https://github.com/ReactiveCocoa/ReactiveCocoa&usg=AFQjCNHM-pOkluiSuPsaVwVujCDTknVFUA&sig2=54zu-ATo8vDMvtXbxZYTvQ">ReactiveCocoa</a>、<a target="_blank" rel="noopener" href="https://github.com/ReactiveX/RxSwift/">RxSwift</a>。</p>
+<p>实际上，提到 MVVM 就应该会想到 ReactiveCocoa。虽然我们可以通过简单的绑定来实现 MVVM 模式，但是 ReactiveCocoa（或者同类型的框架）会让你更大限度的去理解 MVVM。</p>
+<br>
+
+<h3 id="MVP"><a href="#MVP" class="headerlink" title="MVP"></a>MVP</h3><p>在 MVP 架构模式中，把大部分的职责都分配到了 Presenter 和 Model 里面，而 View 基本上不需要做什么。<br>在 MVC 里面 View 和 Controller 是耦合紧密的，但是对于 MVP 里面的 Presenter 来讲，它完全不关注 ViewController 的生命周期，而且 View 也能被简单 mock 出来，所以在 Presenter 里面基本没什么布局相关的代码，它的职责只是通过数据和状态更新 View。</p>
+<p><img src="/images/2018/mvvm-3.png"></p>
+<br>
+
+<p>简单写了个小例子，希望可以帮助理解，如有错误还望指正。<br>GitHub:  <strong><a target="_blank" rel="noopener" href="https://github.com/MA806P/MV-X_Project">MV-X_Project</a></strong></p>
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><p><a target="_blank" rel="noopener" href="http://yulingtianxia.com/blog/2015/05/21/ReactiveCocoa-and-MVVM-an-Introduction/">http://yulingtianxia.com/blog/2015/05/21/ReactiveCocoa-and-MVVM-an-Introduction/</a><br><a target="_blank" rel="noopener" href="https://blog.coding.net/blog/ios-architecture-patterns">https://blog.coding.net/blog/ios-architecture-patterns</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Jenkins 自动化打包 iOS 项目 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Jenkins 自动化打包 iOS 项目</div>
+  <div class="post-meta">
+    <div class="date">2020 November 16th</div>
+    <div class="tags">
+      
+      <div class="tag-item">自动化</div>
+      
+      <div class="tag-item">CI</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h2 id="Jenkins-简介"><a href="#Jenkins-简介" class="headerlink" title="Jenkins 简介"></a>Jenkins 简介</h2><p>Jenkins 是一款流行的持续集成（Continuous Integration）工具，广泛用于项目开发，具有自动化构建、测试和部署等功能。<br>Jenkins 是一个开源项目，用 Java 语言编写，它提供了一种易于使用的持续集成系统，使开发者从繁杂的集成中解脱出来，专注于更为重要的业务逻辑实现上。同时 Jenkins 能实施监控集成存在的错误，提供详细的日志文件和提醒功能，还能用图表的形式形象地展示项目构建的趋势和稳定性。  </p>
+<p>本文就来介绍一下 Jenkins 的安装过程，然后利用 Jenkins 实现自动化打包 iOS 项目。  </p>
+<hr>
+<h2 id="Jenkins-安装"><a href="#Jenkins-安装" class="headerlink" title="Jenkins 安装"></a>Jenkins 安装</h2><p>本文描述的是在 mac 上进安装情况，安装前要先安装 java sdk，安装方法自行搜索。<br>安装 Jenkins 通过 homebrew 安装比较方便，也可以下载安装包手动安装，<a target="_blank" rel="noopener" href="https://www.jenkins.io/download/">Jenkins 官网下载</a> ，为了方便我们使用 homebrew 来进行安全，没有安装 homebrew 的自行搜索安装方法。  </p>
+<h3 id="1、安装命令"><a href="#1、安装命令" class="headerlink" title="1、安装命令"></a>1、安装命令</h3><blockquote>
+<p>Jenkins 安装命令：<br>安装最新的LTS版本： brew install jenkins-lts<br>安装特定的LTS版本： brew install jenkins-lts@YOUR_VERSION<br>启动 Jenkins 服务： brew services start jenkins-lts<br>重新启动 Jenkins 服务： brew services restart jenkins-lts<br>更新 Jenkins 版本： brew upgrade jenkins-lts  </p>
+</blockquote>
+<p>终端输入安装命令：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew install jenkins-lts  </span><br></pre></td></tr></table></figure>
+<p>jenkins-lts 这是第三方支持的包，更新频率可能不如 Jenkins 项目直接支持的包更新频繁。   </p>
+<p>等待片刻，安装完成后，输入命令，启动服务：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">brew services start jenkins-lts </span><br></pre></td></tr></table></figure>
+
+<p>然后在浏览器中输入地址 <a target="_blank" rel="noopener" href="http://localhost:8080/">http://localhost:8080</a> ，即可看到 Jenkins 页面。  </p>
+<h3 id="2、解锁-Jenkins"><a href="#2、解锁-Jenkins" class="headerlink" title="2、解锁 Jenkins"></a>2、解锁 Jenkins</h3><p>看到解锁界面，按照提示在文件中找到密码，输入密码：<br><img src="/images/2020/jenkins-02.png">  </p>
+<h3 id="3、安装推荐插件"><a href="#3、安装推荐插件" class="headerlink" title="3、安装推荐插件"></a>3、安装推荐插件</h3><p>点击安装推荐的插件，若有些插件提示安装失败，点击继续，再次安装，最好把建议的插件都安装好。<br><img src="/images/2020/jenkins-03.png">  </p>
+<h3 id="4、创建用户"><a href="#4、创建用户" class="headerlink" title="4、创建用户"></a>4、创建用户</h3><p>输入信息，创建用户：<br><img src="/images/2020/jenkins-04.png"><br>然后就可以进入 Jenkins 主界面了，安装完成。</p>
+<h3 id="5、插件管理"><a href="#5、插件管理" class="headerlink" title="5、插件管理"></a>5、插件管理</h3><p>在 Manage Jenkins 选项的 Manage Plugins 中可以管理你要安装的插件。<br>可更新的表示你所安装的插件中可以更新的插件，可选插件你可以在其中找到你要安装的插件。<br>高级选项中，你可以自行上传安装插件。  </p>
+<p>在可选插件选项中，搜索 Keychains and Provisioning Profiles Management 插件进行安装，这个插件后面打包会用到，用来管理钥匙串、描述文件等。<br>还有 Xcode 插件，用来打包的插件。<br>等待安装完成，重启即可。<br><img src="/images/2020/jenkins-06.png">  </p>
+<p><img src="/images/2020/jenkins-07.png">  </p>
+<p><img src="/images/2020/jenkins-07-1.png">  </p>
+<hr>
+<h2 id="Jenkins-创建任务"><a href="#Jenkins-创建任务" class="headerlink" title="Jenkins 创建任务"></a>Jenkins 创建任务</h2><p>安装好 Jenkins ，安装好插件，然后我们就可以新建任务，来实现自动化打包了，按照下面的步骤一步步来。</p>
+<h3 id="1、新建任务"><a href="#1、新建任务" class="headerlink" title="1、新建任务"></a>1、新建任务</h3><p>点击新建任务，输入任务名称，选择构建一个自由风格的软件项目：<br><img src="/images/2020/jenkins-08.png">  </p>
+<p>点击确定后，进入任务的配置页面。</p>
+<h3 id="2、任务配置"><a href="#2、任务配置" class="headerlink" title="2、任务配置"></a>2、任务配置</h3><p>进入任务配置页面，可看到菜单栏有几大项，General 、源码管理、构建触发器、构建环境、构建、构建后操作。  </p>
+<ul>
+<li><p>General<br>可以设置保留构建次数、发布包天数等，这个按照需要设置：<br><img src="/images/2020/jenkins-09.png">  </p>
+</li>
+<li><p>源代码管理<br>在这里设置 git 源代码仓库链接、添加 git 账号，账号没有的话可添加一个，若 git 验证失败的话会报错：<br><img src="/images/2020/jenkins-10.png">  </p>
+</li>
+<li><p>构建触发器<br>在这里设置触发构建，如设置提交代码后触发构建，也可以定时构建，这里按照需要设置，本例子跳过，没有设置。  </p>
+</li>
+<li><p>构建环境<br>在这里设置 Keychains and Code Signing Identities 时遇到个问题：<br>在前面安装 Keychains and Provisioning Profiles Management  插件后，在系统管理里面找到 Keychains and Provisioning Profiles Management ，点进去要上传 Keychain 这里一直上传不上去，搜了一下说是，Jenkins 新版本上传不上去点击没反应，旧版本就可以上传上，可能是 Jenkins 问题，不上传 Keychain 的话，在这里 Keychains and Code Signing Identities 就选择不了 Keychain  这问题解决不了，除非安装旧版本的 Jenkins 。在这就不设置 Keychain 了，下面构建时候，使用 Xcode 插件构建，里面有设置 Code signing &amp; OS X keychain options 设置好也能正常打包，这里就不设置了。<br><img src="/images/2020/jenkins-11.png">  </p>
+</li>
+<li><p>构建<br>在这里来设置你要构建的步骤，我们以 iOS 打包为例子来设置一下构建步骤。<br>首先点击增加构建步骤， 如果你的项目使用了 pod，在 git 拉取到源代码后，先执行一下 pod install，这里就需要先添加一步，执行 shell，如下：<br><img src="/images/2020/jenkins-12.png"></p>
+</li>
+</ul>
+<p>然后在添加构建步骤，选择 Xcode ，在前安装了 Xcode 插件，这里就会显示 Xcode 选项。添加 Xcode:<br><img src="/images/2020/jenkins-13.png">  </p>
+<p><img src="/images/2020/jenkins-14.png"><br>前面的一些可不填，按照你的需要填写，必填的是在 settings 展开，需要填写项目的 Schema   </p>
+<blockquote>
+<p>Xcode scheme 定义了编译集合中的若干target，编译时的一些设置以及要执行的测试集合。<br>你可以自定义若干个scheme，但是同一时刻只能运行一个.<br>target包含了所有的源文件，它来决定编译哪些文件。一个project可以包含一个或多个target。scheme定义了一个target集合，它来决定运行和构建哪个target。  </p>
+</blockquote>
+<p><img src="/images/2020/jenkins-15.png"><br>这不知怎填的话，就用 Xcode 打开项目，上面的那个就是 Xcode Schema File ，填进去。也可以通过终端命令 xcodebuild -list 查看。<br>然后勾选 Generate Archive, Pack application, build and sign .ipa 。设置导出的包名称，导出包的文件路径等。   </p>
+<br>
+
+<p><img src="/images/2020/jenkins-16.png"><br>然后就是设置打包证书，展开 Code signing settings.. ，勾选手动设置 Manual signing，填入项目的 Bundle ID 和 描述文件的 UUID，这个在描述文件中能看到复制过来填入就行了。  </p>
+<p><img src="/images/2020/jenkins-16-1.png"><br>然后勾选 Unlock Keychain，这里要设置你的钥匙串文件路径，保证在构建的时候能找到描述文件对应的正确的证书。这里是在你的 mac 上去找你的钥匙串文件，密码就是你的电脑密码。   </p>
+<p><img src="/images/2020/jenkins-17.png"><br>然后设置 Advanced Xcode build options ，在这里设置你的 Xcode Workspace File，项目中没有 workspace 文件的话就不用填，以及构建完成后输出的文件路径。  </p>
+<p>需要填写的就这些，其他选项，如有需要自行填写，如不明白选项的作用点击问号有解释。  </p>
+<ul>
+<li>构建后的操作<br>来到这一步，就说明，我们已经构建完成了，已经打包完成了，导出的 ipa 包已经在你设置的文件夹下面了。在这里我们可以设置下面的步骤，拿到包后可以上传网站提供下载了，例如上传到 fir.im、蒲公英等，对应的服务网站都有上传的教程，自己去查看，这里就不说明了。</li>
+</ul>
+<h3 id="3、开始构建"><a href="#3、开始构建" class="headerlink" title="3、开始构建"></a>3、开始构建</h3><p>通过上面，填写完成构建任务配置之后，我们就可以开始，构建打包任务了。<br><img src="/images/2020/jenkins-18.png">   </p>
+<p>进入任务页面，菜单栏中点击立即构建，然后任务就开始运行了，下面会显示当前构建的进度条，每次构建都有记录，点击进去可以查看构建的详情，控制台输出构建的过程，方便我们进行调试。<br><img src="/images/2020/jenkins-19.png">   </p>
+<p>Jenkins 中构建成功或失败的状态用颜色来表示：<br><img src="/images/2020/jenkins-20.png">   </p>
+<p><img src="/images/2020/jenkins-21.webp">   </p>
+<p>还有一个状态是构建晴雨表，表示项目构建的质量，图标如下：<br><img src="/images/2020/jenkins-22.webp">   </p>
+<hr>
+<h2 id="iOS-打包命令"><a href="#iOS-打包命令" class="headerlink" title="iOS 打包命令"></a>iOS 打包命令</h2><p>上面的构建，我们是使用 Jenkins 的 Xcode 插件来进行打包，除了这种方法，我们还可以编写打包命名，使用打包脚本来进行打包，下面就来介绍两种打包方法，xcodebuild、fastlane。  </p>
+<h3 id="xcodebuild"><a href="#xcodebuild" class="headerlink" title="xcodebuild"></a>xcodebuild</h3><p>xcodebuild 是苹果提供的打包的命令。详细的使用文档，可在终端输入命令 man xcodebuild 查看。<br>使用方法可在终端输入命令 xcodebuild -help 查看。[ ]表示这个参数是可选的，&lt; &gt; 表示参数是必须的。  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Usage: xcodebuild [-project &lt;projectname&gt;] [[-target &lt;targetname&gt;]...|-alltargets] [-configuration &lt;configurationname&gt;] [-arch &lt;architecture&gt;]... [-sdk [&lt;sdkname&gt;|&lt;sdkpath&gt;]] [-showBuildSettings [-json]] [&lt;buildsetting&gt;=&lt;value&gt;]... [&lt;buildaction&gt;]...</span><br><span class="line"></span><br><span class="line">       xcodebuild [-project &lt;projectname&gt;] -scheme &lt;schemeName&gt; [-destination &lt;destinationspecifier&gt;]... [-configuration &lt;configurationname&gt;] [-arch &lt;architecture&gt;]... [-sdk [&lt;sdkname&gt;|&lt;sdkpath&gt;]] [-showBuildSettings [-json]] [-showdestinations] [&lt;buildsetting&gt;=&lt;value&gt;]... [&lt;buildaction&gt;]...</span><br><span class="line">       </span><br><span class="line">       xcodebuild -workspace &lt;workspacename&gt; -scheme &lt;schemeName&gt; [-destination &lt;destinationspecifier&gt;]... [-configuration &lt;configurationname&gt;] [-arch &lt;architecture&gt;]... [-sdk [&lt;sdkname&gt;|&lt;sdkpath&gt;]] [-showBuildSettings] [-showdestinations] [&lt;buildsetting&gt;=&lt;value&gt;]... [&lt;buildaction&gt;]...</span><br></pre></td></tr></table></figure>
+
+<p>主要的操作就是先将项目打包成 xcarchive 文件，然后将  xcarchive 文件打包成 ipa，命令如下：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">#打包成 xcarchive 文件</span><br><span class="line">xcodebuild archive -project Hello.xcodeproj -scheme Hello -configuration Release -archivePath &quot;/Users/用户名/Desktop/Hello/Hello&quot;</span><br><span class="line"></span><br><span class="line">#将xcarchive文件打包成ipa</span><br><span class="line">xcodebuild -exportArchive -archivePath &quot;/Users/用户名/Desktop/Hello/Hello.xcarchive&quot; -exportPath &quot;/Users/用户名/Desktop/Hello/Export&quot; -exportOptionsPlist &quot;/Users/用户名/Desktop/Hello/hello.plist&quot;</span><br></pre></td></tr></table></figure>
+<p>archivePath 就是打包完成后 xcarchive 文件导出的文件路径。<br>exportPath 就是 ipa 包导出的文件路径。<br>exportOptionsPlist 这个 plist 文件需要自己创建，在里面设置一些打包的操作，设置证书名称、描述文件等，plist 字段在终端输入命令 xcodebuild -help 查看 Available keys for -exportOptionsPlist 。  </p>
+<p><img src="/images/2020/jenkins-23-1.png">   </p>
+<p>了解了打包命令，然后就可以在 Jenkins 的配置中，构建里面，就不用 Xcode 插件来进行打包了，选择执行 shell，将上面的打包命令放里面就可以了，注意文件路径别错了。<br><img src="/images/2020/jenkins-23.png">   </p>
+<p>这里可能会遇到错误，意思是找不到 provisioning profile，描述文件找不到。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Error Domain=IDEProvisioningErrorDomain Code=9 &quot;&quot;Hello.app&quot; requires a provisioning profile.&quot; UserInfo=&#123;IDEDistributionIssueSeverity=3, NSLocalizedDescription=&quot;Hello.app&quot; requires a provisioning profile., NSLocalizedRecoverySuggestion=Add a profile to the &quot;provisioningProfiles&quot; dictionary in your Export Options property list.&#125;</span><br><span class="line"></span><br><span class="line">** EXPORT FAILED **</span><br></pre></td></tr></table></figure>
+<p>解决方法是，添加描述文件路径，还记得上面我们安装了一个插件 Keychains and Provisioning Profiles Management，点击进去把描述文件路径填入，报存，重新构建就成功了。  </p>
+<p><img src="/images/2020/jenkins-24.png">   </p>
+<h3 id="fastlane"><a href="#fastlane" class="headerlink" title="fastlane"></a>fastlane</h3><p>fastlane 是用来给 iOS 或 Android 项目进行自动化测试部署、发布的工具。<br>下面来看一下 fastlane 的打包命令，详细的介绍请查看 <a target="_blank" rel="noopener" href="https://docs.fastlane.tools/">fastlane 官网</a>。  </p>
+<p>fastlane 是基于 ruby 的，所以需要安装下 ruby 环境，这个自行安装。<br>然后检查 Xcode 命令行工具是否安装。在终端窗口中输入命令：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcode-select --install</span><br></pre></td></tr></table></figure>
+<p>如果未安装，终端会开始安装。  </p>
+<p>然后开始安装 fastlane :  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo gem install fastlane</span><br></pre></td></tr></table></figure>
+<p>安装完成后，进入你的项目目录下，执行：fastlane init<br>为项目配置 fastlane，执行完成后会生成 fastlane 文件夹，里面有两个文件 Appfile 永安里设置 APP 的一些信息，还有 Fastfile 文件就是在这写入我们的打包的 ruby 脚本，打开 Fastfile 写入我们打包脚本：  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">default_platform(:ios)</span><br><span class="line"></span><br><span class="line">platform :ios do</span><br><span class="line">  desc &quot;打包测试&quot;</span><br><span class="line">  lane :ad_Hoc do</span><br><span class="line">  gym (</span><br><span class="line">    clean: true,</span><br><span class="line">    export_method: &quot;ad-hoc&quot;,</span><br><span class="line">    scheme: &quot;Hello&quot;,</span><br><span class="line">    configuration: &quot;Release&quot;,</span><br><span class="line">    output_directory: &quot;./app&quot;</span><br><span class="line">  )</span><br><span class="line">  end</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+<p>然后在项目目录下，输入执行命令 fastlane ad_hoc ，等待打包完成 ipa 包就会在你指定的文件夹下。  </p>
+<p>然后在 Jenkins 中使用 fastlane 打包，在项目的配置中，构建里面选择执行 shell，输入fastlane 命令 fastlane ad_hoc 就可以了。  </p>
+<hr>
+<h2 id="Jenkins-配置节点"><a href="#Jenkins-配置节点" class="headerlink" title="Jenkins 配置节点"></a>Jenkins 配置节点</h2><p>有时 Jenkins 可能是安装部署在 Linux 系统上，iOS 打包无法在 Linux 上进行，因为打包需要调用Xcode，Xcode 只能在 macOS 下安装。<br>这种情况我们需要在 Jenkins 上添加 macOS 节点，远程使用 mac 来给 iOS 项目打包。  </p>
+<p>首先需要一台 mac ，在 mac 上先安装好 Jenkins 。<br>然后打开系统偏好设置 -&gt; 共享 -&gt; 勾选 -&gt; 远程登录。<br><img src="/images/2020/jenkins-25.png">   </p>
+<p>在系统管理里面，进入节点管理，新建节点，在配置节点中，填写连接 mac 的设置，将远程登录 mac 的地址填入，认证的用户名密码，就是你的 mac 的用户名密码，保存就可以了。设置成功后，在节点列表可以看到你添加的节点。  </p>
+<p><img src="/images/2020/jenkins-26.png">   </p>
+<p><img src="/images/2020/jenkins-27.png">   </p>
+<p>添加完成后，进入你的任务配置中，General 下面勾选你运行的节点，然后就可以了。构建的时候就是使用你的 mac 节点构建你的任务。  </p>
+<p><img src="/images/2020/jenkins-28.png">   </p>
+<hr>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>总的来说使用 Jenkins 进行 iOS 自动化打包，就是从代码仓库拉取到项目到本地，然后使用本地环境来进行构建打包，Jenkins 给你提供了一个平台，你在上面配置好你想要的工作流程，剩下的执行工作交给 Jenkins 就可以了。要是利用好了 Jenkins 会给我们的工作效率带来极大的提升。<br>本文只是简单介绍了使用 Jenkins 进行 iOS 自动化打包，Jenkins 还有很多的功能，今后我们再进一步的研究一下。  </p>
+<hr>
+<h2 id="References"><a href="#References" class="headerlink" title="References"></a>References</h2><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/41ecb06ae95f">https://www.jianshu.com/p/41ecb06ae95f</a><br><a target="_blank" rel="noopener" href="https://juejin.cn/post/6920469161021816846">https://juejin.cn/post/6920469161021816846</a><br><a target="_blank" rel="noopener" href="http://liumh.com/2015/11/25/ios-auto-archive-ipa/index.html">http://liumh.com/2015/11/25/ios-auto-archive-ipa/index.html</a><br><a target="_blank" rel="noopener" href="https://docs.fastlane.tools/getting-started/ios/setup/">https://docs.fastlane.tools/getting-started/ios/setup/</a>  </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

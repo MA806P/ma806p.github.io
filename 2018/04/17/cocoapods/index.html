@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    CocoaPods的使用 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">CocoaPods的使用</div>
+  <div class="post-meta">
+    <div class="date">2018 April 17th</div>
+    <div class="tags">
+      
+      <div class="tag-item">项目</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>在 iOS 开发中不可避免地要使用第三方库，CocoaPods（ <a target="_blank" rel="noopener" href="https://github.com/CocoaPods/CocoaPods">https://github.com/CocoaPods/CocoaPods</a> ） 可以用来方便的统一管理这些第三方库，可以解决库与库之间的依赖关系，下载库的源代码，同时通过创建一个Xcode的workspace来将这些第三方库和我们的工程连接起来，使得我们可以节省设置和更新第三方开源库的时间。</p>
+<h3 id="CocoaPods-的安装"><a href="#CocoaPods-的安装" class="headerlink" title="CocoaPods 的安装"></a>CocoaPods 的安装</h3><p>使用 CocoaPods，首先要下载安装，下载安装 CocoaPods 需要 Ruby 环境。mac  OS 本身自带 Ruby，但还是更新一下保险。 </p>
+<ul>
+<li><p>查看下当前 ruby 版本：打开终端输入 ruby -v。</p>
+</li>
+<li><p>升级Ruby环境</p>
+<p>1、终端输入：$gem update –system</p>
+</li>
+</ul>
+<p>如果出现 ERROR:  While executing gem … (Gem::FilePermissionError) You don‘t have write permissions for the &#x2F;Library&#x2F;Ruby&#x2F;Gems&#x2F;2.0.0 directory。这个是因为你没有权限去更新 Ruby</p>
+<p>  2、这时可以在终端使用：$sudo gem update –system 来进行升级。终端输入如下命令，把 Ruby 镜像指向 ruby-china<br>（注意：目前淘宝的源已经不能用了，taobao Gems 源已停止维护，现由 ruby-china 提供镜像服务）</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">//查看当前源，命令：gem sources -l</span><br><span class="line">// 移除旧的源，命令: gem sources --remove</span><br><span class="line">$ gem sources --remove https://......</span><br><span class="line">// 添加新的源，命令: gem sources -a https://gems.ruby-china.com</span><br><span class="line">$ gem sources -a https://gems.ruby-china.com</span><br></pre></td></tr></table></figure>
+<p>修改之后，如果执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gem update --system  </span><br></pre></td></tr></table></figure>
+<p>出现错误</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Updating rubygems-update</span><br><span class="line">ERROR:  While executing gem ... (Errno::EPERM)</span><br><span class="line">    Operation not permitted - /usr/bin/update_rubygems</span><br></pre></td></tr></table></figure>
+<p>可以使用 HomeBrew (<a target="_blank" rel="noopener" href="http://brew.sh/">http://brew.sh/</a>) 来安装 ruby</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install ruby</span><br></pre></td></tr></table></figure>
+
+<p>3、下载安装CocoaPods</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo gem install cocoapods </span><br></pre></td></tr></table></figure>
+<br>
+
+<h3 id="使用CocoaPods"><a href="#使用CocoaPods" class="headerlink" title="使用CocoaPods"></a>使用CocoaPods</h3><p>1、Xcode 新建一个项目</p>
+<p>2、终端中，cd到项目总目录（注意：包含 Project 文件夹、Project.xcodeproj、Project的那个总目录） </p>
+<p>3、建立Podfile（配置文件）<br> touch Podfile（创建Podfile文件）<br>在 Podfile 文件中输入：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">source &#x27;https://github.com/CocoaPods/Specs.git&#x27;</span><br><span class="line"></span><br><span class="line">platform :ios, &#x27;8.0&#x27;</span><br><span class="line"></span><br><span class="line">target &#x27;Project&#x27; do</span><br><span class="line"></span><br><span class="line">pod &#x27;AFNetworking&#x27;, &#x27;~&gt; 3.1.0&#x27;</span><br><span class="line"></span><br><span class="line">end</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>target ‘xxx’，target 后面是你的项目名称。</p>
+<p>4、确定终端cd到项目总目录，然后输入 pod install，等待一会。<br>CocoaPods 会帮我们从git clone下来配置好的这些代码。后面的部分表示代码的版本号，一般来说和tag挂钩。</p>
+<p>5、完成之后，在文件夹下生成了 Project.xcworkspace 文件，打开就会发现已经导入了，Podfile 文件中的第三方库。</p>
+<p>6、当需要同时导入多个第三方时需要修改 Podfile了，编辑修改Podfile文件，这时需要重新执行一次 pod install 命令。</p>
+<h3 id="Podfile-lock"><a href="#Podfile-lock" class="headerlink" title="Podfile.lock"></a>Podfile.lock</h3><p>当你执行pod install之后，除了 Podfile 外，CocoaPods 还会生成一个名为Podfile.lock的文件，Podfile.lock 应该加入到版本控制里面，不应该把这个文件加入到.gitignore中。因为Podfile.lock会锁定当前各依赖库的版本，之后如果多次执行pod install 不会更改版本，要pod update才会改Podfile.lock了。这样多人协作的时候，可以防止第三方库升级时造成大家各自的第三方库版本不一致。</p>
+<h3 id="第三方库查询"><a href="#第三方库查询" class="headerlink" title="第三方库查询"></a>第三方库查询</h3><p>CocoaPods可以查找你想要的第三方库<br>终端输入命令：pod search **<br>例如：$ pod search AFNetworking，然后就会显示相应的第三方库信息<br><img src="/images/2018/cocoapods-1.png"></p>
+<br>
+
+<h3 id="CocodPods-相关命令"><a href="#CocodPods-相关命令" class="headerlink" title="CocodPods 相关命令"></a>CocodPods 相关命令</h3><h6 id="1、pod-install-："><a href="#1、pod-install-：" class="headerlink" title="1、pod install ："></a>1、pod install ：</h6><p>第一次在工程里面使用pods的时候使用，也是每次编辑 Podfile（添加、移除、更新）后使用。</p>
+<p>每次运行pod install命令的时候，在下载、安装新的库的同时，也会把你安装的每个库的版本都写在了Podfile.lock文件里面。这个文件记录你每个安装库的版本号，并且锁定了这些版本。</p>
+<p>当你使用pod install它只解决了pods里面，但不在Podfile.lock文件里面的那些库之间的依赖。对于在Podfile.lock里面所列出的那些库，会下载在Podfile.lock里面明确的版本，并不会去检查是否该库有新的版本。对于还不在Podfile.lock里面的库，会找到Podfile里面描述对应版本（例如：pod ‘AFNetworking’, ‘~&gt; 3.1.0’）。</p>
+<h6 id="2、pod-update："><a href="#2、pod-update：" class="headerlink" title="2、pod update："></a>2、pod update：</h6><p>当你运行 pod update PODNAME 命令时，CocoaPods会帮你更新到这个库的新版本，而不需要考虑Podfile.lock里面的限制，它会更新到这个库尽可能的新版本，只要符合Podfile里面的版本限制。</p>
+<p>如果你运行pod update，后面没有跟库的名字，CocoaPods就会更新每一个Podfile里面的库到尽可能的最新版本。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">pod install --verbose --no-repo-update</span><br><span class="line">只安装新增的库，已经安装的库不更新</span><br><span class="line"></span><br><span class="line">pod update 库名 --verbose --no-repo-update</span><br><span class="line">只更新指定库名的第三个库，其他库不更新</span><br></pre></td></tr></table></figure>
+
+<h6 id="3、pod-outdated："><a href="#3、pod-outdated：" class="headerlink" title="3、pod outdated："></a>3、pod outdated：</h6><p>当你运行pod outdated命令，CocoaPods会列出那些所有较Podfile.lock里面有新版本的库（那些当前被安装着的库的版本）。这个意思就是，如果你运行pod update PODNAME，如果这个库有新的版本，并且新版本仍然符合在Podfile里的限制，它就会被更新。</p>
+<h6 id="4、使用情况"><a href="#4、使用情况" class="headerlink" title="4、使用情况"></a>4、使用情况</h6><p>第一次获取pod库时，应使用pod install。需要更新依赖库时，先使用 pod outdated 查看有哪些库有更新，再使用 pod update PODNAME 有目的的更新指定库。<br>提交代码时，请注意一定同时提交Podfile.lock文件，以便其他人能同步到与你相同的pod库版本。<br>同步其他团队成员的修改时，请使用pod install。</p>
+<p>pod outdated 和 pod update 都会更新spec仓库，但是pod install不会，所以对于经常使用的pod库，建议经常pod outdated关注更新情况。</p>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>1、在使用时可能出现一下问题<br><img src="/images/2018/cocoapods-2.png"><br>解决方法：打开 Xcode 偏好设置，设置一下 Command Line Tool 就可以了<br><img src="/images/2018/cocoapods-3.png"></p>
+<br>
+
+<h4 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h4><p><a target="_blank" rel="noopener" href="http://guides.cocoapods.org/using/using-cocoapods.html#should-i-ignore-the-pods-directory-in-source-control">http://guides.cocoapods.org/using/using-cocoapods.html#should-i-ignore-the-pods-directory-in-source-control</a><br><a target="_blank" rel="noopener" href="https://guides.cocoapods.org/using/pod-install-vs-update.html">https://guides.cocoapods.org/using/pod-install-vs-update.html</a><br><a target="_blank" rel="noopener" href="http://blog.devtang.com/2014/05/25/use-cocoapod-to-manage-ios-lib-dependency/">http://blog.devtang.com/2014/05/25/use-cocoapod-to-manage-ios-lib-dependency/</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Git 使用小记 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Git 使用小记</div>
+  <div class="post-meta">
+    <div class="date">2018 August 24th</div>
+    <div class="tags">
+      
+      <div class="tag-item">项目</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>每个项目都有一个 Git 目录（译注：如果 git clone 出来的话，就是其中 .git 的目录；如果 git clone –bare 的话，新建的目录本身就是 Git 目录。），它是 Git 用来保存元数据和对象数据库的地方。该目录非常重要，每次克隆镜像仓库的时候，实际拷贝的就是这个目录里面的数据。</p>
+<h3 id="1、基本的-Git-工作流程如下："><a href="#1、基本的-Git-工作流程如下：" class="headerlink" title="1、基本的 Git 工作流程如下："></a>1、基本的 Git 工作流程如下：</h3><p>在工作目录中修改某些文件。<br>对修改后的文件进行快照，然后保存到暂存区域。<br>提交更新，将保存在暂存区域的文件快照永久转储到 Git 目录中。</p>
+<h3 id="2、-Git-配置"><a href="#2、-Git-配置" class="headerlink" title="2、 Git 配置"></a>2、 Git 配置</h3><p>在使用 Git 前需要配置一些信息，方便之后变更提交的管理。<br>配置 user 信息：</p>
+<blockquote>
+<p>git config –global user.name ‘name’<br>git config –global user.email ‘<a href="mailto:&#x65;&#x6d;&#x61;&#x69;&#x6c;&#x6e;&#x61;&#109;&#101;&#x40;&#100;&#x6f;&#x6d;&#97;&#105;&#x6e;&#x2e;&#99;&#111;&#x6d;">emailname@domain.com</a>‘</p>
+</blockquote>
+<blockquote>
+<p>git config –local    ##只对某个仓库有效,切换到另外一个仓库失效<br>git config –global    ##当前用户的所有仓库有效,工作当中最常用<br>git config –system    ##系统的所有用户,几乎不用</p>
+</blockquote>
+<p>查看配置:</p>
+<blockquote>
+<p>git config –list –local ##只能在仓库里面起作用, 普通路径git不管理<br>git config –list –global<br>git config –list –system </p>
+</blockquote>
+<p>local的在.git&#x2F;config里面；global的在个人home目录下的.gitconfig里面；system 在git安装目录的下；</p>
+<br>
+
+
+<h3 id="3、-建-Git-仓库"><a href="#3、-建-Git-仓库" class="headerlink" title="3、 建 Git 仓库"></a>3、 建 Git 仓库</h3><h6 id="A、把已有的项目代码加入-Git-管理"><a href="#A、把已有的项目代码加入-Git-管理" class="headerlink" title="A、把已有的项目代码加入 Git 管理"></a>A、把已有的项目代码加入 Git 管理</h6><p>$ cd path<br>$ git init</p>
+<p>git init 初始化后，在当前目录下会出现一个名为 .git 的目录，所有 Git 需要的数据和资源都存放在这个目录中。不过目前，仅仅是按照既有的结构框架初始化好了里边所有的文件和目录，但我们还没有开始跟踪管理项目中的任何一个文件。</p>
+<h6 id="B、新建的项目直接使用-Git-管理"><a href="#B、新建的项目直接使用-Git-管理" class="headerlink" title="B、新建的项目直接使用 Git 管理"></a>B、新建的项目直接使用 Git 管理</h6><p>$ cd path<br>$ git init project_name  #会在当前路径下创建和项目同名的文件夹</p>
+<h6 id="C、-从现有仓库克隆"><a href="#C、-从现有仓库克隆" class="headerlink" title="C、 从现有仓库克隆"></a>C、 从现有仓库克隆</h6><p>git clone 会在当前目录下创建目录，其中包含一个 .git 的目录，用于保存下载下来的所有版本记录，然后从中取出最新版本的文件拷贝。希望在克隆的时候，自己定义要新建的项目目录名称，可以在命令末尾指定新的名字：git clone [url] name .</p>
+<br>
+
+
+<h3 id="4、-git-目录"><a href="#4、-git-目录" class="headerlink" title="4、 .git 目录"></a>4、 .git 目录</h3><p>创建完 Git 仓库后，文件夹中包含一个 .git 的目录，其中包含了以下文件：<br>HEAD: 指向当前的工作的分支 refs&#x2F;heads&#x2F;master<br>config: 存放本地仓库（local）相关的配置信息。<br>refs: heads 存放分支 tags:存放tag，又叫里程牌 （当这次commit是具有里程碑意义的 比如项目1.0的时候 就可以打tag）<br>objects: 存放对象 .git&#x2F;objects&#x2F; 文件夹中的子文件夹都是以哈希值的前两位字符命名 每个object由40位字符组成，前两位字符用来当文件夹，后38位做文件。</p>
+<p>cat 命令主要用来查看文件内容，创建文件，文件合并，追加文件内容等功能。<br>cat HEAD 查看HEAD文件的内容<br>git cat-file 命令 显示版本库对象的内容、类型及大小信息。<br>git cat-file -t 4aXX 显示 git 文件对象的类型<br>git cat-file -s      显示大小<br>git cat-file -p      显示内容</p>
+<p>git 核心的几个对象，commit tree blob<br>当你向仓库中添加了一个新文件后 add 添加到暂存区后，git 会根据文件内容创建对应的 blob，然后你在执行 commit 命令后，git 再根据文件所在的文件夹创建对应的 tree，然后把对应的 blob 添加到 tree，然后再封装到一个 commit 对象中完成本次提交。<br>如果你只是在仓库中新建了文件夹，新建的文件夹下没有文件的话，是不会被 git 管理的，没有文件就没有，对应的 tree 也不会生成对应的 commit。</p>
+<h3 id="5、-Git-命令"><a href="#5、-Git-命令" class="headerlink" title="5、 Git 命令"></a>5、 Git 命令</h3><p>git help xxx 可查看命令的文档</p>
+<h6 id="A、-检查当前文件状态"><a href="#A、-检查当前文件状态" class="headerlink" title="A、 检查当前文件状态"></a>A、 检查当前文件状态</h6><p>git status 命令：哪些文件当前处于什么状</p>
+<h6 id="B、-跟踪文件"><a href="#B、-跟踪文件" class="headerlink" title="B、 跟踪文件"></a>B、 跟踪文件</h6><p>未跟踪的文件意味着Git在之前的快照（提交）中没有这些文件；Git 不会自动将之纳入跟踪范围，除非你明明白白地告诉它“我需要跟踪该文件”，因而不用担心把临时文件什么的也归入版本管理。<br>使用命令 git add 开始跟踪一个新文件，运行：git add filename<br>git add 这是个多功能命令，根据目标文件的状态不同，此命令的效果也不同：可以用它开始跟踪新文件，或者把已跟踪的文件放到暂存区，还能用于合并时把有冲突的文件标记为已解决状态等。</p>
+<p>git add -u：将文件的修改、删除，添加到暂存区。不会添加新增的文件。<br>git add .：将文件的修改、新建、删除，添加到暂存区。对当前路径及其子路径下的变更有效。<br>git add -A：将文件的修改、新建、删除，添加到暂存区。对整个仓库仓库的变更有效。等同于git add -all。</p>
+<p>工作中一般是用到 git add . 或者 git add -A<br>git add -A相对于git add -u命令的优点 ： 可以提交所有被删除、被替换、被修改和新增的文件到数据暂存区。<br>git add -u 只能操作跟踪过的文件，避免把工作区没准备好的新文件直接加到暂存区了</p>
+<p>git commit –amend  修改未 push 的最近一次 commit 的内容。如果已经 push 到远端的话，得用 push -f<br>git rebase -i 父节点 可用来变更，未push的某一个xxx commit的子commit的message。<br>                  也可用来合并多个 commit<br>                  rebase会基于新base的commit来变更部分commits，<br>                  分离头指针，生成新的commit，rebase创建完最后一个commit后，<br>                  结束分离头状态。</p>
+<h6 id="C、-变更文件"><a href="#C、-变更文件" class="headerlink" title="C、 变更文件"></a>C、 变更文件</h6><p>git mv a.txt b.c 变更文件<br>git rm test&#x2F;a.txt 删除文件<br>git log -n2 –oneline 查看日志，最近的两次，简洁的信息显示一行<br>            –all 所有分支的日志。–graph 图像化的显示<br>git checkout -b temp 新建分支并切换到新建的分支上<br>git diff HEAD HEAD~1 查看当前节点指向，和它上一个节点的区别 用 ~2 ^^ 表示上一个父节点<br>git diff –cached 修改了文件add之后，用这个命令来查看修改的内容，暂存区和HEAD的比较<br>git diff – 文件名 工作区和缓存区的比较<br>git diff HEAD – 文件名 工作区和HEAD的比较<br>git diff temp master – 文件名  比较在不同的分支上文件的差别。<br>                                也可以比较commit_id1 commit_id2上的不同</p>
+<p>git checkout – 文件名 工作区恢复为暂存区。文件修改后没有进行add操作，这个命令会恢复文件<br>git reset –hard 清除暂存。add后未commit，这个命令会撤销add操作。<br>git reset HEAD – 文件名 暂存区恢复为HEAD。就是撤销add的操作<br>git reset –hard xxx  commit之后未push。这个命令会撤销commit回退到xxx节点。</p>
+<p><img src="/images/2018/git-1.png"></p>
+<p>git stash  在工作区修改了文件，还没add，然后有其他紧急的事要处理，用这个命令可保存修改<br>git stash list  显示保存的列表<br>git stash apply 把保存的恢复到工作区，而且这条保存的信息会保留<br>git stash pop 把保存的恢复到工作区，这条保存的信息会删除</p>
+<h6 id="D、-分支"><a href="#D、-分支" class="headerlink" title="D、 分支"></a>D、 分支</h6><p>git branch -av 查看分支<br>git checkout xxx 切换分支到xxx<br>git checkout -b xxx 新建分支 xxx 并切换到分支上去<br>git checkout -b 本地分支名 origin&#x2F;远程分支名  （从远程仓库里拉取一条本地不存在的分支，会自动创建一个新的本地分支，并与指定的远程分支关联起来。）<br>git branch -d xxx 删除分支，如果分支没有 merge 会有提示</p>
+<p>fe37900<br>分支合并：<br>git merge b1<br>        把分支b1，合并到当前分支上。<br>        同时b1上的历史commit信息也会合并到当前分支上。<br>git merge –squash b1<br>        把分支b1，合并到当前分支上。<br>        这时只是把b1的内容合并，还没有提交，还需要commit命令提交。<br>        相当于把b1分支上的多个commit合并成一个，放在当前分支上。<br>        b1分支上的commit历史没有拿过来。</p>
+<p>git merge，rebase 的区别<br>它们都被设计来将一个分支的更改并入另一个分支，只不过方式有些不同。<br>merge：<br>        不会改变两个分支已有的版本历史，只会把两个分支合并后创建出一个新的 commit 出来。<br>        merge是一个安全的操作。现有的分支不会被更改</p>
+<p>rebase：<br>        假设当前在 A 分支，要基于 B 分支做 rebase，那么会先找到A和B的最近的公共祖先C，<br>        从C到A之间所有 commit，都基于 B 重新生成新的 commit。<br>        rebase 通常会修改某个分支的历史。<br>        rebase最大的好处是你的项目历史会非常整洁，项目历史是线性的。<br>        不像 merge 那样引入不必要的合并提交。<br>        这种简单的提交历史会带来两个后果：安全性和可跟踪性。<br>        如果你违反了 rebase 黄金法则，重写项目历史可能会给你的协作工作流带来灾难性的影响。<br>        此外，rebase 不会有合并提交中附带的信息——你看不到分支中并入了上游的哪些更改。<br>        rebase 的黄金法则便是，绝不要在公共的分支上使用它。</p>
+<h6 id="E、pull-push"><a href="#E、pull-push" class="headerlink" title="E、pull  push"></a>E、pull  push</h6><p>git pull 命令等同于先做了git fetch ，再做 git merge。即：<br>git fetch origin 分支<br>git checkout 分支<br>git merge origin&#x2F;分支</p>
+<p>git pull origin &lt;远程分支名&gt;:&lt;本地分支名&gt;   将远程指定分支，拉取到本地指定分支上<br>git pull origin &lt;远程分支名&gt; 将远程指定分支，拉取到本地当前分支上<br>git pull origin             将本地当前分支同名的远程分支，拉取到本地当前分支上(需先关联远程分支)</p>
+<p>git push origin &lt;本地分支名&gt;:&lt;远程分支名&gt; 将本地当前分支，推送到远程指定分支上（注意：pull是远程在前本地在后，push相反）<br>git push origin &lt;本地分支名&gt; 将本地当前分支，推送到与本地当前分支同名的远程分支上<br>git push origin            将本地当前分支，推送到与本地当前分支同名的远程分支上(需先关联远程分支)<br>git push –set-upstream origin &lt;本地分支名&gt;   将本地分支与远程同名分支相关联。如果远程仓库不存在该分支，推送到远程仓库。</p>
+<h3 id="6、忽略某些文件"><a href="#6、忽略某些文件" class="headerlink" title="6、忽略某些文件"></a>6、忽略某些文件</h3><p>一般我们总会有些文件无需纳入 Git 的管理，也不希望它们总出现在未跟踪文件列表。通常都是些自动生成的文件，比如日志文件，或者编译过程中创建的临时文件等。我们可以创建一个名为 .gitignore 的文件，列出要忽略的文件模式。</p>
+<p> .gitignore 文件的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"># 此为注释 – 将被 Git 忽略</span><br><span class="line"># 忽略所有 .a 结尾的文件</span><br><span class="line">*.a</span><br><span class="line"># 但 lib.a 除外</span><br><span class="line">!lib.a</span><br><span class="line"># 仅仅忽略项目根目录下的 TODO 文件，不包括 subdir/TODO</span><br><span class="line">/TODO</span><br><span class="line"># 忽略 build/ 目录下的所有文件</span><br><span class="line">build/</span><br><span class="line"># 会忽略 doc/notes.txt 但不包括 doc/server/arch.txt</span><br><span class="line">doc/*.txt</span><br><span class="line"># 忽略 doc/ 目录下所有扩展名为 txt 的文件</span><br><span class="line">doc/**/*.txt</span><br></pre></td></tr></table></figure>
+
+<p>如果提交commit后，想再忽略一些已经提交的文件：<br>把想忽略的文件添加到 .gitignore，然后通过 git rm –cached name_of_file 的方式删除掉git仓库里面无需跟踪的文件。<br>删除暂存区或分支上的文件, 但本地又需要使用, 只是不希望这个文件被版本控制, 可以使用 git rm –cached name_of_file 命令</p>
+<br>
+<br>
+
+
+
+<h5 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h5><p><a target="_blank" rel="noopener" href="https://git-scm.com/book/zh/v2">https://git-scm.com/book/zh/v2</a><br><a target="_blank" rel="noopener" href="https://github.com/geeeeeeeeek/git-recipes/wiki">https://github.com/geeeeeeeeek/git-recipes/wiki</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    音视频小结（一）：音频基础 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">音视频小结（一）：音频基础</div>
+  <div class="post-meta">
+    <div class="date">2020 September 28th</div>
+    <div class="tags">
+      
+      <div class="tag-item">音视频</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>5G 时代音视频的地位越来越重要，直播、音乐、在线教育、短视频等相关APP 层出不穷，对于开发者而言，掌握音视频相关知识可很好提升自己的竞争力。本系列文章会总结一些音视频知识，从零开始记录总结音视频相关知识。<br>本篇文章是对音频基础知识的总结介绍。</p>
+<h3 id="音频概念"><a href="#音频概念" class="headerlink" title="音频概念"></a>音频概念</h3><p>声音是振动产生的声波，通过介质（空气、固体、液体）传播并能被人或动物听觉器官所感知的波动现象。<br>声音是由物体的振动所引起，振动频率一般会以赫兹表示，记为Hz，指每秒周期性震动的次数。</p>
+<p>• 波长，指波在一个振动周期内传播的距离。<br>音调越高，波长越短；音调越低，波长越长。（频率高波长短）<br>• 振幅，指在波动或振动中距离平衡位置或静止位置的最大位移。<br>音量（响度）越大，振幅越大；音量越小，振幅越小。</p>
+<p><img src="/images/2020/media-0101.png"></p>
+<p>人耳可以感知到的声音，其频率范围为20 Hz至20,000 Hz，在标准状况下的空气中，上述音波对应的波长从17 m至17 mm之间。</p>
+<h3 id="音频编码"><a href="#音频编码" class="headerlink" title="音频编码"></a>音频编码</h3><p>声音是怎么处理变成计算机中的数据呢？<br>我们经常见到的 mp3、wav 音频文件又是什么呢？</p>
+<h4 id="1、声音是怎么变成数据的？"><a href="#1、声音是怎么变成数据的？" class="headerlink" title="1、声音是怎么变成数据的？"></a>1、声音是怎么变成数据的？</h4><p>现实中的声音非常复杂，波形极其复杂，通常我们采用的是脉冲代码调制编码，即PCM编码。PCM通过抽样、量化、编码三个步骤将连续变化的模拟信号转换为数字编码。</p>
+<blockquote>
+<p>脉冲编码调制（Pulse-code modulation，PCM）是一种模拟信号的数字化方法。PCM将信号的强度依照同样的间距分成数段，然后用独特的数字记号（通常是二进制）来量化。</p>
+</blockquote>
+<p>在下图中，一个正弦波（红色曲线）被取样和量化为PCM。正弦波在每段固定时间内被取一次样，即x轴的刻度。而每一个样本则依照某种运算法（在这个例子中是ceiling function 取整），选定它们在y轴上的位置。这样便产生完全离散的输入信号的替代物，很容易编码成为数字数据，以作保存或操作。</p>
+<p><img src="/images/2020/media-0102.png"></p>
+<p>PCM 中涉及到的一些概念：</p>
+<ul>
+<li>声道：录制和播放时，音频信号的数量。如双声道，立体声。</li>
+<li>采样率：每秒从连续信号中提取并组成离散信号的采样个数，单位是赫兹（Hz）。<br>奈奎斯特采样定理：当采样频率大于声音最高频率的两倍，能完整的保留声音的信息。</li>
+<li>采样深度：量化的二进制位数，即采样点数据的位数，常为16位。</li>
+<li>码率：音频流每秒的大小，单位常用bps。如一个采样率为44.1KHz，采样深度为16bit，双声道的PCM编码的文件，码率为 44.1K×16×2 &#x3D;1411.2 Kbps</li>
+</ul>
+<h4 id="2、常见的-mp3、wav-音频文件是什么呢？"><a href="#2、常见的-mp3、wav-音频文件是什么呢？" class="headerlink" title="2、常见的 mp3、wav 音频文件是什么呢？"></a>2、常见的 mp3、wav 音频文件是什么呢？</h4><p>通过上面的调制，声音音波就从模拟信号，转化为数字信号的原始音频数据。<br>原始音频数据需要占用很大的存储空间和带宽的，不适合运输和传送，所以我们需要对原始声音进行加工，压缩变小，这一过程称为编码。</p>
+<p>格式(format)，或者说容器(container)，是为了运输和传送的。对音频来说就是将编码压缩后的数据进行打包，常见的音频格式比如 mp3 等。</p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/80a140cf3d99">https://www.jianshu.com/p/80a140cf3d99</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/leixiaohua1020/article/details/84598542">https://blog.csdn.net/leixiaohua1020/article/details/84598542</a><br><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/69901270">https://zhuanlan.zhihu.com/p/69901270</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    Clang LLVM 简介 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">Clang LLVM 简介</div>
+  <div class="post-meta">
+    <div class="date">2020 January 11th</div>
+    <div class="tags">
+      
+      <div class="tag-item">编译</div>
+      
+      <div class="tag-item">基础</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><p>本文将简单介绍 Clang LLVM 相关的知识，然后介绍一下代码是如何一步步的编译运行的，以及可以利用 clang 能做些什么。</p>
+<h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>编译器就是语言翻译器，把高级语言翻译成计算机能够执行的机器语言。</p>
+<blockquote>
+<p>语言翻译主要工作流程：<br>源代码 (source code) → 预处理器 (preprocessor) → 编译器 (compiler) → 目标代码 (object code) → 链接器 (linker) → 可执行程序 (executables)</p>
+</blockquote>
+<p>LLVM (Low Level Virtual Machine) 是一个开源的编译器架构。Clang 是 LLVM 的一个编译器前端，它目前支持 C, C++, Objective-C 等编程语言。</p>
+<p>Clang 对源程序进行预处理、词法分析、语法分析，并将分析结果转换为 Abstract Syntax Tree ( 抽象语法树 ) ，最后使用 LLVM 作为编译器后端代码的生成器。</p>
+<p>Clang 的开发目标是提供一个可以替代 GCC 的前端编译器。Apple 对 Objective-C 新增很多特性，想做的很多功能，比如更好的IDE支持，GCC 不能很好的支持，于是，苹果开发了 Clang 与 LLVM 来完全取代GCC。Clang作为编译器前端，LLVM作为编译器后端。</p>
+<p><img src="/images/2020/clang-llvm-1.png"></p>
+<p>与 GCC 相比，Clang 是一个重新设计的编译器前端，具有一系列优点，例如模块化，代码简单易懂，占用内存小以及容易扩展和重用等。由于 Clang 在设计上的优异性，使得 Clang 非常适合用于设计源代码级别的分析和转化工具。Clang 也已经被应用到一些重要的开发领域，如 Static Analysis 是一个基于 Clang 的静态代码分析工具。</p>
+<br>
+
+
+<h3 id="用-Clang-编译-OC-程序"><a href="#用-Clang-编译-OC-程序" class="headerlink" title="用 Clang 编译 OC 程序"></a>用 Clang 编译 OC 程序</h3><p>当用 Xcode 创建了项目，然后点击 run 运行的时候，可以在 Xcode 中看到编译的信息：</p>
+<p><img src="/images/2020/clang-llvm-2.png"></p>
+<p>看一下编译 main.m 文件的信息，相当于执行了一长串的命令，其中命令的参数就是你在 Build Settings 里面设置的一些选项，拼接成了这一串命令，主要的就是调用 Clang 编译的命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -x objective-c -fobjc-arc ... main.m -o main.o</span><br></pre></td></tr></table></figure>
+
+<br>
+
+<h4 id="clang-命令："><a href="#clang-命令：" class="headerlink" title="clang 命令："></a>clang 命令：</h4><p>在命令行中 clang 相当于一个黑盒的驱动，里面封装了编译管线、前段命令、LLVM 命令、Toolchain 命令等。</p>
+<br>
+
+<h4 id="clang-编译的过程"><a href="#clang-编译的过程" class="headerlink" title="clang 编译的过程"></a>clang 编译的过程</h4><p>下面通过编译 main.m 文件，来看一下编译的过程。main.m 中是很简单的打印代码：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">#import &lt;Foundation/Foundation.h&gt;</span><br><span class="line">int main() &#123;</span><br><span class="line">    @autoreleasepool &#123;</span><br><span class="line">        NSLog(@&quot;Hello world!&quot;);</span><br><span class="line">    &#125;</span><br><span class="line">    return 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>命令行输入命令：<br><strong>clang -fobjc-arc -framework Foundation main.m  -o main</strong></p>
+<blockquote>
+<p>-fobjc-arc 表示编译器需要支持 ARC 特性<br>-framework Foundation 表示引用Foundation框架</p>
+</blockquote>
+<p>上面的命令会生成可执行文件 main，然后命令行输入执行文件 main:<br><strong>.&#x2F;main</strong><br>看到运行结果：<br><strong>Hello world!</strong></p>
+<p>实质上，上述编译过程是分为四个阶段进行的，即预处理(Preprocess)、编译(Compilation)、汇编 (Assembly)和连接(Linking)。</p>
+<br>
+
+
+
+<h6 id="1、预处理-Preprocess"><a href="#1、预处理-Preprocess" class="headerlink" title="1、预处理(Preprocess)"></a>1、预处理(Preprocess)</h6><p>这个步骤会进行，import 头文件的处理，宏定义的展开，#开头的预处理指令等，的处理。<br>预处理的命令：<br><strong>clang -E main.m 或者 clang -E main.m -o test.i</strong></p>
+<p>查看文件可看到头部，十几万行的预处理<br><img src="/images/2020/clang-llvm-3.png"></p>
+<p>-fmodules 参数可以把那些库打包导入，import Foundation，这样每次编译都不用展开那么多东西<br><strong>clang -E -fmodules main.m</strong></p>
+<br>
+
+
+
+<h6 id="2、词法分析-Lexical-Analysis"><a href="#2、词法分析-Lexical-Analysis" class="headerlink" title="2、词法分析(Lexical Analysis)"></a>2、词法分析(Lexical Analysis)</h6><p>词法分析，将预处理过的代码转化成一个个的 Token，对应的命令为：<br><strong>clang -fmodules -fsyntax-only -Xclang -dump-tokens main.m</strong></p>
+<p>处理后的结果为：<br><img src="/images/2020/clang-llvm-4.png"><br>可看到代码，拆分成了一个个的 Token</p>
+<br>
+
+
+
+<h6 id="3、语法分析-Semantic-Analysis"><a href="#3、语法分析-Semantic-Analysis" class="headerlink" title="3、语法分析(Semantic Analysis)"></a>3、语法分析(Semantic Analysis)</h6><p>语法分析，在 clang 中由 Parser 和 Sema 两个模块配合完成，来验证语法是否正确。<br>提示代码哪里写错了，少了冒号、括号等一些提示。<br>根据当前语言的语法，生成语义节点，并将所有节点组合成抽象语法树(AST: Abstract Syntax Tree)，对应的命令为：<br><strong>clang -fmodules -fsyntax-only -Xclang -ast-dump main.m</strong></p>
+<p>处理后，生成的语法树：<br><img src="/images/2020/clang-llvm-5.png"><br>FunctionDecl，表示函数名 main<br>CompoundStmt，表示大括号 {}<br>ObjCAutoreleasePoolStmt，表示 @autoreleasepool </p>
+<p>静态分析:<br>编译器把源码生成了抽象语法树，编译器可以对这棵树做分析处理，以找出代码中的错误，比如类型检查：即检查程序中是否有类型错误。例如：如果代码中给某个对象发送了一个消息，编译器会检查这个对象是否实现了这个消息（函数、方法）。此外，clang 对整个程序还做了其它更高级的一些分析，以确保程序没有错误。</p>
+<p>还有一种类型检查：动态分析<br>动态的在运行时做检查，静态的在编译时做检查。编写代码时可以向任意对象发送任何消息，在运行时，才会检查对象是否能够响应这些消息。</p>
+<br>
+
+
+
+<h6 id="4、IR-代码生成-CodeGen"><a href="#4、IR-代码生成-CodeGen" class="headerlink" title="4、IR 代码生成 (CodeGen)"></a>4、IR 代码生成 (CodeGen)</h6><p>clang 完成代码的标记，解析和分析后，接着就会生成 LLVM 代码。将上一步的语法树从顶至下遍历，翻译成 LLVM IR。<br>LLVM IR 是编译前端的输出，也是 LLVM 后端的输入，是前后端桥接语言。</p>
+<p>与 OC Runtime 桥接：</p>
+<ul>
+<li><p>Class、Meta Class、Protocol、Category 内存结构生成，并存放在指定 section 中（如 Class：_DATA, _objc_classrefs）</p>
+</li>
+<li><p>Method、Ivar、Property 内存结构生成</p>
+</li>
+<li><p>组成 method_list、ivar_list、property_list 并填入 Class</p>
+</li>
+<li><p>Non-Fragile ABI：为每个 Ivar 合成 OBJC_IVAR_$_ 偏移值常量</p>
+</li>
+<li><p>存取 Ivar 的语句（_ivar &#x3D; 123; int a &#x3D; _ivar;）<br>转写成 base + OBJC_IVAR_$_的形式</p>
+</li>
+<li><p>将语法树中的 ObjCMessageExpr 翻译成相应版本的 obj_msgSend，对 super 关键字的调用翻译成 objc_msgSendSuper </p>
+</li>
+<li><p>根据修饰符 strong、weak、copy、atomic 合成 @property 自动实现的 setter、getter</p>
+</li>
+<li><p>处理 @synthesize</p>
+</li>
+<li><p>生成 block_layout 的数据结构</p>
+</li>
+<li><p>变量的 capture(__block  __weak)</p>
+</li>
+<li><p>生成 _block_invoke 函数</p>
+</li>
+<li><p>ARC 分析对象引用关系，将 obj_storeStrong&#x2F;objc_storeWeak 等 ARC 代码插入</p>
+</li>
+<li><p>将 ObjcCAutoreleasePoolStmt 转译成 objc_autoreleasePoolPush&#x2F;Pop</p>
+</li>
+<li><p>实现自动调用 [super dealloc]</p>
+</li>
+<li><p>为每个拥有 ivar 的 Class 合成 .cxx_destructor 方法来自动释放类的成员变量，代替 MRC 时代的 self.xxx &#x3D; nil</p>
+</li>
+</ul>
+<p> 可以使用下面的命令，查看生成 IR 代码：<br> <strong>clang -S -fobjc-arc -emit-llvm main.m -o main.ll</strong><br> -S 编译到汇编层面<br> -fobjc-arc 开启ARC<br> -emit-llvm 生成中间的LLVM语言</p>
+<p> 执行命令后可得到文件 main.ll：<br> <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"> define i32 @main() #0 &#123;</span><br><span class="line">  %1 = alloca i32, align 4</span><br><span class="line">  store i32 0, i32* %1, align 4</span><br><span class="line">  %2 = call i8* @llvm.objc.autoreleasePoolPush() #1</span><br><span class="line">  notail call void (i8*, ...) @NSLog(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_ to i8*))</span><br><span class="line">  call void @llvm.objc.autoreleasePoolPop(i8* %2)</span><br><span class="line">  ret i32 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里 LLVM 会去做些优化工作，在 Xcode 的编译设置里也可以设置优化级别 -O1，-O3，-Os :<br><strong>clang -O3 -S -fobjc-arc -emit-llvm main.m -o main.ll</strong>  </p>
+<p><img src="/images/2020/clang-llvm-6.png"></p>
+<p>下面是优化后的中间LLVM代码  </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">define i32 @main() local_unnamed_addr #0 &#123;</span><br><span class="line">  %1 = tail call i8* @llvm.objc.autoreleasePoolPush() #1</span><br><span class="line">  notail call void (i8*, ...) @NSLog(i8* bitcast (%struct.__NSConstantString_tag* @_unnamed_cfstring_ to i8*)), !clang.arc.no_objc_arc_exceptions !9</span><br><span class="line">  tail call void @llvm.objc.autoreleasePoolPop(i8* %1) #1</span><br><span class="line">  ret i32 0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>生成字节码 LLVM Bitcode<br><strong>clang -emit-llvm -c main.m -o main.bc</strong><br>将上面生成的 IR 代码生成二进制码格式</p>
+<br>
+
+
+<h6 id="5、生成-Target-相关汇编（Assemble）"><a href="#5、生成-Target-相关汇编（Assemble）" class="headerlink" title="5、生成 Target 相关汇编（Assemble）"></a>5、生成 Target 相关汇编（Assemble）</h6><p>生成对应机器相关的汇编语言：<br><strong>clang -S -fobjc-arc main.m -o main.s</strong></p>
+<p>生成 Target 相关 Mach-O 文件<br><strong>clang -fmodules -c main.m -o main.o</strong></p>
+<blockquote>
+<p>Mach-O（Mach object）文件，是一种用于记录可执行文件、对象代码、共享库、动态加载代码和内存转储的文件格式，是macOS&#x2F;iOS上程序以及库的标准格式。</p>
+</blockquote>
+<br>
+
+
+<h6 id="6、生成可执行文件"><a href="#6、生成可执行文件" class="headerlink" title="6、生成可执行文件"></a>6、生成可执行文件</h6><p>链接生成可执行文件 main。<br>将程序的目标文件与所需的所有附加的目标文件(静态连接库和动态连接库)连接起来，最终生成可执行文件。<br><strong>clang main.o -o main</strong><br>执行就可以看到程序运行<br><strong>.&#x2F;main</strong></p>
+<br>
+
+
+
+<h6 id="7、编译过程小结"><a href="#7、编译过程小结" class="headerlink" title="7、编译过程小结"></a>7、编译过程小结</h6><ul>
+<li>预处理<ul>
+<li>符号化 (Tokenization)</li>
+<li>宏定义的展开</li>
+<li>#include 的展开</li>
+</ul>
+</li>
+<li>语法和语义分析<ul>
+<li>将符号化后的内容转化为一棵解析树 (parse tree)</li>
+<li>解析树做语义分析</li>
+<li>输出一棵抽象语法树（Abstract Syntax Tree* (AST)）</li>
+</ul>
+</li>
+<li>生成代码和优化<ul>
+<li>将 AST 转换为更低级的中间码 (LLVM IR)</li>
+<li>对生成的中间码做优化</li>
+<li>生成特定目标代码</li>
+<li>输出汇编代码</li>
+</ul>
+</li>
+<li>汇编器<ul>
+<li>将汇编代码转换为目标对象文件。</li>
+</ul>
+</li>
+<li>链接器<ul>
+<li>将多个目标对象文件合并为一个可执行文件 (或者一个动态库)</li>
+</ul>
+</li>
+</ul>
+<br>
+
+
+<h3 id="clang-的应用"><a href="#clang-的应用" class="headerlink" title="clang 的应用"></a>clang 的应用</h3><p>上面介绍了，用 clang 编译的过程，从预处理到词法分析、语法分析，再到生成汇编语言。<br>那么我们能用 clang 做些什么？</p>
+<p><a target="_blank" rel="noopener" href="http://clang.llvm.org/doxygen/group__CINDEX.html">libclang</a><br>libclang 是一个 C 的类库，提供了简洁的 API，可以对 C 和 clang 做桥接，并可以用它对所有的源码做分析处理，如获取 Tokens、遍历语法树、代码补全、获取诊断信息等。<br>libclang api 稳定，不受 clang 源码更新影响，但是只能访问上层语法树，不能获取全部信息。<br>推荐使用 <a target="_blank" rel="noopener" href="https://github.com/macmade/ClangKit">ClangKit</a> 它是基于 clang 提供的功能，用 Objective-C 进行封装的一个库。</p>
+<p>clang 还提供了一个直接使用 LibTooling 的 C++ 类库。它能够发挥 clang 的强大功能，可以对源码做任意类型的分析，甚至重写程序，对语法树有完全的控制权。如果你想要给 clang 添加一些自定义的分析、创建自己的重构器 (refactorer)、或者需要基于现有代码做出大量修改，甚至想要基于工程生成相关图形或者文档，那么可以使用 LibTooling。</p>
+<br>
+
+<h3 id="将-OC-代码转换为-C-C"><a href="#将-OC-代码转换为-C-C" class="headerlink" title="将 OC 代码转换为 C&#x2F;C++"></a>将 OC 代码转换为 C&#x2F;C++</h3><p>当需要查看 OC 代码底层实现时，可以利用 clang 将 OC 代码转换为 C&#x2F;C++ 代码。<br>下面命令可以进行转换：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">clang -rewrite-objc main.m</span><br><span class="line"></span><br><span class="line">//-fobjc-arc 表示ARC环境。-fobjc-runtime 表示当前运行时环境。</span><br><span class="line">clang -rewrite-objc -fobjc-arc -fobjc-runtime=macosx-10.15 main.m</span><br></pre></td></tr></table></figure>
+<p>执行后，可在当前文件夹下生成 main.cpp 文件。</p>
+<p>当 .m 文件包含系统头文件时，会报错找不到头文件，可以指定SDK解决：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">clang -x objective-c -rewrite-objc -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk main.m</span><br></pre></td></tr></table></figure>
+<p>或者</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">xcrun -sdk iphonesimulator13.2 clang -rewrite-objc main.m</span><br><span class="line">//其中的 sdk iphonesimulator13.2 可以通过命令 xcodebuild -showsdks 来查看</span><br></pre></td></tr></table></figure>
+
+
+
+<p>或者使用下面命令，指定了 SDK 和架构，转换后的代码会少一些：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">xcrun -sdk iphoneos clang -arch arm64 -w -rewrite-objc main.m</span><br></pre></td></tr></table></figure>
+
+
+
+<br>
+
+
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://llvm.org/">https://llvm.org/</a><br><a target="_blank" rel="noopener" href="http://clang.llvm.org/docs/index.html">http://clang.llvm.org/docs/index.html</a><br><a target="_blank" rel="noopener" href="https://objccn.io/issue-6-2/">https://objccn.io/issue-6-2/</a><br><a target="_blank" rel="noopener" href="https://objccn.io/issue-6-3/">https://objccn.io/issue-6-3/</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wfwenchao/p/5543595.html">https://www.cnblogs.com/wfwenchao/p/5543595.html</a><br><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/opensource/os-cn-clang/index.html">https://www.ibm.com/developerworks/cn/opensource/os-cn-clang/index.html</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

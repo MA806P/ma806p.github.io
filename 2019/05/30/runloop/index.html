@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS RunLoop小结 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS RunLoop小结</div>
+  <div class="post-meta">
+    <div class="date">2019 May 30th</div>
+    <div class="tags">
+      
+      <div class="tag-item">基础</div>
+      
+      <div class="tag-item">OC</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h3 id="RunLoop-简介"><a href="#RunLoop-简介" class="headerlink" title="RunLoop 简介"></a>RunLoop 简介</h3><p>RunLoop 实际上就是一种循环，在 “接收消息-&gt;等待-&gt;处理” 这样的循环中，去管理事件或者消息，例如触摸事件、UI刷新事件、定时器事件等。在消息来到时立刻被唤醒处理事件(用户态)，在没有处理事件时休眠(内核态)，避免资源占用。</p>
+<p>iOS 系统中，提供了两个这样的对象：NSRunLoop 和 CFRunLoopRef。<br>CFRunLoopRef 是在 CoreFoundation 框架内的。NSRunLoop 是基于 CFRunLoopRef 的封装，提供了面向对象的 API。</p>
+<p>CFRunLoopRef 相关的代码：<a target="_blank" rel="noopener" href="http://opensource.apple.com/source/CF/CF-855.17/CFRunLoop.c">http://opensource.apple.com/source/CF/CF-855.17/CFRunLoop.c</a></p>
+<h3 id="RunLoop-与线程"><a href="#RunLoop-与线程" class="headerlink" title="RunLoop 与线程"></a>RunLoop 与线程</h3><p>线程和 RunLoop 之间是一一对应的，映射关系保存在一个全局的字典里。<br>主线程会默认开启一个 RunLoop，自己新创建的线程默认是没有开启 RunLoop 的。<br>CFRunLoop 是基于 pthread 来管理的。苹果不允许直接创建 RunLoop，它只提供了两个自动获取的函数：CFRunLoopGetMain() 和 CFRunLoopGetCurrent()。  </p>
+<p><img src="/images/2019/runloop-1.png"><br><br></p>
+<h3 id="RunLoop-实现"><a href="#RunLoop-实现" class="headerlink" title="RunLoop 实现"></a>RunLoop 实现</h3><p>在 CoreFoundation 里面关于 RunLoop 有5个类:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">CFRunLoopRef</span><br><span class="line">CFRunLoopModeRef</span><br><span class="line">CFRunLoopSourceRef</span><br><span class="line">CFRunLoopTimerRef</span><br><span class="line">CFRunLoopObserverRef</span><br></pre></td></tr></table></figure>
+<p>其中 CFRunLoopModeRef 类并没有对外暴露，只是通过 CFRunLoopRef 的接口进行了封装。</p>
+<p>一个 RunLoop 包含若干个 Mode，每个 Mode 又包含若干个 Source&#x2F;Timer&#x2F;Observer。每次调用 RunLoop 的主函数时，只能指定其中一个 Mode，这个Mode被称作 CurrentMode。如果需要切换 Mode，只能退出 Loop，再重新指定一个 Mode 进入。这样做主要是为了分隔开不同组的 Source&#x2F;Timer&#x2F;Observer，让其互不影响。  </p>
+<p>1、CFRunLoopSourceRef 是事件产生的地方  </p>
+<ul>
+<li>Source0 只包含了一个回调（函数指针），用户触发的事件，它并不能主动触发事件，需要手动唤醒线程，当前线程从内核态切换到用户态。  </li>
+<li>Source1 包含了一个 mach_port 和一个回调（函数指针），被用于通过内核和其他线程相互发送消息，可使用 mach_port 在其他线程中发送消息到 RunLoop 内。能主动唤醒 RunLoop 接受分发系统事件。</li>
+</ul>
+<p>2、CFRunLoopTimerRef 是基于时间的触发器。<br>当其加入到 RunLoop 时，RunLoop 会注册对应的时间点，当时间点到时，RunLoop 会被唤醒以执行那个回调。注意，因为 RunLoop 只负责分发源的消息，如果线程当前正在处理繁重的任务，就有可能导致 Timer 本次延时，或少执行一次。  </p>
+<p>3、CFRunLoopObserverRef 是观察者。<br>每个 Observer 都包含了一个回调(函数指针)，当 RunLoop 的状态发生变化时，观察者就能通过回调接受到这个变化。  </p>
+<ul>
+<li>kCFRunLoopEntry   RunLoop准备启动  </li>
+<li>kCFRunLoopBeforeTimers   将要处理一些 Timer 相关事件  </li>
+<li>kCFRunLoopBeforeSources   将要处理一些 Source 事件  </li>
+<li>kCFRunLoopBeforeWaiting   将要进行休眠状态，即将由用户态切换到内核态  </li>
+<li>kCFRunLoopAfterWaiting   被唤醒，即从内核态切换到用户态后    </li>
+<li>kCFRunLoopExit  RunLoop   退出  </li>
+<li>kCFRunLoopAllActivities   监听所有状态</li>
+</ul>
+<p>Source&#x2F;Timer&#x2F;Observer 被统称为 mode item，一个 item 可以被同时加入多个 mode。但一个 item 被重复加入同一个 mode 时是不会有效果的。如果一个 mode 中一个 item 都没有，则 RunLoop 会直接退出，不进入循环。  </p>
+<p><img src="/images/2019/runloop-2.png"></p>
+<p>RunLoop 这个对象，在 iOS 里由 CFRunLoop 实现。简单来说，RunLoop 是用来监听输入源，进行调度处理的。这里的输入源可以是输入设备、网络、周期性或者延迟时间、异步回调。RunLoop 会接收两种类型的输入源：一种是来自另一个线程或者来自不同应用的异步消息；另一种是来自预订时间或者重复间隔的同步事件。  </p>
+<p><img src="/images/2019/runloop-3.png"></p>
+<p>应用场景：主线程的 RunLoop 里有两个预置的 Mode：kCFRunLoopDefaultMode 和 UITrackingRunLoopMode。这两个 Mode 都已经被标记为”Common”属性。DefaultMode 是 App 平时所处的状态，TrackingRunLoopMode 是追踪 ScrollView 滑动时的状态。当你创建一个 Timer 并加到 DefaultMode 时，Timer 会得到重复回调，但此时滑动一个TableView时，RunLoop 会将 mode 切换为 TrackingRunLoopMode，这时 Timer 就不会被回调，不会影响到滑动操作。</p>
+<p>有时你需要一个 Timer，在两个 Mode 中都能得到回调，一种办法就是将这个 Timer 分别加入这两个 Mode。还有一种方式，就是将 Timer 加入到顶层的 RunLoop 的 “commonModeItems” 中。”commonModeItems” 被 RunLoop 自动更新到所有具有”Common”属性的 Mode 里去。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">NSTimer *timer = [NSTimer timerWithTimeInterval:1.0 repeats:YES block:^(NSTimer * _Nonnull timer) &#123;</span><br><span class="line">    //do something</span><br><span class="line">&#125;];</span><br><span class="line">[[NSRunLoop currentRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];</span><br></pre></td></tr></table></figure>
+
+
+<p>总结：<br><img src="/images/2019/runloop-4.png"></p>
+<h3 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h3><p><a target="_blank" rel="noopener" href="https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html">https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/Multithreading/RunLoopManagement/RunLoopManagement.html</a><br><a target="_blank" rel="noopener" href="https://blog.ibireme.com/2015/05/18/runloop/">https://blog.ibireme.com/2015/05/18/runloop/</a><br><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/23e3ff9619c3">https://www.jianshu.com/p/23e3ff9619c3</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/kenshincui/p/6823841.html">https://www.cnblogs.com/kenshincui/p/6823841.html</a><br><a target="_blank" rel="noopener" href="http://mrpeak.cn/blog/ios-runloop/">http://mrpeak.cn/blog/ios-runloop/</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

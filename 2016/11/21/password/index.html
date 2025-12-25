@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    iOS 指纹识别 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">iOS 指纹识别</div>
+  <div class="post-meta">
+    <div class="date">2016 November 21st</div>
+    <div class="tags">
+      
+      <div class="tag-item">OC</div>
+      
+      <div class="tag-item">解锁</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>苹果从iPhone5S开始，具有指纹识别技术，从iOS8.0之后苹果允许第三方 App 使用 Touch ID进行身份验证。指纹识别Touch ID提供3+2共5次指纹识别机会（3次识别失败后，弹出的指纹验证框会消失，同时会报错code &#x3D; -1，然后点击指纹会再次弹框可验证两次），如果五次指纹识别全部错误，就需要手动输入数字密码，数字密码可以输入6次，如果6次输入的数字密码都错误，系统会停止验证，一定的间隔后才能再次输入密码验证，而且间隔会随着输入的次数增长。</p>
+<h1 id="使用方法"><a href="#使用方法" class="headerlink" title="使用方法"></a>使用方法</h1><p>1.首先导入框架LocalAuthentication<br>2.判断系统版本，最低iOS 8.0<br>3.创建验证对象上下文LAContext<br>4.判断指纹识别技术是否可用canEvaluatePolicy<br>5.如果可用，开始调用方法开始使用指纹识别</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">#import &lt;LocalAuthentication/LocalAuthentication.h&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">//指纹按钮</span><br><span class="line">- (void)showFingerprintTouch</span><br><span class="line">&#123;</span><br><span class="line">    //系统支持，最低iOS 8.0</span><br><span class="line">    if ([UIDevice currentDevice].systemVersion.floatValue &gt;= 8.0)</span><br><span class="line">    &#123;</span><br><span class="line">        LAContext * context = [[LAContext alloc] init];</span><br><span class="line">        NSError * error;</span><br><span class="line">        if ([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:&amp;error])</span><br><span class="line">        &#123;</span><br><span class="line">            </span><br><span class="line">            //localizedReason: 指纹识别出现时的提示文字</span><br><span class="line">            [context evaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics localizedReason:@&quot;指纹解锁&quot; reply:^(BOOL success, NSError * _Nullable error) &#123;</span><br><span class="line">                </span><br><span class="line">                if (success)</span><br><span class="line">                &#123;</span><br><span class="line">                    //识别成功</span><br><span class="line">                    dispatch_async(dispatch_get_main_queue(), ^&#123;</span><br><span class="line">                            //在主线程中，处理 ......</span><br><span class="line">                    &#125;);</span><br><span class="line">                &#125;</span><br><span class="line">                else if (error)</span><br><span class="line">                &#123;</span><br><span class="line">                    NSLog(@&quot;LAPolicyDeviceOwnerAuthenticationWithBiometrics -- %@&quot;,error);</span><br><span class="line">                &#125;</span><br><span class="line">                </span><br><span class="line">            &#125;];</span><br><span class="line">            </span><br><span class="line">        &#125;</span><br><span class="line">        else if([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication error:nil])</span><br><span class="line">        &#123;</span><br><span class="line">            [context evaluatePolicy:LAPolicyDeviceOwnerAuthentication localizedReason:@&quot;密码解锁&quot; reply:^(BOOL success, NSError * _Nullable error)&#123;</span><br><span class="line">                </span><br><span class="line">                NSLog(@&quot;LAPolicyDeviceOwnerAuthentication -- %@&quot;, error);</span><br><span class="line">                </span><br><span class="line">            &#125;];</span><br><span class="line">        &#125;</span><br><span class="line">        NSLog(@&quot; --- %@ &quot;, error);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="代码解析"><a href="#代码解析" class="headerlink" title="代码解析"></a>代码解析</h1><h5 id="指纹识别的策略"><a href="#指纹识别的策略" class="headerlink" title="指纹识别的策略"></a>指纹识别的策略</h5><p><code>[context canEvaluatePolicy:LAPolicyDeviceOwnerAuthenticationWithBiometrics error:nil] [context canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication error:nil]</code></p>
+<p><img src="/images/2016/password-1.png"></p>
+<ul>
+<li><p>LAPolicyDeviceOwnerAuthenticationWithBiometrics ，指纹授权使用， 当设备不具有Touch ID的功能，或者在系统设置中没有设置开启指纹，授权将会失败。当指纹验证3+2次都没有通过的时候指纹验证就会被锁定，就需要先进行数字密码的解锁才能继续使用指纹密码。</p>
+</li>
+<li><p>LAPolicyDeviceOwnerAuthentication，指纹和数字密码的授权使用，当指纹可用且没有被锁定，授权后会进入指纹密码验证。不然的话会进入数字密码验证的页面。当系统数字密码没有设置不可用的时候，授权失败。如果数字密码输入不正确，连续6次输入数字密码都不正确后，会停用鉴定过一定的间隔后才能使用，间隔时间依次增长，如图：<br><img src="/images/2016/password-2.png"></p>
+</li>
+<li><p>弹出的指纹验证框的两个按钮的标题，可以通过下面的方法修改：<br><code>context.localizedCancelTitle = @&quot;取消&quot;; context.localizedFallbackTitle = @&quot;输入密码&quot;;</code></p>
+</li>
+<li><p>localizedReason:是用来设置弹出框的提示内容的，一般写的是使用原因，如图：<br><img src="/images/2016/password-3.png"><br><img src="/images/2016/password-4.png"></p>
+</li>
+</ul>
+<h5 id="错误情况"><a href="#错误情况" class="headerlink" title="错误情况"></a>错误情况</h5><p>官方文档中给出的错误情况，有以下几种，如图：</p>
+<p><img src="/images/2016/password-5.png"></p>
+<p><img src="/images/2016/password-6.png"></p>
+<p>简单介绍几种常出现的错误</p>
+<blockquote>
+<p>3次验证失败后报错<br>Error Domain&#x3D;com.apple.LocalAuthentication Code&#x3D;-1 “Application retry limit exceeded.” UserInfo&#x3D;{NSLocalizedDescription&#x3D;Application retry limit exceeded</p>
+</blockquote>
+<h1 id=""><a href="#" class="headerlink" title=""></a></h1><blockquote>
+<p>用户取消<br>Error Domain&#x3D;com.apple.LocalAuthentication Code&#x3D;-2</p>
+</blockquote>
+<h1 id="-1"><a href="#-1" class="headerlink" title=""></a></h1><blockquote>
+<p>用户在弹出的指纹验证框中，点击输入密码<br>Error Domain&#x3D;com.apple.LocalAuthentication Code&#x3D;-3 “Fallback authentication mechanism selected.”<br>可以判断这种错误 error.code &#x3D;&#x3D; -3，进行后面的操作</p>
+</blockquote>
+<h1 id="-2"><a href="#-2" class="headerlink" title=""></a></h1><blockquote>
+<p>设备没有设置指纹报错<br>Error Domain&#x3D;com.apple.LocalAuthentication Code&#x3D;-7 “No fingers are enrolled with Touch ID.” </p>
+</blockquote>
+<h1 id="-3"><a href="#-3" class="headerlink" title=""></a></h1><blockquote>
+<p>3+2次指纹验证都失败后报错，这种情况指纹解锁会被锁定，输入数字密码真确后才能再次进行指纹验证<br>Error Domain&#x3D;com.apple.LocalAuthentication Code&#x3D;-8 “Biometry is locked out.”</p>
+</blockquote>
+<h1 id="注意事项"><a href="#注意事项" class="headerlink" title="注意事项"></a>注意事项</h1><ul>
+<li><p>识别成功后在主线程上处理<br>  识别成功后，不是在主线程上，如果不切换到主线程上，后面的不会及时处理。</p>
+</li>
+<li><p>如果不写后面canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication判断，在iOS 10 上会遇到一个问题就是，在你验证了3+2次指纹都没成功之后，系统不会弹出输入密码的验证页面，点击指纹验证按钮也没有反应。但是在iOS9中5次验证失败之后点击再次验证，系统会弹出输入数字密码的页面。</p>
+</li>
+</ul>
+<h1 id="最后"><a href="#最后" class="headerlink" title="最后"></a>最后</h1><p>附上带有指纹、手势和数字密码解锁的例子。传送门 <a target="_blank" rel="noopener" href="https://github.com/MA806P/PasscodeLock">GitHub - PasscodeLock</a></p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>

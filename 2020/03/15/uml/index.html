@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport" />
+  <title>
+    
+    UML 图总结 丨
+    
+
+    Peng&#39;s blog
+  </title>
+
+  
+  <link rel="shortcut icon" href="/images/favicon.ico">
+  
+
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  
+  <link id="theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-light.css">
+  <script src="https://unpkg.com/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
+  
+
+  <!-- 字体 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet">
+
+  
+<link rel="stylesheet" href="/css/root.css">
+
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+<link rel="stylesheet" href="/css/post.css">
+
+<meta name="generator" content="Hexo 8.1.1"></head>
+
+<body>
+  <header class="header">
+  <section class="header-container">
+    <a class="logo" href="/">Peng&#39;s blog</a>
+    <ul class="nav">
+      
+      <li><a href="/archives">archives</a></li>
+      
+      <li><a href="/about">about</a></li>
+      
+    </ul>
+  </section>
+</header>
+  <main class="main">
+    <article class="post">
+  
+  <div class="post-title">UML 图总结</div>
+  <div class="post-meta">
+    <div class="date">2020 March 15th</div>
+    <div class="tags">
+      
+      <div class="tag-item">项目</div>
+      
+    </div>
+  </div>
+  
+
+  <main class="post-content"><h4 id="UML-简介"><a href="#UML-简介" class="headerlink" title="UML 简介"></a>UML 简介</h4><p>UML（Unified Modeling Language）统一建模语言，又称标准建模语言，为面向对象开发系统的产品进行说明、可视化、和编制文档的一种标准语言，大多以图表的方式表现出来。</p>
+<p>UML 的目标是定义一些通用的建模语言并对这些建模语言做出简单的说明，帮助我们按照实际情况或者按照我们需要的样式对系统进行可视化；提供一种详细说明系统的结构或行为的方法；给出一个指导系统构造的模板；对我们所做出的决策进行文档化。</p>
+<h4 id="UML-图"><a href="#UML-图" class="headerlink" title="UML 图"></a>UML 图</h4><p>UML 的核心是图表，大致可以将这些图归类为结构图和行为图。 </p>
+<ul>
+<li><p>结构图是由静态图，如类图，对象图等静态图；</p>
+</li>
+<li><p>行为图是由像序列图，协作图等动态图；  </p>
+<p>一个系统的静态和动态特性是通过使用这些图的可视化。</p>
+</li>
+</ul>
+<p>截止到 UML2.0 的图形有：用例图、类图、对象图、状态图、活动图、顺序图、协作图、构件图、部署图，包图、组合结构图、交互概览图。</p>
+<ul>
+<li>用例图：从用户角度描述系统功能。</li>
+<li>类图：描述系统中类的静态结构。</li>
+<li>对象图：系统中的多个对象在某一时刻的状态。</li>
+<li>状态图：是描述状态到状态控制流，常用于动态特性建模</li>
+<li>活动图：描述了业务实现用例的工作流程</li>
+<li>顺序图：对象之间的动态合作关系，强调对象发送消息的顺序，同时显示对象之间的交互</li>
+<li>协作图：描述对象之间的协助关系</li>
+<li>构件图：一种特殊的UML图来描述系统的静态实现视图</li>
+<li>部署图：定义系统中软硬件的物理体系结构</li>
+<li>包图：对构成系统的模型元素进行分组整理的图</li>
+<li>组合结构图：表示类或者构建内部结构的图</li>
+<li>交互概览图：用活动图来表示多个交互之间的控制关系的图</li>
+</ul>
+<p>在软件开发的过程中用到的图，如下所示：</p>
+<p><img src="/images/2020/uml-1.png">  </p>
+<h5 id="类图"><a href="#类图" class="headerlink" title="类图"></a>类图</h5><p>类图主要是用来显示系统中的类、接口以及它们之间的静态结构和关系的一种静态模型。<br>类的表示：<br><img src="/images/2020/uml-2.png">  </p>
+<p>在UML类图中，常见的有以下几种关系: 泛化（Generalization）, 实现（Realization），关联（Association)，聚合（Aggregation），组合(Composition)，依赖(Dependency)。<br>各种关系的强弱顺序： 泛化 &#x3D; 实现 &gt; 组合 &gt; 聚合 &gt; 关联 &gt; 依赖  </p>
+<h6 id="泛化关系"><a href="#泛化关系" class="headerlink" title="泛化关系"></a>泛化关系</h6><p>泛化关系，一种继承关系，表示一般与特殊的关系，它指定了子类如何继承父类的所有特征和行为。例如：老虎是动物的一种，即有老虎的特性也有动物的共性。<br><img src="/images/2020/uml-3.png">  </p>
+<h6 id="实现关系"><a href="#实现关系" class="headerlink" title="实现关系"></a>实现关系</h6><p>实现关系，是一种类与接口的关系，表示类是接口所有特征和行为的实现。<br><img src="/images/2020/uml-4.png">  </p>
+<h6 id="组合关系"><a href="#组合关系" class="headerlink" title="组合关系"></a>组合关系</h6><p>组合关系是整体与部分的关系，但部分不能离开整体而单独存在。如公司和部门是整体和部分的关系，没有公司就不存在部门。 组合关系是关联关系的一种，是比聚合关系还要强的关系，它要求普通的聚合关系中代表整体的对象负责代表部分的对象的生命周期。<br>代码体现：成员变量<br>箭头及指向：带实心菱形的实线，菱形指向整体<br><img src="/images/2020/uml-5.png">  </p>
+<h6 id="聚合关系"><a href="#聚合关系" class="headerlink" title="聚合关系"></a>聚合关系</h6><p>聚合关系是整体与部分的关系，且部分可以离开整体而单独存在。如车和轮胎是整体和部分的关系，轮胎离开车仍然可以存在。<br>聚合关系是关联关系的一种，是强的关联关系；关联和聚合在语法上无法区分，必须考察具体的逻辑关系。<br>代码体现：成员变量<br><img src="/images/2020/uml-6.png">  </p>
+<h6 id="关联关系"><a href="#关联关系" class="headerlink" title="关联关系"></a>关联关系</h6><p>关联关系是一种拥有的关系，它使一个类知道另一个类的属性和方法；如：老师与学生，丈夫与妻子关联可以是双向的，也可以是单向的。双向的关联可以有两个箭头或者没有箭头，单向的关联有一个箭头。<br><img src="/images/2020/uml-7.png">  </p>
+<h6 id="依赖关系"><a href="#依赖关系" class="headerlink" title="依赖关系"></a>依赖关系</h6><p>依赖关系，是一种使用的关系，即一个类的实现需要另一个类的协助，所以要尽量不使用双向的互相依赖.<br>依赖关系的虚线箭头表示，指向被使用者。<br><img src="/images/2020/uml-8.png">     </p>
+<br>
+
+<p>下例是银行系统，简化类图，对照查看各类关系：<br><img src="/images/2020/uml-9.png">  </p>
+<h3 id="References"><a href="#References" class="headerlink" title="References"></a>References</h3><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/jiangds/p/6596595.html">https://www.cnblogs.com/jiangds/p/6596595.html</a><br><a target="_blank" rel="noopener" href="https://www.w3cschool.cn/uml_tutorial/uml_tutorial-c1gf28pd.html">https://www.w3cschool.cn/uml_tutorial/uml_tutorial-c1gf28pd.html</a>  </p>
+</main>
+
+</article>
+
+
+<script src="/js/highlight.js"></script>
+
+  </main>
+  <footer class="footer">
+  
+  <span>Copyright © 2026 typo</span>
+  
+</footer>
+  
+<script src="/js/theme.js"></script>
+
+</body>
+
+</html>
